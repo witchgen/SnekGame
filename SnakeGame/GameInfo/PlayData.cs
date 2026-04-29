@@ -1,0 +1,37 @@
+﻿using System;
+using static SnakeGame.GameInfo.Enums;
+
+namespace SnakeGame.GameInfo
+{
+    public class PlayData
+    {
+        /// <summary>
+        /// Ранг в таблице рекордов
+        /// </summary>
+        public int Rank { get; set; } = 1;
+        /// <summary>
+        /// Имя игрока
+        /// </summary>
+        public string PlayerName { get; set; }
+        /// <summary>
+        /// Уровень сложности ( 0 - 2 )
+        /// </summary>
+        public Difficulty DifficultyLevel { get; set; }
+        /// <summary>
+        /// Временная метка создания записи
+        /// </summary>
+        public DateTime DtSnapshot { get; set; } = DateTime.UtcNow;
+        /// <summary>
+        /// Набранные очки
+        /// </summary>
+        public int Score { get; set; }
+        /// <summary>
+        /// Последняя длина змеи перед гамовером (включает начальные 3 сегмента)
+        /// </summary>
+        public int MaxSnakeLength { get; set; }
+        /// <summary>
+        /// Причина смерти
+        /// </summary>
+        public GameOverReason DeathReason { get; set; } 
+    }
+}

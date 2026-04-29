@@ -1,0 +1,263 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    
+    xmlns:local="clr-namespace:SnakeGame"
+    
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="SnakeGame.MainPage"
+    x:DataType="local:MainViewModel"
+    Shell.NavBarIsVisible="False"
+    Shell.BackButtonBehavior="{Binding SaveRecordsCommand}">
+    <VerticalStackLayout
+        Padding="16, 10, 16, 0"
+        Spacing="5">
+        <Grid 
+            ColumnDefinitions="*, Auto"
+            InputTransparent="True">
+            <Label
+                Grid.Column="0"
+                x:Name="ScoreCntr"
+                VerticalTextAlignment="Center"
+                HorizontalTextAlignment="Center"
+                Text="{Binding Score}" />
+            <Label 
+                Grid.Column="1"
+                VerticalTextAlignment="Center"
+                HorizontalTextAlignment="Center"
+                TextColor="Red"
+                Text="[Debug active]"
+                IsVisible="{Binding ShowDebugMessage}"/>
+        </Grid>
+        
+        <Border
+            HorizontalOptions="Center"
+            BackgroundColor="#1E1E1E"
+            Stroke="DarkGreen"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="1"
+            Padding="10, 10, 10, 0"
+            Margin="0, 1, 1, 1">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding PauseActiveGameCommand}" NumberOfTapsRequired="1"/>
+            </Border.GestureRecognizers>
+            <Label
+                x:Name="ProtoField"
+                FontSize="15"
+                HorizontalTextAlignment="Center"
+                LineBreakMode="WordWrap"
+                Text="{Binding GameField}"></Label>
+        </Border>
+
+        <Grid
+            IsVisible="{Binding IsStartVisible}"
+            ColumnDefinitions="*, *"
+            RowDefinitions="*, Auto"
+            ColumnSpacing="10"
+            RowSpacing="20">
+            <Button
+                Grid.Column="1"
+                x:Name="StartBtn"
+                Command="{Binding StartGameCommand}"
+                IsVisible="{Binding IsStartVisible}"
+                BackgroundColor="LightGreen"
+                LineBreakMode="WordWrap"
+                Text="{Binding Start}"></Button>
+            <Button
+                Grid.Column="0"
+                x:Name="CancelBtn"
+                Command="{Binding GoBackCommand}"
+                IsVisible="{Binding CanGoBack}"
+                BackgroundColor="#7B1156"
+                LineBreakMode="WordWrap"
+                TextColor="White"
+                Text="Ой, передумал! 🤡🤡🤡"></Button>
+            <Label
+                Grid.Row="1"
+                FontSize="25"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                HorizontalTextAlignment="Center"
+                Text="{Binding DifficultyText}"
+                />
+        </Grid>
+        
+        <Border
+            HorizontalOptions="Fill"
+            IsVisible="{Binding IsDifficultyVisible}"
+            Padding="4, 1, 1, 1"
+            Margin="5"
+            Stroke="DarkGreen"
+            StrokeShape="RoundRectangle 18"
+            StrokeThickness="2">
+            <Grid
+                ColumnDefinitions="Auto, *, Auto">
+                <Label 
+                        VerticalOptions="Center"
+                        Grid.Column="0"
+                        Padding="7, 0, 10, 4"
+                        FontSize="20"
+                        Text="Имя:"/>
+                <Entry 
+                    Grid.Column="1"
+                    MaxLength="80"
+                    FontSize="20"
+                    Margin="0, 0, -1, 0"
+                    VerticalTextAlignment="End"
+                    Placeholder="Анонимус"
+                    HorizontalOptions="Fill"
+                    IsEnabled="{Binding ShowCheckmark}"
+                    BackgroundColor="{Binding NameChangeFldColor}"
+                    TextColor="#66db66"
+                    Text="{Binding PlayerName}"/>
+                <Border
+                    Grid.Column="2"
+                    StrokeShape="RoundRectangle 18"
+                    BackgroundColor="{Binding NameChangeColor}" >
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ChangeNameCommand}" />
+                    </Border.GestureRecognizers>
+                    <StackLayout>
+                        <Image 
+                            Source="pencil_edit.png"
+                            IsVisible="{Binding ShowPencil}"
+                            Margin="12"
+                            WidthRequest="25"
+                            HeightRequest="25"
+                            VerticalOptions="Fill"
+                            HorizontalOptions="Fill" />
+                        <Image 
+                            Source="checkmark.png"
+                            IsVisible="{Binding ShowCheckmark}"
+                            Margin="12"
+                            WidthRequest="25"
+                            HeightRequest="25"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center" />
+                    </StackLayout>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <Label
+            x:Name="DiffLabel"
+            FontSize="18"
+            HorizontalTextAlignment="Center"
+            IsVisible="{Binding IsDifficultyVisible}"
+            Text="😎 Выбери сложность 😎" />
+        <Grid
+            x:Name="DifficultySelect"
+            Padding="0"
+            ColumnSpacing="5"
+            IsVisible="{Binding IsDifficultyVisible}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button
+                x:Name="SelectEasy"
+                Text="{Binding DiffEasyText}"
+                FontSize="14"
+                BackgroundColor="LightGreen"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+                Grid.Column="0"
+                Command="{Binding SelectDifficultyCommand}"
+                CommandParameter="0" />
+            <Button
+                x:Name="SelectNormal"
+                Text="{Binding DiffMediumText}"
+                FontSize="12"
+                BackgroundColor="LightYellow"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+                Grid.Column="1"
+                Command="{Binding SelectDifficultyCommand}"
+                CommandParameter="1" />
+            <Button
+                x:Name="SelectHard"
+                Text="{Binding DiffHardText}"
+                FontSize="13"
+                BackgroundColor="MistyRose"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"
+                Grid.Column="2"
+                Command="{Binding SelectDifficultyCommand}"
+                CommandParameter="2" />
+        </Grid>
+        <Button
+            x:Name="LeaderboardBtn"
+            BackgroundColor="#e2c11d"
+            Command="{Binding GoToRecordsCommand}"
+            IsVisible="{Binding IsDifficultyVisible}"
+            Text="К рекордам 🏆"></Button>
+        <Grid
+            x:Name="Controls"
+            Padding="0"
+            Margin="0"
+            IsVisible="{Binding AreControlsVisible}">
+            <Grid.RowDefinitions>
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+                <RowDefinition
+                    Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+                <ColumnDefinition
+                    Width="*" />
+            </Grid.ColumnDefinitions>
+            <ImageButton
+                Source="upbutton.png"
+                Grid.Row="0"
+                Grid.Column="1"
+                WidthRequest="100"
+                HeightRequest="100"
+                BackgroundColor="Transparent"
+                Command="{Binding SetDirectionCommand}"
+                CommandParameter="{x:Int16 0}"
+                Aspect="AspectFit" />
+            <ImageButton
+                Source="leftbutton.png"
+                Grid.Row="1"
+                Grid.Column="0"
+                WidthRequest="100"
+                HeightRequest="100"
+                BackgroundColor="Transparent"
+                Command="{Binding SetDirectionCommand}"
+                CommandParameter="{x:Int16 2}"
+                Aspect="AspectFit" />
+            <ImageButton
+                Source="downbutton.png"
+                Grid.Row="2"
+                Grid.Column="1"
+                WidthRequest="100"
+                HeightRequest="100"
+                BackgroundColor="Transparent"
+                Command="{Binding SetDirectionCommand}"
+                CommandParameter="{x:Int16 1}"
+                Aspect="AspectFit" />
+            <ImageButton
+                Source="rightbutton.png"
+                Grid.Row="1"
+                Grid.Column="2"
+                WidthRequest="100"
+                HeightRequest="100"
+                BackgroundColor="Transparent"
+                Command="{Binding SetDirectionCommand}"
+                CommandParameter="{x:Int16 3}"
+                Aspect="AspectFit" />  
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

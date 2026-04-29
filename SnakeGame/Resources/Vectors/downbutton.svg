@@ -1,0 +1,25 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+ <defs>
+  <linearGradient y2="1" x2="0" y1="0" x1="0" id="keyTop">
+   <stop stop-color="#f5f5f5" offset="0%"/>
+   <stop stop-color="#d0d0d0" offset="100%"/>
+  </linearGradient>
+  <linearGradient y2="1" x2="0" y1="0" x1="0" id="keySide">
+   <stop stop-color="#b0b0b0" offset="0%"/>
+   <stop stop-color="#808080" offset="100%"/>
+  </linearGradient>
+ </defs>
+ <!-- Стрелка вниз -->
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="602" width="802" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <rect id="svg_1" fill="#202020" ry="4" rx="4" height="52" width="52" y="8" x="6"/>
+  <rect id="svg_2" fill="url(#keySide)" ry="4" rx="4" height="52" width="52" y="4" x="4"/>
+  <rect id="svg_3" fill="url(#keyTop)" ry="4" rx="4" height="44" width="52" y="4" x="4"/>
+  <rect id="svg_4" stroke="#404040" fill="none" ry="4" rx="4" height="51" width="51" y="4.5" x="4.5"/>
+  <path id="svg_5" fill="#202020" d="m19.57581,24.22848l10,12l10,-12l-5,0l0,-8l-10,0l0,8l-5,0z"/>
+ </g>
+</svg>
