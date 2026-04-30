@@ -13,9 +13,13 @@ using Microsoft.Maui.Storage;
 using Microsoft.Maui.Graphics;
 using System.Drawing;
 using Color = Microsoft.Maui.Graphics.Color;
-using SnakeGame.GameInfo;
-using static SnakeGame.GameInfo.Enums;
+using SnakeGame.Models.GameInfo;
+using static SnakeGame.Models.GameInfo.Enums;
 using SnakeGame.Services;
+using System.Diagnostics;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using SnakeGame.Models.Github;
 
 namespace SnakeGame;
 
@@ -23,17 +27,19 @@ public partial class MainViewModel : ObservableObject
 {
     private IGameService _game;
     private IRecordsService _recordsService;
+    private IGithubUpdateService _github;
 
     // Ниже параметры для инпут лага кнопок движения:
     private DateTime? _lastTappedDirection = null;
-    private int _directionTimeoutMs = 200;
+    private int _directionTimeoutMs = 160;
     private int _numberOfTaps = 0;
 
     private GameStatus Status => _game.Status;
 
-    public MainViewModel(IRecordsService recordsService)
+    public MainViewModel(IRecordsService recordsService, IGithubUpdateService github)
     {
         _recordsService = recordsService;
+        _github = github;
 
         // Подрубаем игровой сервис и задаем размеры поля + генерируем карту
         _game = new GameService();
@@ -99,6 +105,46 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _diffHardText = "Джигит 👺"; // Высокая
+
+    [ObservableProperty]
+    public bool _isThereUpdate = false; // Флаг наличия обновы
+
+    [ObservableProperty]
+    public string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
+
+    public async Task CheckForUpdates()
+    {
+        var versionInfo = new ReleaseInfo();
+        try
+        {
+            var newVersionInfo = await _github.CheckForAppUpdates();
+            versionInfo = newVersionInfo;
+            if (newVersionInfo.IsSuccesfulFetch)
+            {
+                var current = AppInfo.Current.Version;
+                var newVersion = Version.Parse(newVersionInfo.Version);
+
+                if (newVersion > current)
+                {
+                    IsThereUpdate = true;
+                }
+                else IsThereUpdate = false;
+            }
+            else
+            {
+                // Здесь уведомить пользователя, что обнов нету
+            }
+        }
+        catch (Exception ex) {
+            // todo: Вывести сообщение
+        }
+    }
+
+    [RelayCommand]
+    public async Task GoGetUpdate()
+    {
+        await Browser.Default.OpenAsync(_updLink, BrowserLaunchMode.SystemPreferred);
+    }
 
     [RelayCommand]
     private void ChangeName() // Задаем текущее имя игрока (будет использовано в записи рекорда)

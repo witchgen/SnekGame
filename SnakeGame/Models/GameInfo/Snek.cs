@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SnakeGame.GameInfo;
+namespace SnakeGame.Models.GameInfo;
 
 /// <summary>
 /// Змеюка наша игровая. Инициализируется координатами головы, состоит из сегментов

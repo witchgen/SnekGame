@@ -1,4 +1,4 @@
-﻿namespace SnakeGame.GameInfo
+﻿namespace SnakeGame.Models.GameInfo
 {
     public class Enums
     {

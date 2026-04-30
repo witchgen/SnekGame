@@ -1,10 +1,10 @@
 ﻿using SnakeGame.Custom;
-using SnakeGame.GameInfo;
+using SnakeGame.Models.GameInfo;
 using System;
 using System.Text;
 using System.Threading.Tasks;
 using static SnakeGame.Custom.CustomExceptions;
-using static SnakeGame.GameInfo.Enums;
+using static SnakeGame.Models.GameInfo.Enums;
 
 namespace SnakeGame.Services;
 

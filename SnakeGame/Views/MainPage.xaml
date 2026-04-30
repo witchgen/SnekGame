@@ -197,6 +197,15 @@
             Command="{Binding GoToRecordsCommand}"
             IsVisible="{Binding IsDifficultyVisible}"
             Text="К рекордам 🏆"></Button>
+        <Button
+            x:Name="UpdateBtn"
+            BackgroundColor="#FF406FBC"
+            Command="{Binding GoGetUpdateCommand}"
+            IsVisible="{Binding IsThereUpdate}"
+            LineBreakMode="WordWrap"
+            TextColor="White"
+            FontAttributes="Bold"
+            Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
         <Grid
             x:Name="Controls"
             Padding="0"

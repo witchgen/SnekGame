@@ -4,7 +4,7 @@ using System.Globalization;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using CommunityToolkit.Maui.Converters;
-using static SnakeGame.GameInfo.Enums;
+using static SnakeGame.Models.GameInfo.Enums;
 
 namespace SnakeGame.Custom
 {

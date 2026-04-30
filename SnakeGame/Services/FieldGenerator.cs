@@ -18,7 +18,7 @@ public interface IFieldGenerator
     int SetInitialSnakePosition(int size);
 }
 
-public class FieldGenerator : IFieldGenerator
+class FieldGenerator : IFieldGenerator
 {
     private static int _size;
     private readonly Random _rnd = new();

@@ -6,8 +6,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.Maui.Storage;
-using static SnakeGame.GameInfo.GameState;
-using SnakeGame.GameInfo;
+using static SnakeGame.Models.GameInfo.GameState;
+using System.Threading;
+using SnakeGame.Models.GameInfo;
 
 namespace SnakeGame.Services;
 
@@ -40,7 +41,7 @@ public interface IRecordsService
     Task LoadFromFile();
 }
 
-public partial class RecordsService : IRecordsService
+partial class RecordsService : IRecordsService
 {
     //private List<GameDataModel> _records = new List<GameDataModel>();
     // Единственная коллекция, на которую подписаны все VM
@@ -49,7 +50,7 @@ public partial class RecordsService : IRecordsService
     // НАЗВАНИЕ ФАЙЛОВ С РЕКОРДАМИ
     private static readonly string _recordsFileName = "records";
 
-    private readonly object _fileLock = new();
+    private readonly SemaphoreSlim _fileLock = new(1, 1);
 
     public async Task AddNewRecordAsync(PlayData data)
     {
@@ -113,13 +114,17 @@ public partial class RecordsService : IRecordsService
     {
         var fileContent = JsonSerializer.Serialize(Records);
 
-        lock(_fileLock)
+        await _fileLock.WaitAsync();
+        try
         {
             var folder = Path.Combine(FileSystem.Current.AppDataDirectory, "PlayerRecords");
             Directory.CreateDirectory(folder);
-            var filePath = Path.Combine(folder, "records.json");
+            var filePath = Path.Combine(folder, $"{_recordsFileName}.json");
 
-            File.WriteAllTextAsync(filePath, fileContent);
+            await File.WriteAllTextAsync(filePath, fileContent);
+        }
+        finally {
+            _fileLock.Release();
         }
     }
 }

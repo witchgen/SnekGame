@@ -1,7 +1,7 @@
 ﻿using System;
-using static SnakeGame.GameInfo.Enums;
+using static SnakeGame.Models.GameInfo.Enums;
 
-namespace SnakeGame.GameInfo
+namespace SnakeGame.Models.GameInfo
 {
     public class PlayData
     {
