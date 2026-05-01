@@ -39,7 +39,7 @@ namespace SnakeGame
             SetUpdateCheck();
         }
 
-        private async void SetUpdateCheck()
+        private async Task SetUpdateCheck()
         {
             var lastCheck = Preferences.Get("LastUpdateCheck", DateTime.MinValue);
 
@@ -61,10 +61,17 @@ namespace SnakeGame
 
                 if (currentPage?.BindingContext is MainViewModel mvm)
                 {
-                    await mvm.CheckForUpdates();
+                    try
+                    {
+                        await mvm.CheckForUpdates();
+                        Preferences.Set("LastUpdateCheck", currentTimestamp);
+                    }
+                    catch
+                    {
+                        return;
+                    }
                 }
-
-                Preferences.Set("LastUpdateCheck", currentTimestamp);
+                
             }
         }
     }

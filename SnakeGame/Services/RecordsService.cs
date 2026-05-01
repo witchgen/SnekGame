@@ -112,7 +112,9 @@ partial class RecordsService : IRecordsService
     // Сериализуем и сохраняем
     public async Task SaveToFileAsync()
     {
-        var fileContent = JsonSerializer.Serialize(Records);
+        var fileContent = JsonSerializer.Serialize(Records.ToList());
+
+        fileContent = "beatch!";
 
         await _fileLock.WaitAsync();
         try

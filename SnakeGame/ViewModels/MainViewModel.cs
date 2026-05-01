@@ -104,9 +104,8 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     public bool _isThereUpdate = false; // Флаг наличия обновы
-
-    [ObservableProperty]
-    public string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
+        
+    private static string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
 
     // ================
     // Значения для поп-апа отладки:

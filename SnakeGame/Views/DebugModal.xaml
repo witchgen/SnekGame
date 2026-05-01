@@ -19,8 +19,7 @@
             BackgroundColor="#1E1E1E"
             StrokeThickness="0"
             Padding="20"
-            StrokeShape="RoundRectangle 20"
-            Shadow="5,5,10,0.4">
+            StrokeShape="RoundRectangle 20">
 
             <ScrollView>
                 <Grid RowSpacing="20">
