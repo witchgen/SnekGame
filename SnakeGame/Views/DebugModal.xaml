@@ -29,6 +29,9 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
@@ -90,6 +93,44 @@
                         OnColor="LightGreen"
                         OffColor="Gray"
                         IsToggled="{Binding IsSnakeAIActive}"/>
+
+                    <!-- Переключатель видимости ползунка скорости игры -->
+                    <Label 
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Text="Задавать скорость игры вручную"
+                        TextColor="White"
+                        VerticalOptions="Center"/>
+
+                    <Switch
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        ThumbColor="AliceBlue"
+                        OnColor="LightGreen"
+                        OffColor="Gray"
+                        IsToggled="{Binding IsGameSpeedSliderActive}"/>
+
+                    <!-- Ползунок скорости игры -->                    
+                    <Slider
+                        x:Name="GameSpeedSlider"
+                        Grid.Row="4"
+                        Grid.ColumnSpan="2"
+                        ThumbColor="AliceBlue"
+                        MinimumTrackColor="DarkOrange"
+                        MaximumTrackColor="CornflowerBlue"
+                        Maximum="650"
+                        Minimum="70"
+                        IsVisible="{Binding IsGameSpeedSliderActive}"
+                        Value="{Binding GameSpeedMs, Mode=TwoWay}"/>
+                    <Label  x:Name="displayLabel"
+                            Grid.Row="5"
+                            Grid.ColumnSpan="2"
+                            IsVisible="{Binding IsGameSpeedSliderActive}"
+                            Text="{Binding GameSpeedMs,
+                                          StringFormat='Текущая скорость: {0:F0} мс'}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
                 </Grid>
             </ScrollView>
         </Border>

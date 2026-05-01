@@ -115,6 +115,10 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     public bool _isSnakeAIActive = false; // Флаг использования змеей "автопилота"
+    [ObservableProperty]
+    public bool _isGameSpeedSliderActive = false;
+    [ObservableProperty]
+    public int _gameSpeedMs = 120;
     // ================
 
     [RelayCommand]
@@ -138,6 +142,16 @@ public partial class MainViewModel : ObservableObject
     partial void OnIsSnakeAIActiveChanged(bool value)
     {
         _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
+    }
+
+    partial void OnIsGameSpeedSliderActiveChanged(bool value)
+    {
+        _game.ToggleCustomSpeedChange(value);
+    }
+
+    partial void OnGameSpeedMsChanged(int value)
+    {
+        _game.SetIngameDebugSpeed(value);
     }
 
     public async Task CheckForUpdates()

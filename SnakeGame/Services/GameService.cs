@@ -68,6 +68,15 @@ public interface IGameService
     /// </summary>
     /// <param name="option">Нужная опция <see cref="DebugOption"/> (будет переключена)</param>
     void ToggleDebugOption(DebugOption option);
+    /// <summary>
+    /// Меняем скорость игры для
+    /// </summary>
+    /// <param name="value">Значение в миллисекундах</param>
+    void SetIngameDebugSpeed(int value);
+    /// <summary>
+    /// Переключить флаг выставления скорости в рамках отладки игры
+    /// </summary>
+    void ToggleCustomSpeedChange(bool value);
 }
 
 public class GameService : IGameService
@@ -88,6 +97,7 @@ public class GameService : IGameService
     // Режим отладки (флаги):
     private bool _highlightBombSpawnArea = false;
     public bool _snakeAiControlled = false;
+    public bool _customSpeedSet = false;
     // Путь ИИ:
     private Queue<(int y, int x)> _currentAIPath = new();
 
@@ -362,9 +372,63 @@ public class GameService : IGameService
             return new SnekSegment(step.y, step.x);
         }
 
+        if(_currentAIPath.Count == 0) // Если и до хвоста не можем найти нормальный путь, сворачиваемся по-максимуму, ищем самый длинный свободный путь
+        {
+            JustStayAliveDFS();
+            if (_currentAIPath.Count == 0) return GetRandomSafeMove(); // Если все совсем-совсем плохо, ходим рандомно
+            var step = _currentAIPath.Dequeue();
+            return new SnekSegment(step.y, step.x);
+        }
+
         //Если и до хвоста не можем найти путь, то делаем случайный шаг в сторону и молимся богу рандома
         var nextHead = GetRandomSafeMove();
         return nextHead;
+    }
+
+    /// <summary>
+    /// Просто живи, змейка! Ищем самый длинный безопасный путь из возможных и следуем ему
+    /// </summary>
+    private void JustStayAliveDFS()
+    {
+        var bestPath = new List<(int y, int x)>();
+        var visited = new Stack<(int y, int x)>();
+
+        void dfs((int y, int x) pos, List<(int y, int x)> path)
+        {
+            visited.Push(pos);
+            path.Add(pos);
+
+            bool deadEnd = true;
+
+            foreach (var (dy, dx) in dirs)
+            {
+                int ny = pos.y + dy;
+                int nx = pos.x + dx;
+
+                if (ny < 0 || ny >= _field.GetLength(0)) continue;
+                if (nx < 0 || nx >= _field.GetLength(1)) continue;
+
+                if (!IsSafeToMoveHere(ny, nx)) continue;
+                if (visited.Contains((ny, nx))) continue;
+
+                deadEnd = false;
+                dfs((ny, nx), path);
+            }
+
+            if (deadEnd) // Больше ходов нет?
+            {
+                if (path.Count > bestPath.Count)
+                    bestPath = new List<(int y, int x)>(path);
+            }
+
+            path.RemoveAt(path.Count - 1);
+            visited.Pop();
+        }
+
+        dfs((_actualHead._y, _actualHead._x), new List<(int y, int x)>());
+
+        // Превращаем bestPath в очередь шагов (без первой клетки — головы)
+        _currentAIPath = new Queue<(int y, int x)>(bestPath);
     }
 
     private SnekSegment GetRandomSafeMove()
@@ -690,5 +754,16 @@ public class GameService : IGameService
                 _snakeAiControlled = !_snakeAiControlled; break;
             default: break;
         }
+    }
+
+    public void SetIngameDebugSpeed(int value)
+    {
+        if (_customSpeedSet && ( value > 69 && value < 651 ) )
+            _speedMs = value;
+    }
+
+    public void ToggleCustomSpeedChange(bool value)
+    {
+        _customSpeedSet = value;
     }
 }
