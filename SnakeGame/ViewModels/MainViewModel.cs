@@ -161,10 +161,12 @@ public partial class MainViewModel : ObservableObject
             else
             {
                 // Здесь уведомить пользователя, что обнов нету
+                return;
             }
         }
         catch (Exception ex) {
             // todo: Вывести сообщение
+            return;
         }
     }
 
@@ -341,7 +343,7 @@ public partial class MainViewModel : ObservableObject
 
     // Считываем нажатие кнопки направления (с задержкой)
     [RelayCommand]
-    private void SetDirection(Int16 newDir)
+    private void SetDirection(int newDir)
     {
         if (Status != GameStatus.Paused)
         {

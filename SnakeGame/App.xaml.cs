@@ -45,7 +45,7 @@ namespace SnakeGame
 
             var currentTimestamp = DateTime.UtcNow;
 
-            if (currentTimestamp - lastCheck <= TimeSpan.FromHours(2))
+            if ((currentTimestamp - lastCheck) >= TimeSpan.FromHours(2))
             {
                 // Получаем текущую страницу из Shell
                 Page? currentPage = null;

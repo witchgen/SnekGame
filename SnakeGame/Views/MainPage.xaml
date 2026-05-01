@@ -248,7 +248,7 @@
                 HeightRequest="100"
                 BackgroundColor="Transparent"
                 Command="{Binding SetDirectionCommand}"
-                CommandParameter="{x:Int16 0}"
+                CommandParameter="{x:Int32 0}"
                 Aspect="AspectFit" />
             <ImageButton
                 Source="leftbutton.png"
@@ -258,7 +258,7 @@
                 HeightRequest="100"
                 BackgroundColor="Transparent"
                 Command="{Binding SetDirectionCommand}"
-                CommandParameter="{x:Int16 2}"
+                CommandParameter="{x:Int32 2}"
                 Aspect="AspectFit" />
             <ImageButton
                 Source="downbutton.png"
@@ -268,7 +268,7 @@
                 HeightRequest="100"
                 BackgroundColor="Transparent"
                 Command="{Binding SetDirectionCommand}"
-                CommandParameter="{x:Int16 1}"
+                CommandParameter="{x:Int32 1}"
                 Aspect="AspectFit" />
             <ImageButton
                 Source="rightbutton.png"
@@ -278,7 +278,7 @@
                 HeightRequest="100"
                 BackgroundColor="Transparent"
                 Command="{Binding SetDirectionCommand}"
-                CommandParameter="{x:Int16 3}"
+                CommandParameter="{x:Int32 3}"
                 Aspect="AspectFit" />  
         </Grid>
     </VerticalStackLayout>
