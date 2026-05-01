@@ -35,7 +35,7 @@ public class SnekSegment
     public int _x { get; set; }
     public int _y { get; set; }
 
-    public SnekSegment(int x, int y) { _x = x; _y = y; }
+    public SnekSegment(int x, int y) { _x = y; _y = x; }
     public SnekSegment(SnekSegment snek) { _x = snek._x; _y = snek._y; }
 
     public SnekSegment Clone() => new SnekSegment(_x, _y);

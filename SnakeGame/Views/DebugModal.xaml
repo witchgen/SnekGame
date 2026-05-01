@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup 
+            xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:local="clr-namespace:SnakeGame"
+            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+            x:Class="SnakeGame.Views.DebugModal"
+            x:DataType="local:MainViewModel"
+            x:Name="DebugPopup"
+            Padding="5"
+            BackgroundColor="#1E1E1E">
+    <Grid
+        HorizontalOptions="Center"
+        VerticalOptions="Center"
+        Padding="0">
+
+        <!-- Модальное окно -->
+        <Border
+            BackgroundColor="#1E1E1E"
+            StrokeThickness="0"
+            Padding="20"
+            StrokeShape="RoundRectangle 20"
+            Shadow="5,5,10,0.4">
+
+            <ScrollView>
+                <Grid RowSpacing="20">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Заголовок -->
+                    <Label 
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Text="Настройки отладки"
+                        FontSize="20"
+                        TextColor="LightGray"
+                        VerticalOptions="Center"/>
+
+                    <!-- Кнопка закрытия -->
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="✖"
+                        FontSize="18"
+                        BackgroundColor="Transparent"
+                        TextColor="Red"
+                        Padding="5"
+                        Command="{Binding CloseDebugPopupCommand}"
+                        CommandParameter="{Binding Source={x:Reference DebugPopup}}"/>
+
+                    <!-- Подсветка бомб -->
+                    <Label 
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Text="Подсвечивать зону спавна бомб"
+                        TextColor="White"
+                        VerticalOptions="Center"/>
+
+                    <Switch
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        ThumbColor="AliceBlue"
+                        OnColor="LightGreen"
+                        OffColor="Gray"
+                        IsToggled="{Binding IsBombHighlightActive}"/>
+
+                    <!-- AI -->
+                    <Label 
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Text="Змея на автопилоте"
+                        TextColor="White"
+                        VerticalOptions="Center"/>
+
+                    <Switch
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        ThumbColor="AliceBlue"
+                        OnColor="LightGreen"
+                        OffColor="Gray"
+                        IsToggled="{Binding IsSnakeAIActive}"/>
+                </Grid>
+            </ScrollView>
+        </Border>
+    </Grid>
+</toolkit:Popup>

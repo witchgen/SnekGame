@@ -10,6 +10,8 @@ public interface IFieldGenerator
     /// <param name="size">Размер поля в клетках (без учета границ)</param>
     /// <returns>Двумерный квадратный массив, инициализированый игровыми элементами, размер size+1</returns>
     int[,] GetNewGameField(int size);
+
+    public (int y, int x) GetFirstApplePosition();
     /// <summary>
     ///  Первичная позиция змеи
     /// </summary>
@@ -21,6 +23,7 @@ public interface IFieldGenerator
 class FieldGenerator : IFieldGenerator
 {
     private static int _size;
+    private (int y, int x) _apple = (1, 1);
     private readonly Random _rnd = new();
 
     public int[,] GetNewGameField(int size)
@@ -53,9 +56,9 @@ class FieldGenerator : IFieldGenerator
 
         field[snakeStart, snakeStart] = 5;
 
-        var apple = SetFirstAppleCoords(field);
+        _apple = SetFirstAppleCoords(field);
 
-        field[apple.Item1, apple.Item2] = 3;
+        field[_apple.Item1, _apple.Item2] = 3;
 
         return field;
     }
@@ -69,11 +72,15 @@ class FieldGenerator : IFieldGenerator
         SetFirstAppleCoords(field) : (y, x);
     }
 
+    public (int y, int x) GetFirstApplePosition()
+    {
+        return _apple;
+    }
+
     public int SetInitialSnakePosition(int size)
     {
         var isEven = size % 2 == 0;
 
         return isEven ? size / 2 : size / 2 + 1;
     }
-
 }

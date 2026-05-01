@@ -1,4 +1,5 @@
-﻿
+﻿using static SnakeGame.Models.GameInfo.Enums;
+
 namespace SnakeGame.Custom;
 
 public static class FieldExtensions
@@ -22,6 +23,21 @@ public static class FieldExtensions
             8 => "💥", // БУМ!
             9 => "🔳", // Debug
             _ => cell.ToString()
+        };
+
+    /// <summary>
+    /// Вспомогательный метод для пресечения возможности задать обратное движение для змеи
+    /// </summary>
+    /// <param name="direction">Целевое направление движения</param>
+    /// <returns>Обратное направление</returns>
+    public static Direction ToOpposite(this Direction direction)
+        => direction switch
+        {
+            Direction.Up => Direction.Down,
+            Direction.Down => Direction.Up,
+            Direction.Left => Direction.Right,
+            Direction.Right => Direction.Left,
+            _ => direction
         };
 
 }

@@ -31,7 +31,14 @@
             Wall,
             BitTail,
             Bomb,
-            Starvation
+            Victory,
+            AIsucker
+        }
+
+        public enum DebugOption
+        {
+            ToggleBombSpawnAreaHighlight,
+            ToggleSnakeAi
         }
     }
 }

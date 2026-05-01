@@ -58,4 +58,9 @@
 	<ItemGroup>
 	  <MauiIcon Include="Resources\AppIcon\snakeappicon.png" ForegroundScale="0.59" Color="#1368C7" />
 	</ItemGroup>
+	<ItemGroup>
+	  <MauiXaml Update="Views\DebugModal.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
 </Project>

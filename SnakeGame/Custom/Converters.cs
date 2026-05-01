@@ -41,6 +41,8 @@ namespace SnakeGame.Custom
             GameOverReason.Wall => "🧱 Не справился с управлением",
             GameOverReason.BitTail => "🐍 Укусил себя за хвост",
             GameOverReason.Bomb => "💥 Бабахнул на славу",
+            GameOverReason.Victory => "😇 Преисполнился в своём познании 😇",
+            GameOverReason.AIsucker => "🤖 Доверил свою жизнь ИИ 🤖",
             _ => "❓ Вознесся на новый уровень бытия"
         };
 

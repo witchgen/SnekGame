@@ -15,21 +15,34 @@
         Padding="16, 10, 16, 0"
         Spacing="5">
         <Grid 
-            ColumnDefinitions="*, Auto"
-            InputTransparent="True">
+            RowDefinitions="*, Auto">
             <Label
-                Grid.Column="0"
+                Grid.Row="0"
                 x:Name="ScoreCntr"
                 VerticalTextAlignment="Center"
                 HorizontalTextAlignment="Center"
                 Text="{Binding Score}" />
-            <Label 
-                Grid.Column="1"
-                VerticalTextAlignment="Center"
-                HorizontalTextAlignment="Center"
-                TextColor="Red"
-                Text="[Debug active]"
-                IsVisible="{Binding ShowDebugMessage}"/>
+            <Border 
+                Grid.Row="1"
+                StrokeShape="RoundRectangle 5"
+                IsVisible="{Binding ShowDebug}"
+                VerticalOptions="Fill"
+                HorizontalOptions="Center"
+                Stroke="Red">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShowDebugOptionsCommand}" />
+                </Border.GestureRecognizers>
+                <Label
+                    Grid.Column="1"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    TextColor="Red"
+                    Padding="3"
+                    Margin="3"
+                    FontSize="12"
+                    Text="Configure debug"/>
+            </Border>
+            
         </Grid>
         
         <Border

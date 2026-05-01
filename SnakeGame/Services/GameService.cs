@@ -1,6 +1,10 @@
-﻿using SnakeGame.Custom;
+﻿//using Android.OS;
+using SnakeGame.Custom;
 using SnakeGame.Models.GameInfo;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static SnakeGame.Custom.CustomExceptions;
@@ -60,9 +64,10 @@ public interface IGameService
     /// <returns></returns>
     GameState GetGameState();
     /// <summary>
-    /// Установить режим отладки (для разработчика)
+    /// Переключаем опции отладки во время игрового процесса
     /// </summary>
-    void SwitchDebugMode();
+    /// <param name="option">Нужная опция <see cref="DebugOption"/> (будет переключена)</param>
+    void ToggleDebugOption(DebugOption option);
 }
 
 public class GameService : IGameService
@@ -74,15 +79,19 @@ public class GameService : IGameService
     private SnekSegment _actualHead; // Хранимая позиция головы змеи
     private Random _rnd = new(); // Бог рандома
     private Direction _direction; // Хранимое направление
+    private Direction? _pendingDirection = null; // Последнее полученное от игрока направление
     public int[,] _field; // Хранимое состояние игрового поля
-    public (int, int) _oldMeat; // Старая позиция бомбы
+    public (int, int) _nextBomb; // Следующая позиция бомбы
     private bool _boom = false; // Взорвались?
+    private bool _canPlaceBombs = true; // Можем ли спавнить бомбы (если закончилось место)
 
-    // Режим отладки:
-    private bool _isDebugModeActive = false;
+    // Режим отладки (флаги):
+    private bool _highlightBombSpawnArea = false;
+    public bool _snakeAiControlled = false;
+    // Путь ИИ:
+    private Queue<(int y, int x)> _currentAIPath = new();
 
-    private bool _gamePaused = false;
-    private GameState _gameState = new GameState() { CurrentGameData = new PlayData() };
+    private GameState _gameState;
 
     // Событие для передачи обновлений поля
     public event EventHandler<string>? FieldUpdated;
@@ -90,27 +99,6 @@ public class GameService : IGameService
 
     private int _speedMs = 500; // Скорость игры (медленная по дефолту)
     private int _diffMultiplier = 1; // Хранимая сложность (низкая по дефолту)
-
-    public void SwitchDebugMode()
-    {
-        _isDebugModeActive = !_isDebugModeActive;
-    }
-
-    public void Pause()
-    {
-        Status = GameStatus.Paused;
-    }
-
-    public void Resume()
-    {
-        Status = GameStatus.Running;
-    }
-
-    public void PauseGame()
-    {
-        Status = GameStatus.Paused;
-        _gamePaused = true;
-    }
 
     // Рисуем игровое поле
     private string DrawField()
@@ -154,16 +142,28 @@ public class GameService : IGameService
     // Первичная инициализация
     public void ResetGame()
     {
-        _gameState = new GameState() { CurrentGameData = new PlayData() };
+        _field = _generator.GetNewGameField(_size);
+        _currentAIPath.Clear();
+
+        _gameState = new GameState() {
+            CurrentGameData = new PlayData()
+        };
 
         _score = 0;
-        _field = _generator.GetNewGameField(_size);
         var initPos = _generator.SetInitialSnakePosition(_size);
+        
+        
+
         _actualHead = new SnekSegment(initPos, initPos);
-        _oldMeat = (1, 1);
+        _nextBomb = (1, 1);
         _boom = false;
 
         FieldUpdated?.Invoke(this, DrawField());
+    }
+
+    public void PauseGame()
+    {
+        Status = GameStatus.Paused;
     }
 
     public GameState GetGameState()
@@ -174,12 +174,22 @@ public class GameService : IGameService
     // Точка входа для игрового процесса новой игры, задаем новое состояние
     public async Task<GameStatus> StartNewGame(GameState state)
     {
-        //ResetGame();
         _gameState = state;
 
         _gameState.SolidSnake = new Snek(_actualHead);
         _direction = Direction.Up;
+        ChangeDirection(_direction);
         _gameState.SnakeHeadPosition = _actualHead;
+        _gameState.BombPosition = (1, 1);
+        // Ищем на поле первое яблоко
+        for (int i = 1; i < _size; i++)
+        {
+            for (int j = 0; j < _size; j++)
+            {
+                if (_field[i, j] == 3)
+                    _gameState.ApplePosition = (i, j);
+            }
+        }
 
         Status = GameStatus.Running;
         return await GameLoop();
@@ -214,7 +224,7 @@ public class GameService : IGameService
                     PlayerName = string.IsNullOrWhiteSpace(_gameState.CurrentGameData.PlayerName) ? "Анонимус" : _gameState.CurrentGameData.PlayerName,
                     DifficultyLevel = (Difficulty)_diffMultiplier,
                     Score = _score,
-                    DeathReason = _gameState.CurrentGameData.DeathReason,
+                    DeathReason = _snakeAiControlled ? GameOverReason.AIsucker : _gameState.CurrentGameData.DeathReason,
                     MaxSnakeLength = _gameState.SolidSnake.body.Count
                 };
 
@@ -232,17 +242,25 @@ public class GameService : IGameService
     private GameStatus Tick()
     {
         var nextHead = new SnekSegment(_actualHead);
+        _gameState.CurrentGameData.WasSnakeAIControlled = _snakeAiControlled;
+        Direction nextDirection = _direction;
 
-        var nextDirection = _direction;
-
-        ChangeDirection(nextDirection);
-
-        switch (nextDirection)
+        if (!_snakeAiControlled)
         {
-            case Direction.Up: nextHead._y--; break;
-            case Direction.Down: nextHead._y++; break;
-            case Direction.Left: nextHead._x--; break;
-            case Direction.Right: nextHead._x++; break;
+            nextDirection = GetPendingSnakeDirection();
+            ChangeDirection(nextDirection);
+
+            switch (nextDirection)
+            {
+                case Direction.Up: nextHead._y--; break;
+                case Direction.Down: nextHead._y++; break;
+                case Direction.Left: nextHead._x--; break;
+                case Direction.Right: nextHead._x++; break;
+            }
+        }
+        else // Если включена отладка, змея ползает сама
+        {
+            nextHead = MoveSmartSnake();
         }
 
         if (IsBombAhead(nextHead)) // Напоролись на бомбу
@@ -268,12 +286,17 @@ public class GameService : IGameService
 
         if (fed)
         {
-            if (_diffMultiplier > 0) // Если сложность выше легкой, с яблоком генерируется новая бомба
+            _currentAIPath.Clear(); // Сброс пути для ИИ змеи, если "яблоко" съедено
+
+            if (_diffMultiplier > 0) // Если сложность выше легкой, с яблоком генерируется новая бомба...
             {
-                _field[_oldMeat.Item1, _oldMeat.Item2] = 0;
-                _oldMeat = GetMeatCoords();
-                _gameState.BombPosition = _oldMeat;
-                _field[_oldMeat.Item1, _oldMeat.Item2] = 7;
+                _field[_gameState.BombPosition.Item1, _gameState.BombPosition.Item2] = 0;
+                _nextBomb = GetBombCoords();
+                if(_canPlaceBombs) // ... но только пока есть место
+                {
+                    _gameState.BombPosition = _nextBomb;
+                    _field[_nextBomb.Item1, _nextBomb.Item2] = 7;
+                }
             }
 
             _score += 100 + (_diffMultiplier * 50);
@@ -286,7 +309,7 @@ public class GameService : IGameService
             }
             catch
             {
-                _gameState.CurrentGameData.DeathReason = GameOverReason.Starvation;
+                _gameState.CurrentGameData.DeathReason = GameOverReason.Victory;
                 return GameStatus.Ended;
             }
         }
@@ -303,26 +326,181 @@ public class GameService : IGameService
         return GameStatus.Running;
     }
 
-    public void ChangeDirection(Direction dir)
+    private SnekSegment MoveSmartSnake()
     {
-        if (_direction != GetOppositeDir(dir)) // Змее нельзя поворачивать "в себя"
-            _direction = dir;
+        // Если старый путь ещё актуален — продолжаем по нему
+        if (_currentAIPath.Count > 0)
+        {
+            var nextStep = _currentAIPath.Peek();
+            // Проверяем, не стала ли следующая клетка препятствием
+            if (IsSafeToMoveHere(nextStep.y, nextStep.x))
+            {
+                _currentAIPath.Dequeue();
+
+                return new SnekSegment(nextStep.y, nextStep.x);
+            }
+            // Если путь заблокирован — сбрасываем и ищем новый
+            _currentAIPath.Clear();
+        }
+
+        // Ищем новый путь
+        _currentAIPath = BFSforTarget(_gameState.ApplePosition);
+
+        if (_currentAIPath.Count > 0)
+        {
+            var step = _currentAIPath.Dequeue();
+            return new SnekSegment(step.y, step.x);
+        }
+
+        // Запасной вариант — идём к хвосту
+        var snekTail = _gameState.SolidSnake.body.Last.Value;
+        _currentAIPath = BFSforTarget((snekTail._y, snekTail._x));
+
+        if (_currentAIPath.Count > 6) // Если путь к хвосту слишком короткий, идем рандомными мувами чтобы с меньшей вероятностью врезаться
+        {            
+            var step = _currentAIPath.Dequeue();
+            return new SnekSegment(step.y, step.x);
+        }
+
+        //Если и до хвоста не можем найти путь, то делаем случайный шаг в сторону и молимся богу рандома
+        var nextHead = GetRandomSafeMove();
+        return nextHead;
+    }
+
+    private SnekSegment GetRandomSafeMove()
+    {
+        var safeMoves = new List<SnekSegment>();
+
+        foreach (var (dy, dx) in dirs)
+        {
+            int ny = _actualHead._y + dy;
+            int nx = _actualHead._x + dx;
+
+            if (IsSafeToMoveHere(ny, nx))
+                safeMoves.Add(new SnekSegment(ny, nx));
+        }
+
+        // Если есть безопасные варианты — выбираем случайный
+        if (safeMoves.Count > 0)
+            return safeMoves[_rnd.Next(safeMoves.Count)];
+
+        // Если вариантов нет, ползем вперед - на верную гибель
+        var (fdy, fdx) = dirs[(int)_direction];
+        return new SnekSegment(_actualHead._y + fdy, _actualHead._x + fdx);
     }
 
     /// <summary>
-    /// Вспомогательный метод для пресечения возможности задать обратное движение для змеи
+    /// Проверяем ближайших соседей клекти в четырех направлениях
     /// </summary>
-    /// <param name="dir">Целевое направление движения</param>
-    /// <returns>Обратное направление</returns>
-    private Direction GetOppositeDir(Direction dir)
-    => dir switch
+    /// <returns>true если встречено препятствие</returns>
+    private bool IsSafeToMoveHere(int y, int x)
     {
-        Direction.Up => Direction.Down,
-        Direction.Down => Direction.Up,
-        Direction.Left => Direction.Right,
-        Direction.Right => Direction.Left,
-        _ => dir,
+        return _field[y, x] is not (1 or 2 or 5 or 7);
+    }
+
+    static readonly (int dy, int dx)[] dirs =
+    {
+        (-1, 0), // верхняя клетка
+        (1, 0),  // нижняя клетка
+        (0, -1), // левая клетка
+        (0, 1)   // правая клетка
     };
+
+    /// <summary>
+    /// Ищем путь к указанной цели
+    /// </summary>
+    /// <param name="desiredCell">Координаты, которые ищем (скорее всего "яблоко" либо хвост)</param>
+    /// <returns>Очередь координат-шагов для пути к цели (пустая если пути не найдено - перекрыт, к примеру)</returns>
+    private Queue<(int y, int x)> BFSforTarget((int y, int x) desiredCell)
+    {
+        var moveQueue = new Queue<(int y, int x)>();
+        moveQueue.Enqueue( (_actualHead._y, _actualHead._x) ); // Голова змеи как стартовая точка
+
+        var ourTail = _gameState.SolidSnake.body.Last.Value;
+
+        var cameFrom = new Dictionary<(int y, int x), (int y, int x)>();
+        cameFrom[(_actualHead._y, _actualHead._x)] = (-1, -1); // без предка (индикатор начала пути)
+
+        while ( moveQueue.Count > 0 )
+        {
+            var (y, x) = moveQueue.Dequeue();
+
+            if (y == desiredCell.y && x == desiredCell.x) // Нашли путь до нашей цели!
+            {
+                return RetracePath(cameFrom, (y, x));
+            }
+
+            foreach(var (dy, dx) in dirs) // Пока идем к цели, записываем пройденные клетки
+            {
+                int neighbor_y = y + dy;
+                int neighbor_x = x + dx;
+
+                // Проверка границ
+                if (neighbor_y < 0 || neighbor_y >= _field.GetLength(0)) continue;
+                if (neighbor_x < 0 || neighbor_x >= _field.GetLength(1)) continue;
+
+                var itsTail = neighbor_y == ourTail._y && neighbor_x == ourTail._x;
+
+                if (/*!itsTail && */!IsSafeToMoveHere(neighbor_y, neighbor_x)) continue;
+
+                if (cameFrom.ContainsKey((neighbor_y, neighbor_x))) continue;
+
+                // Добавляем:
+                moveQueue.Enqueue((neighbor_y, neighbor_x));
+                cameFrom[(neighbor_y, neighbor_x)] = (y, x);
+            }
+        }
+        // Не нашли пути к цели, возвращаем пустой путь:
+        return new Queue<(int, int)>();
+    }
+
+    /// <summary>
+    /// "Отматываем" найденный путь, чтобы змея могла его пройти
+    /// </summary>
+    /// <param name="path">Найденный путь (от финиша)</param>
+    /// <param name="target">Искомая точка (в нашем случае "яблоко")</param>
+    /// <returns>Развернутый в обратную сторону набор координат пути</returns>
+    private Queue<(int, int)> RetracePath(Dictionary<(int y, int x), (int y, int x)> path, (int y, int x) target)
+    {
+        var reversePath = new Stack<(int y, int x)>();
+        var current = target;
+
+        while( path.ContainsKey(current) )
+        {
+            var (y, x) = path[current];
+            if (y == -1 && x == -1) break; // дошли до стартовой точки
+            reversePath.Push(current);
+            current = (y, x);
+        }
+
+        var result = new Queue<(int, int)>();
+        while( reversePath.Count > 0 )
+        {
+            result.Enqueue(reversePath.Pop());
+        }
+
+        return result;
+    }
+
+    public void ChangeDirection(Direction dir)
+    {
+        if( _direction != dir.ToOpposite() )// Змее нельзя поворачивать "в себя"
+        {
+            _pendingDirection = dir;
+        }
+    }
+
+    /// <summary>
+    /// Устанавливаем направление змеи с учетом последней отправленной команды
+    /// </summary>
+    private Direction GetPendingSnakeDirection()
+    {
+        if (_pendingDirection != null)
+        {
+            return _pendingDirection.Value;
+        }
+        else return _direction;
+    }
 
     private bool IsOutOfBounds(SnekSegment head) =>
         head._x < 0 || head._x > _size ||
@@ -337,27 +515,6 @@ public class GameService : IGameService
 
     private bool IsBombAhead(SnekSegment head) => _field[head._y, head._x] == 7;
 
-
-    //private (int, int) GetAppleCoords()
-    //{
-    //    var x = _rnd.Next(1, _size - 1);
-    //    var y = _rnd.Next(1, _size - 1);
-
-    //    var apple = _field[y, x];
-
-    //    for(int i = 0; i <= 3000; i++)
-    //    {
-    //        if (apple == 1 || apple == 2 || apple == 3 || apple == 5 || apple == 7)
-    //        {
-    //            GetAppleCoords();
-    //            i++;
-    //        }
-    //        else return (y, x);
-    //    }
-
-    //    throw new CantPlaceYummyException();
-    //}
-
     private (int y, int x) GetAppleCoords()
     {
         for (int i = 0; i < 1500; i++)
@@ -367,19 +524,40 @@ public class GameService : IGameService
 
             var cell = _field[y, x];
 
-            if (!IsBlocked(cell))
+            if (!IsAppleBlocked(cell) && IsSafeApplePlacement(y, x))
+            {
                 return (y, x);
+            }
         }
 
         throw new CantPlaceItemsException();
     }
 
-    private bool IsBlocked(int cell)
+    private bool IsAppleBlocked(int cell)
     {
         return cell is 1 or 2 or 3 or 5 or 7;
     }
 
-    private (int, int) GetMeatCoords()
+    /// <summary>
+    /// Проверяем, можем ли разместить "яблоко" так, чтобы к нему было хотя бы два подхода (т.е. не в тупике)
+    /// </summary>
+    private bool IsSafeApplePlacement(int y, int x)
+    {
+        int approachDirections = 0;
+
+        foreach (var (dy, dx) in dirs)
+        {
+            int ny = y + dy;
+            int nx = x + dx;
+
+            if (_field[ny, nx] is not (1 or 2 or 5 or 7))
+                approachDirections++;
+        }
+
+        return approachDirections > 1;
+    }
+
+    private (int, int) GetBombCoords()
     {
         for (int i = 0; i < 3000; i++)
         {
@@ -388,14 +566,15 @@ public class GameService : IGameService
 
             var bombCell = _field[y, x];
 
-            var canPlaceBombHere = CheckWindowForBomb(x, y, spot => spot != 5);
+            var canPlaceBombHere = CheckWindowForBomb(y, x, spot => spot != 5);
 
             if (bombCell == 0 && canPlaceBombHere) // Если клетка свободна и не вблизи головы змеи, генерируем там бомбу
                 return (y, x);
         }
-        // Если не нашли подходящего места для бомбы за i попыток, завершаем игру
-        // (Доработать: прекратить генерировать новые бомбы если такое происходит)
-        throw new CantPlaceItemsException();
+        // Если не нашли подходящего места для бомбы за i попыток, перестаем их спавнить
+        // (К этому моменту игрок заслужил спокойно доесть "яблоки" :)
+        _canPlaceBombs = false;
+        return (-1, -1);
     }
 
     /// <summary>
@@ -405,16 +584,16 @@ public class GameService : IGameService
     /// <param name="j">Текущий столбец головы змеи</param>
     /// <param name="predicate">Логическая проверка на требуемую клетку</param>
     /// <returns></returns>
-    bool CheckWindowForBomb(int i, int j, Func<int, bool> predicate)
+    bool CheckWindowForBomb(int y, int x, Func<int, bool> predicate)
     {
         int n = _field.GetLength(0);
         int window = 3; // Размерность подмассива
 
-        int rowStart = Math.Max(0, i - window);
-        int rowEnd = Math.Min(n - 1, i + window);
+        int rowStart = Math.Max(0, y - window);
+        int rowEnd = Math.Min(n - 1, y + window);
 
-        int colStart = Math.Max(0, j - window);
-        int colEnd = Math.Min(n - 1, j + window);
+        int colStart = Math.Max(0, x - window);
+        int colEnd = Math.Min(n - 1, x + window);
 
         for (int r = rowStart; r <= rowEnd; r++)
         {
@@ -441,7 +620,7 @@ public class GameService : IGameService
 
         // Взрыв бомбы!
         if (_boom)
-            { _field[_oldMeat.Item1, _oldMeat.Item2] = 8; }
+            { _field[_nextBomb.Item1, _nextBomb.Item2] = 8; }
 
         _field[_actualHead._y, _actualHead._x] = 6;
     }
@@ -471,7 +650,7 @@ public class GameService : IGameService
         // Голова отдельно
         _field[_actualHead._y, _actualHead._x] = 5;
 
-        if( _isDebugModeActive && _diffMultiplier > 0) // Отладка расположения бомбы
+        if( _highlightBombSpawnArea && _diffMultiplier > 0) // Отладка расположения бомбы
         {
             int n = _field.GetLength(0);
             int window = 2;
@@ -499,5 +678,17 @@ public class GameService : IGameService
     public string GetCurrentScore()
     {
         return _score.ToString();
+    }
+
+    public void ToggleDebugOption(DebugOption option)
+    {
+        switch (option)
+        {
+            case DebugOption.ToggleBombSpawnAreaHighlight:
+                _highlightBombSpawnArea = !_highlightBombSpawnArea; break;
+            case DebugOption.ToggleSnakeAi:
+                _snakeAiControlled = !_snakeAiControlled; break;
+            default: break;
+        }
     }
 }

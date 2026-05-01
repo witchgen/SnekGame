@@ -5,6 +5,7 @@ namespace SnakeGame.Models.GameInfo
 {
     public class PlayData
     {
+        public bool WasSnakeAIControlled { get; set; } = false;
         /// <summary>
         /// Ранг в таблице рекордов
         /// </summary>

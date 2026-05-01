@@ -1,25 +1,20 @@
-﻿using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
-using System.Collections.ObjectModel;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
 using Microsoft.Maui.Graphics;
-using System.Drawing;
-using Color = Microsoft.Maui.Graphics.Color;
+using Microsoft.Maui.Storage;
 using SnakeGame.Models.GameInfo;
-using static SnakeGame.Models.GameInfo.Enums;
-using SnakeGame.Services;
-using System.Diagnostics;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using SnakeGame.Models.Github;
+using SnakeGame.Services;
+using SnakeGame.Views;
+using System;
+using System.Threading.Tasks;
+using static SnakeGame.Models.GameInfo.Enums;
+using Color = Microsoft.Maui.Graphics.Color;
 
 namespace SnakeGame;
 
@@ -31,12 +26,13 @@ public partial class MainViewModel : ObservableObject
 
     // Ниже параметры для инпут лага кнопок движения:
     private DateTime? _lastTappedDirection = null;
-    private int _directionTimeoutMs = 160;
+    private int _directionTimeoutMs = 80;
     private int _numberOfTaps = 0;
-
+    private Popup _debugPopup = new DebugModal();
     private GameStatus Status => _game.Status;
 
-    public MainViewModel(IRecordsService recordsService, IGithubUpdateService github)
+    public MainViewModel(IRecordsService recordsService, 
+        IGithubUpdateService github)
     {
         _recordsService = recordsService;
         _github = github;
@@ -56,7 +52,7 @@ public partial class MainViewModel : ObservableObject
     private string _playerName = Preferences.Default.Get("PlayerName", string.Empty);
 
     [ObservableProperty]
-    private bool _showDebugMessage = false; // Флаг показа сообщения о включенном режиме отладки
+    private bool _showDebug = false; // Флаг отобрадения режима отладки
 
     [ObservableProperty]
     private bool _IsNameChangeEnabled = false; // Флаг переключения режима смены имени (редактировать / подтвердить)
@@ -112,6 +108,38 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
 
+    // ================
+    // Значения для поп-апа отладки:
+    [ObservableProperty]
+    public bool _isBombHighlightActive = false; // Флаг отладки "свободной от бомб" позиции
+
+    [ObservableProperty]
+    public bool _isSnakeAIActive = false; // Флаг использования змеей "автопилота"
+    // ================
+
+    [RelayCommand]
+    public async Task ShowDebugOptions()
+    {
+        _debugPopup.BindingContext = this;
+        Application.Current.MainPage.ShowPopup(_debugPopup);
+    }
+
+    [RelayCommand]
+    public Task CloseDebugPopup(Popup popup)
+    {
+        return popup?.CloseAsync() ?? Task.CompletedTask;
+    }
+
+    partial void OnIsBombHighlightActiveChanged(bool value)
+    {
+        _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
+    }
+
+    partial void OnIsSnakeAIActiveChanged(bool value)
+    {
+        _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
+    }
+
     public async Task CheckForUpdates()
     {
         var versionInfo = new ReleaseInfo();
@@ -141,7 +169,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task GoGetUpdate()
+    private async Task GoGetUpdate()
     {
         await Browser.Default.OpenAsync(_updLink, BrowserLaunchMode.SystemPreferred);
     }
@@ -203,9 +231,7 @@ public partial class MainViewModel : ObservableObject
 
         if ( (Status == GameStatus.Initialized || Status == GameStatus.Ended) && _numberOfTaps > 4 )
         {
-            _game.SwitchDebugMode();
-
-            ShowDebugMessage = !ShowDebugMessage;
+           ShowDebug = !ShowDebug;
             _numberOfTaps = 0;
         }
 
@@ -273,11 +299,11 @@ public partial class MainViewModel : ObservableObject
             return;
 
         if (result == GameStatus.Ended)
-            ShowEndgameScreen();
+            await ShowEndgameScreen();
     }
 
     // Показываем игроку итоги
-    private void ShowEndgameScreen()
+    private async Task ShowEndgameScreen()
     {
         var result = _game.GetGameState().CurrentGameData;
 
@@ -285,11 +311,11 @@ public partial class MainViewModel : ObservableObject
         AreControlsVisible = false;
         IsDifficultyVisible = true;
 
-        Score = result.DeathReason == GameOverReason.Starvation
+        Score = result.DeathReason == GameOverReason.Victory
             ? $"Вкусностей не осталось, твой счёт: {result.Score} очков"
             : $"💀 GG WP, у тебя {result.Score} очков 💀";
 
-        _recordsService.AddNewRecordAsync(result);
+        await _recordsService.AddNewRecordAsync(result);
     }
 
 
