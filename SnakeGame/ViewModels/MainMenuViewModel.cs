@@ -153,16 +153,16 @@ namespace SnakeGame.ViewModels
         {
             var timeBuffer = DateTime.UtcNow;
 
-            if ((timeBuffer - _lastTappedSnapshot).TotalMilliseconds < 2000 && _numberOfTaps >= 4)
+            if ((timeBuffer - _lastTappedSnapshot).TotalMilliseconds < 2000 && _numberOfTaps >= 5)
             {
                 ShowDebug = !ShowDebug;
 
-                _lastTappedSnapshot = DateTime.UtcNow;
                 _numberOfTaps = 0;
             }
             else
             {
-                _numberOfTaps = 0;
+                _lastTappedSnapshot = DateTime.UtcNow;
+                _numberOfTaps++;
             }
         }
     }

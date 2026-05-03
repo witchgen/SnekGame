@@ -50,7 +50,7 @@
             <Button
                 Text="В главное меню"
                 HorizontalOptions="Fill"
-                BackgroundColor="LightGreen"
+                BackgroundColor="#84a98c"
                 Command="{Binding GoBackCommand}" />
             <Label
                 Text="🏆 Рекорды 🏆"

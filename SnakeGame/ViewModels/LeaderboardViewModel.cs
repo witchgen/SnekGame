@@ -58,6 +58,7 @@ public partial class LeaderboardViewModel : ObservableObject
     private void ItemTapped(PlayData record)
     {
         // Обработка нажатия на будущее
-        System.Diagnostics.Debug.WriteLine($"Tapped: {record.PlayerName}");
+        return;
+        //System.Diagnostics.Debug.WriteLine($"Tapped: {record.PlayerName}");
     }
 }

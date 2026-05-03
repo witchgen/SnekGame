@@ -9,7 +9,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="SnakeGame.LegacyGamePage"
     x:DataType="local:LegacyGameViewModel"
-    Shell.NavBarIsVisible="False"
+    
     Shell.BackButtonBehavior="{Binding SaveRecordsCommand}">
     <VerticalStackLayout
         Padding="16, 10, 16, 0"
@@ -17,7 +17,7 @@
         <Button
             Text="В главное меню"
             HorizontalOptions="Fill"
-            BackgroundColor="LightGreen"
+            BackgroundColor="#84a98c"
             Command="{Binding GoBackCommand}" />
         <Grid 
             RowDefinitions="*, Auto">
@@ -27,27 +27,6 @@
                 VerticalTextAlignment="Center"
                 HorizontalTextAlignment="Center"
                 Text="{Binding Score}" />
-            <Border 
-                Grid.Row="1"
-                StrokeShape="RoundRectangle 5"
-                IsVisible="{Binding ShowDebug}"
-                VerticalOptions="Fill"
-                HorizontalOptions="Center"
-                Stroke="Red">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding ShowDebugOptionsCommand}" />
-                </Border.GestureRecognizers>
-                <Label
-                    Grid.Column="1"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="Center"
-                    TextColor="Red"
-                    Padding="3"
-                    Margin="3"
-                    FontSize="12"
-                    Text="Configure debug"/>
-            </Border>
-            
         </Grid>
         
         <Border
@@ -115,6 +94,7 @@
                 Grid.Column="0"
                 Padding="7, 0, 10, 4"
                 FontSize="20"
+                HorizontalTextAlignment="Center"
                 Text="{Binding PlayerName, StringFormat='Имя: {0}'}"/>
         </Border>
         
@@ -168,21 +148,6 @@
                 Command="{Binding SelectDifficultyCommand}"
                 CommandParameter="2" />
         </Grid>
-        <Button
-            x:Name="LeaderboardBtn"
-            BackgroundColor="#e2c11d"
-            Command="{Binding GoToRecordsCommand}"
-            IsVisible="{Binding IsDifficultyVisible}"
-            Text="К рекордам 🏆"></Button>
-        <Button
-            x:Name="UpdateBtn"
-            BackgroundColor="#FF406FBC"
-            Command="{Binding GoGetUpdateCommand}"
-            IsVisible="{Binding IsThereUpdate}"
-            LineBreakMode="WordWrap"
-            TextColor="White"
-            FontAttributes="Bold"
-            Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
         <Grid
             x:Name="Controls"
             Padding="0"

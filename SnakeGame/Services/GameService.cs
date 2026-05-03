@@ -261,7 +261,8 @@ public class GameService : IGameService
         _gameState = state;
 
         _gameState.SolidSnake = new Snek(_actualHead);
-        _direction = Direction.Up;
+        _gameState.CurrentDirection = Direction.Up;
+        _direction = _gameState.CurrentDirection;
         _gameState.GameField = _field;
         ChangeDirection(_direction);
         _gameState.SnakeHeadPosition = _actualHead;
@@ -293,8 +294,11 @@ public class GameService : IGameService
     // Основной игровой цикл змейки
     private async Task<GameStatus> GameLoop()
     {
-        _totalSw = Stopwatch.StartNew();
-        _iterations = new List<long>();
+        if(_snakeAiControlled)
+        {
+            _totalSw = Stopwatch.StartNew();
+            _iterations = new List<long>();
+        }
 
         while (Status == GameStatus.Running)
         {
@@ -318,13 +322,16 @@ public class GameService : IGameService
                     MaxSnakeLength = _gameState.SolidSnake.body.Count
                 };
 
-                _totalSw.Stop();
-                Debug.WriteLine($"===== СТАТИСТИКА =====");
-                Debug.WriteLine($"Всего: {_totalSw.ElapsedMilliseconds} мс");
-                Debug.WriteLine($"Пройдено итераций: {_iterations.Count}");
-                Debug.WriteLine($"Среднее: {_iterations.Average():F1} мс");
-                Debug.WriteLine($"Мин: {_iterations.Min()} мс");
-                Debug.WriteLine($"Макс: {_iterations.Max()} мс");
+                if(_snakeAiControlled )
+                {
+                    _totalSw.Stop();
+                    Debug.WriteLine($"===== СТАТИСТИКА =====");
+                    Debug.WriteLine($"Всего: {_totalSw.ElapsedMilliseconds} мс");
+                    Debug.WriteLine($"Пройдено итераций: {_iterations.Count}");
+                    Debug.WriteLine($"Среднее: {_iterations.Average():F1} мс");
+                    Debug.WriteLine($"Мин: {_iterations.Min()} мс");
+                    Debug.WriteLine($"Макс: {_iterations.Max()} мс");
+                }
 
                 Status = GameStatus.Ended;
                 return GameStatus.Ended;

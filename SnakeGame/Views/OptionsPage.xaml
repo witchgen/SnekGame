@@ -4,13 +4,22 @@
              xmlns:local="clr-namespace:SnakeGame.ViewModels"
              x:DataType="local:OptionsViewModel"
              x:Class="SnakeGame.Views.OptionsPage">
-    <VerticalStackLayout>
-        <Button
+    <Grid
+    Padding="12,8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <VerticalStackLayout
+        Grid.Row="1"
+        Spacing="15">
+            <Button
             Text="В главное меню"
             HorizontalOptions="Fill"
-            BackgroundColor="LightGreen"
+            BackgroundColor="#84a98c"
             Command="{Binding GoBackCommand}" />
-        <Border
+            <Border
             HorizontalOptions="Fill"
             IsVisible="{Binding IsDifficultyVisible}"
             Padding="4, 1, 1, 1"
@@ -20,13 +29,13 @@
             StrokeThickness="2">
                 <Grid
                     ColumnDefinitions="Auto, *, Auto">
-                <Label 
+                    <Label 
                         VerticalOptions="Center"
                         Grid.Column="0"
                         Padding="7, 0, 10, 4"
                         FontSize="20"
                         Text="Имя:"/>
-                <Entry 
+                    <Entry 
                     Grid.Column="1"
                     MaxLength="80"
                     FontSize="20"
@@ -38,15 +47,15 @@
                     BackgroundColor="{Binding NameChangeFldColor}"
                     TextColor="#66db66"
                     Text="{Binding PlayerName}"/>
-                <Border
+                    <Border
                     Grid.Column="2"
                     StrokeShape="RoundRectangle 18"
                     BackgroundColor="{Binding NameChangeColor}" >
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ChangeNameCommand}" />
-                            </Border.GestureRecognizers>
-                    <StackLayout>
-                        <Image 
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ChangeNameCommand}" />
+                        </Border.GestureRecognizers>
+                        <StackLayout>
+                            <Image 
                             Source="pencil_edit.png"
                             IsVisible="{Binding ShowPencil}"
                             Margin="12"
@@ -54,7 +63,7 @@
                             HeightRequest="25"
                             VerticalOptions="Fill"
                             HorizontalOptions="Fill" />
-                        <Image 
+                            <Image 
                             Source="checkmark.png"
                             IsVisible="{Binding ShowCheckmark}"
                             Margin="12"
@@ -62,9 +71,10 @@
                             HeightRequest="25"
                             VerticalOptions="Center"
                             HorizontalOptions="Center" />
-                    </StackLayout>
-                </Border>
-            </Grid>
-        </Border>
-    </VerticalStackLayout>
+                        </StackLayout>
+                    </Border>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

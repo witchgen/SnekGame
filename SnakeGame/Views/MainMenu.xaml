@@ -9,7 +9,7 @@
         <Grid
             HorizontalOptions="Center"
             VerticalOptions="Fill"
-            RowDefinitions="*, *">
+            RowDefinitions="*, *, *">
             <VerticalStackLayout
                     Grid.Row="0"
                     Margin="20"
@@ -20,7 +20,7 @@
                     FontSize="72"
                     HorizontalOptions="Center">
                     <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding AppointDebugOptionsCommand}" />
+                        <TapGestureRecognizer Command="{Binding AppointDebugOptionsCommand}" NumberOfTapsRequired="1" />
                     </Label.GestureRecognizers>
                 </Label>
                 <Label 
@@ -46,35 +46,51 @@
                     VerticalOptions="Center"
                     Text="К рекордам 🏆"></Button>
                 <Button 
-                    Text="Настройки 🛠️"
-                    BackgroundColor="#38a3a5"
-                    Command="{Binding GoToOptionsCommand}"
+                        Text="Настройки 🛠️"
+                        BackgroundColor="#38a3a5"
+                        Command="{Binding GoToOptionsCommand}"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Center"
+                        FontSize="22"/>
+                <Button
+                    Text="Отладка"
+                    TextColor="Red"
+                    IsVisible="{Binding ShowDebug}"
+                    Command="{Binding ShowDebugOptionsCommand}"
+                    FontSize="18"
+                    BackgroundColor="Transparent"
+                    BorderColor="Red"
                     HorizontalOptions="Fill"
                     VerticalOptions="Center"
-                    FontSize="22"/>
+                    BorderWidth="3"/>
+                
             </VerticalStackLayout>
-            <!--<BoxView Grid.Row="1" HeightRequest="100" BackgroundColor="Transparent" VerticalOptions="Fill" />-->
+            <BoxView Grid.Row="1" HeightRequest="10" BackgroundColor="Transparent" VerticalOptions="Fill" />
             <VerticalStackLayout
-                Grid.Row="1"
-                Margin="20"
-                Padding="50, 100, 50, 20">
-                <Button
-                    x:Name="UpdateBtn"
-                    BackgroundColor="#22577a"
-                    Command="{Binding GoGetUpdateCommand}"
-                    IsVisible="{Binding IsThereUpdate}"
-                    VerticalOptions="End"
-                    HorizontalOptions="Fill"
-                    FontSize="20"
-                    LineBreakMode="WordWrap"
-                    TextColor="AliceBlue"
-                    Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
+                Grid.Row="2"
+                Padding="16"
+                Spacing="15"
+                Margin="20">
                 <Label 
                     TextColor="#888"
                     FontSize="22"
                     HorizontalTextAlignment="Center"
                     Text="{Binding CurrentVersion,
                             StringFormat='v{0}'}"/>
+                <Button
+                    BorderColor="AliceBlue"
+                    BorderWidth="2"
+                    x:Name="UpdateBtn"
+                    BackgroundColor="#22577a"
+                    Command="{Binding GoGetUpdateCommand}"
+                    IsVisible="True"
+                    VerticalOptions="End"
+                    HorizontalOptions="Fill"
+                    FontSize="17"
+                    LineBreakMode="WordWrap"
+                    TextColor="AliceBlue"
+                    Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
+                
             </VerticalStackLayout>
         </Grid>
     </VerticalStackLayout>
