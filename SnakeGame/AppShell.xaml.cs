@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls;
+using SnakeGame.Views;
 
 namespace SnakeGame
 {
@@ -11,7 +9,9 @@ namespace SnakeGame
         {
             InitializeComponent();
 
-            Routing.RegisterRoute("MainPage", typeof(MainPage));
+            Routing.RegisterRoute("MainMenu", typeof(MainMenu));
+            Routing.RegisterRoute("Options", typeof(Options));
+            Routing.RegisterRoute("LegacyGamePage", typeof(LegacyGamePage));
             Routing.RegisterRoute("LeaderboardsPage", typeof(LeaderboardsPage));
         }
     }

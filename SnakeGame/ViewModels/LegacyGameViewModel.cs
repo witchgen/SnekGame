@@ -18,29 +18,24 @@ using Color = Microsoft.Maui.Graphics.Color;
 
 namespace SnakeGame;
 
-public partial class MainViewModel : ObservableObject
+public partial class LegacyGameViewModel : ObservableObject
 {
     private IGameService _game;
     private IRecordsService _recordsService;
-    private IGithubUpdateService _github;
 
     // Ниже параметры для инпут лага кнопок движения:
     private DateTime? _lastTappedDirection = null;
     private int _directionTimeoutMs = 80;
     private int _numberOfTaps = 0;
-    private Popup _debugPopup = new DebugModal();
     private GameStatus Status => _game.Status;
 
-    public MainViewModel( IGameService game,
-        IRecordsService recordsService, 
-        IGithubUpdateService github)
+    public LegacyGameViewModel( IGameService game,
+        IRecordsService recordsService)
     {
         _game = game;
         _recordsService = recordsService;
-        _github = github;
 
         //// Подрубаем игровой сервис и задаем размеры поля + генерируем карту
-        //_game = new GameService();
         _game.FieldUpdated += OnFieldUpdated;
         _game.InitializeNewGame(14);
 
@@ -53,8 +48,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _playerName = Preferences.Default.Get("PlayerName", string.Empty);
 
-    [ObservableProperty]
-    private bool _showDebug = false; // Флаг отобрадения режима отладки
+    //[ObservableProperty]
+    //private bool _showDebug = false; // Флаг отобрадения режима отладки
 
     [ObservableProperty]
     private bool _IsNameChangeEnabled = false; // Флаг переключения режима смены имени (редактировать / подтвердить)
@@ -104,68 +99,68 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _diffHardText = "Джигит 👺"; // Высокая
 
-    [ObservableProperty]
-    public bool _isThereUpdate = false; // Флаг наличия обновы
+    //[ObservableProperty]
+    //public bool _isThereUpdate = false; // Флаг наличия обновы
 
-    [ObservableProperty]
-    public string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
+    //[ObservableProperty]
+    //public string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
 
     // ================
     // Значения для поп-апа отладки:
-    [ObservableProperty]
-    public bool _isBombHighlightActive; // Флаг отладки "свободной от бомб" позиции
-    [ObservableProperty]
-    public bool _isSnakeAIActive; // Флаг использования змеей "автопилота"
-    [ObservableProperty]
-    public bool _isGameSpeedSliderActive; // Флаг показа ползунка скорости игры
-    [ObservableProperty]
-    public bool _isAIPathVisible; // Флаг показа построения пути ИИ
-    [ObservableProperty]
-    public int _gameSpeedMs = 120;
+    //[ObservableProperty]
+    //public bool _isBombHighlightActive; // Флаг отладки "свободной от бомб" позиции
+    //[ObservableProperty]
+    //public bool _isSnakeAIActive; // Флаг использования змеей "автопилота"
+    //[ObservableProperty]
+    //public bool _isGameSpeedSliderActive; // Флаг показа ползунка скорости игры
+    //[ObservableProperty]
+    //public bool _isAIPathVisible; // Флаг показа построения пути ИИ
+    //[ObservableProperty]
+    //public int _gameSpeedMs = 120;
     // ================
 
-    [RelayCommand]
-    public async Task ShowDebugOptions()
-    {
-        _debugPopup.BindingContext = this;
-        Application.Current.MainPage.ShowPopup(_debugPopup);
-    }
+    //[RelayCommand]
+    //public async Task ShowDebugOptions()
+    //{
+    //    _debugPopup.BindingContext = this;
+    //    Application.Current.MainPage.ShowPopup(_debugPopup);
+    //}
 
-    [RelayCommand]
-    public Task CloseDebugPopup(Popup popup)
-    {
-        return popup?.CloseAsync() ?? Task.CompletedTask;
-    }
+    //[RelayCommand]
+    //public Task CloseDebugPopup(Popup popup)
+    //{
+    //    return popup?.CloseAsync() ?? Task.CompletedTask;
+    //}
 
-    partial void OnIsBombHighlightActiveChanged(bool value)
-    {
-        _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
-        Preferences.Set("BombHighlightToggled", value);
-    }
+    //partial void OnIsBombHighlightActiveChanged(bool value)
+    //{
+    //    _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
+    //    Preferences.Set("BombHighlightToggled", value);
+    //}
 
-    partial void OnIsSnakeAIActiveChanged(bool value)
-    {
-        _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
-        Preferences.Set("SnakeAIToggled", value);
-    }
+    //partial void OnIsSnakeAIActiveChanged(bool value)
+    //{
+    //    _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
+    //    Preferences.Set("SnakeAIToggled", value);
+    //}
 
-    partial void OnIsAIPathVisibleChanged(bool value)
-    {
-        _game.ToggleDebugOption(DebugOption.DrawAIpath);
-        Preferences.Set("DebugAIPathToggled", value);
-    }
+    //partial void OnIsAIPathVisibleChanged(bool value)
+    //{
+    //    _game.ToggleDebugOption(DebugOption.DrawAIpath);
+    //    Preferences.Set("DebugAIPathToggled", value);
+    //}
 
-    partial void OnIsGameSpeedSliderActiveChanged(bool value)
-    {
-        _game.ToggleCustomSpeedChange(value);
-        _game.SetIngameDebugSpeed(GameSpeedMs);
-        Preferences.Set("CustomGameSpeedEnabled", value);
-    }
+    //partial void OnIsGameSpeedSliderActiveChanged(bool value)
+    //{
+    //    _game.ToggleCustomSpeedChange(value);
+    //    _game.SetIngameDebugSpeed(GameSpeedMs);
+    //    Preferences.Set("CustomGameSpeedEnabled", value);
+    //}
 
-    partial void OnGameSpeedMsChanged(int value)
-    {
-        _game.SetIngameDebugSpeed(value);
-    }
+    //partial void OnGameSpeedMsChanged(int value)
+    //{
+    //    _game.SetIngameDebugSpeed(value);
+    //}
 
     // Метод инициализации при старте
     public async Task InitializeAsync()
@@ -175,47 +170,19 @@ public partial class MainViewModel : ObservableObject
         bool savedStateAIEnabled = Preferences.Get("SnakeAIToggled", false);
         bool savedStateCustomSpeed = Preferences.Get("CustomGameSpeedEnabled", false);
         bool savedStateAIDebugPath = Preferences.Get("DebugAIPathToggled", false);
+        int savedStateInGameSpeed = Preferences.Get("LegacySpeed", 220);
 
-        // Устанавливаем свойства (триггерит логику игрового сервиса)
-        IsBombHighlightActive = savedStateBombHighlight;
-        IsSnakeAIActive = savedStateAIEnabled;
-        IsAIPathVisible = savedStateAIDebugPath;
-        IsGameSpeedSliderActive = savedStateCustomSpeed;
-    }
-
-    public async Task CheckForUpdates()
-    {
-        var versionInfo = new ReleaseInfo();
-        try
+        if(savedStateCustomSpeed)
         {
-            var newVersionInfo = await _github.CheckForAppUpdates();
-            versionInfo = newVersionInfo;
-            if (newVersionInfo.IsSuccesfulFetch)
-            {
-                var current = AppInfo.Current.Version;
-                var newVersion = Version.Parse(newVersionInfo.Version);
-
-                if (newVersion > current)
-                {
-                    IsThereUpdate = true;
-                }
-                else IsThereUpdate = false;
-            }
-            else
-            {
-                // Здесь уведомить пользователя, что обнов нету
-            }
+            _game.ToggleCustomSpeedChange(savedStateCustomSpeed);
+            _game.SetIngameDebugSpeed(savedStateInGameSpeed);
         }
-        catch (Exception ex) {
-            // todo: Вывести сообщение
-        }
+        if (savedStateBombHighlight) _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
+        if (savedStateAIEnabled) _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
+        if (savedStateAIDebugPath) _game.ToggleDebugOption(DebugOption.DrawAIpath);
     }
 
-    [RelayCommand]
-    private async Task GoGetUpdate()
-    {
-        await Browser.Default.OpenAsync(_updLink, BrowserLaunchMode.SystemPreferred);
-    }
+
 
     [RelayCommand]
     private void ChangeName() // Задаем текущее имя игрока (будет использовано в записи рекорда)
@@ -270,14 +237,6 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task PauseActiveGame()
     {
-        _numberOfTaps++;
-
-        if ( (Status == GameStatus.Initialized || Status == GameStatus.Ended) && _numberOfTaps > 4 )
-        {
-           ShowDebug = !ShowDebug;
-            _numberOfTaps = 0;
-        }
-
         if (Status == GameStatus.Running)
         {
             _game.PauseGame();

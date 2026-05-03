@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:SnakeGame.ViewModels"
+             x:Class="SnakeGame.Views.MainMenu"
+             x:DataType="local:MainMenuViewModel">
+    <VerticalStackLayout>
+        <Grid
+            VerticalOptions="Center"
+            HorizontalOptions="Center">
+            <VerticalStackLayout
+                    Spacing="16"
+                    HorizontalOptions="Center">
+                <Label
+                    Text="🐍"
+                    FontSize="72"
+                    HorizontalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AppointDebugOptionsCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label 
+                    Text="{Binding Greeting}"
+                    FontSize="30"
+                    TextColor="Green"
+                    HorizontalOptions="Center"/>
+                <Button 
+                    Text="К игре!"
+                    BackgroundColor="Salmon"
+                    Command="{Binding GoToLegacyGameCommand}"
+                    FontSize="22"/>
+                <Button
+                    x:Name="LeaderboardBtn"
+                    BackgroundColor="#e2c11d"
+                    Command="{Binding GoToRecordsCommand}"
+                    FontSize="22"
+                    Text="К рекордам 🏆"></Button>
+                <Button
+                    x:Name="UpdateBtn"
+                    BackgroundColor="#FF406FBC"
+                    Command="{Binding GoGetUpdateCommand}"
+                    IsVisible="{Binding IsThereUpdate}"
+                    VerticalOptions="End"
+                    LineBreakMode="WordWrap"
+                    TextColor="AliceBlue"
+                    FontAttributes="Bold"
+                    Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
+            </VerticalStackLayout>
+        </Grid>
+    </VerticalStackLayout>
+</ContentPage>

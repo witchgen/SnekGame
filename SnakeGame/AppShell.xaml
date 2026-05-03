@@ -10,9 +10,13 @@
     x:Class="SnakeGame.AppShell"
     Shell.FlyoutBehavior="Disabled">
     <ShellContent
-        Route="MainPage"
-        Title="Змея подколодная BETA"
-        ContentTemplate="{DataTemplate local:MainPage}" />
+        Route="MainMenu"
+        Title="Змея подколодная"
+        ContentTemplate="{DataTemplate local:MainMenu}" />
+    <ShellContent
+        Route="LegacyGamePage"
+        Title="Змеюка Легаси"
+        ContentTemplate="{DataTemplate local:LegacyGamePage}" />
     <ShellContent
         Title="Рекорды"
         Route="LeaderboardsPage"

@@ -7,8 +7,8 @@
     xmlns:local="clr-namespace:SnakeGame"
     
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="SnakeGame.MainPage"
-    x:DataType="local:MainViewModel"
+    x:Class="SnakeGame.LegacyGamePage"
+    x:DataType="local:LegacyGameViewModel"
     Shell.NavBarIsVisible="False"
     Shell.BackButtonBehavior="{Binding SaveRecordsCommand}">
     <VerticalStackLayout

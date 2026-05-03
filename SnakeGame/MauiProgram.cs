@@ -3,6 +3,7 @@ using Microsoft.Maui.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using CommunityToolkit.Maui;
 using SnakeGame.Services;
+using SnakeGame.ViewModels;
 //using MauiLib;
 
 
@@ -27,8 +28,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<IBigThinkSnakeService, BigThinkSnakeService>();
         builder.Services.AddSingleton<IRecordsService, RecordsService>();
         builder.Services.AddSingleton<IGithubUpdateService, GithubUpdateService>();
-        builder.Services.AddTransient<MainViewModel>();
-        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<LegacyGameViewModel>();
+        builder.Services.AddTransient<MainMenuViewModel>();
+        builder.Services.AddTransient<LegacyGamePage>();
         builder.Services.AddTransient<LeaderboardsPage>();
         builder.Services.AddTransient<LeaderboardViewModel>();
 
