@@ -1,5 +1,5 @@
 ## SNEK
-![snake_animation](https://github.com/user-attachments/assets/24f4c5ec-0dbd-4dbd-a8a4-42ebccb7806c)
+![snake_animation](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ2oyNXBhYzM2ODU3YnV1cnVnczF6dGRlZHY2NmphYmdjZndkaG94YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DX8lt0tmSsyd1rIlJ1/giphy.gif)
 
 Android-приложение, разработанное в рамках изучения возможностей фреймфорка **MAUI** и просто по фану.
 Включает в себя:
