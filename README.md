@@ -1,2 +1,15 @@
-# SnekGame
-My tiny hobby project dedicated to learing MAUI framework. Aims to provide cool classic gameplay and hopefully some nice features
+## SNEK
+![snake_animation](https://github.com/user-attachments/assets/24f4c5ec-0dbd-4dbd-a8a4-42ebccb7806c)
+
+Android-приложение, разработанное в рамках изучения возможностей фреймфорка **MAUI** и просто по фану.
+Включает в себя:
+- Синглплеер (с настраиваемой сложностью);
+- Режим ИИ-змеебота (Work In Progress);
+- Таблицу рекордов с возможнсотью задать имя текущего игрока;
+  
+Планируется добавить:
+- Систему записи и воспроизведения реплеев;
+- Мультиплеер (локальная сеть, P2P);
+- Систему приглашений через TG-бота;
+- Больше режимов игры;
+- Расширенные возможности отладки и настройки ИИ для змейки
