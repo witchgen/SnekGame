@@ -7,17 +7,23 @@ using System.Text;
 
 namespace SnakeGame
 {
-    public partial class MainPage : ContentPage
+    public partial class LegacyGamePage : ContentPage
     {
-        public MainPage(MainViewModel mvm)
+        public LegacyGamePage(LegacyGameViewModel mvm)
         {
             InitializeComponent();
             BindingContext = mvm;
         }
 
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await (BindingContext as LegacyGameViewModel)?.InitializeAsync();
+        }
+
         protected override bool OnBackButtonPressed()
         {
-            if(BindingContext is MainViewModel mvm)
+            if(BindingContext is LegacyGameViewModel mvm)
             {
                 mvm.ForcePauseFromSystem();
 

@@ -98,8 +98,16 @@ partial class RecordsService : IRecordsService
             return;
         }
 
-        var loaded = JsonSerializer.Deserialize<List<PlayData>>(data);
-        if (loaded == null) return;
+        List<PlayData> loaded = new();
+        try
+        {
+            loaded = JsonSerializer.Deserialize<List<PlayData>>(data);
+            if (loaded == null) return;
+        }
+        catch(JsonException)
+        {
+            return;
+        }
 
         Records.Clear();
 
@@ -113,8 +121,6 @@ partial class RecordsService : IRecordsService
     public async Task SaveToFileAsync()
     {
         var fileContent = JsonSerializer.Serialize(Records.ToList());
-
-        fileContent = "beatch!";
 
         await _fileLock.WaitAsync();
         try

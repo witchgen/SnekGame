@@ -5,16 +5,32 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     
     xmlns:local="clr-namespace:SnakeGame"
+    xmlns:vm="clr-namespace:SnakeGame.Views"
     
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="SnakeGame.AppShell"
     Shell.FlyoutBehavior="Disabled">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" />
+    </Shell.BackButtonBehavior>
     <ShellContent
-        Route="MainPage"
-        Title="Змея подколодная BETA"
-        ContentTemplate="{DataTemplate local:MainPage}" />
+        Route="MainMenu"
+        Title="Змея подколодная"
+        Shell.NavBarIsVisible="False"
+        ContentTemplate="{DataTemplate vm:MainMenu}" />
+    <ShellContent
+        Route="OptionsPage"
+        Title="Настройки"
+        Shell.NavBarIsVisible="False"
+        ContentTemplate="{DataTemplate vm:OptionsPage}" />
+    <ShellContent
+        Route="LegacyGamePage"
+        Title="Змеюка Легаси"
+        Shell.NavBarIsVisible="False"
+        ContentTemplate="{DataTemplate local:LegacyGamePage}" />
     <ShellContent
         Title="Рекорды"
         Route="LeaderboardsPage"
+        Shell.NavBarIsVisible="False"
         ContentTemplate="{DataTemplate local:LeaderboardsPage}" />
 </Shell>

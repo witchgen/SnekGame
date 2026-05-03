@@ -14,31 +14,27 @@ using SnakeGame.Views;
 using System;
 using System.Threading.Tasks;
 using static SnakeGame.Models.GameInfo.Enums;
-using Color = Microsoft.Maui.Graphics.Color;
 
 namespace SnakeGame;
 
-public partial class MainViewModel : ObservableObject
+public partial class LegacyGameViewModel : ObservableObject
 {
     private IGameService _game;
     private IRecordsService _recordsService;
-    private IGithubUpdateService _github;
 
     // Ниже параметры для инпут лага кнопок движения:
     private DateTime? _lastTappedDirection = null;
     private int _directionTimeoutMs = 80;
     private int _numberOfTaps = 0;
-    private Popup _debugPopup = new DebugModal();
     private GameStatus Status => _game.Status;
 
-    public MainViewModel(IRecordsService recordsService, 
-        IGithubUpdateService github)
+    public LegacyGameViewModel(IGameService game,
+        IRecordsService recordsService)
     {
+        _game = game;
         _recordsService = recordsService;
-        _github = github;
 
-        // Подрубаем игровой сервис и задаем размеры поля + генерируем карту
-        _game = new GameService();
+        //// Подрубаем игровой сервис и задаем размеры поля + генерируем карту
         _game.FieldUpdated += OnFieldUpdated;
         _game.InitializeNewGame(14);
 
@@ -50,21 +46,6 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _playerName = Preferences.Default.Get("PlayerName", string.Empty);
-
-    [ObservableProperty]
-    private bool _showDebug = false; // Флаг отобрадения режима отладки
-
-    [ObservableProperty]
-    private bool _IsNameChangeEnabled = false; // Флаг переключения режима смены имени (редактировать / подтвердить)
-
-    [ObservableProperty]
-    private bool _showPencil = true; // флаг иконки картинки "Редактировать"
-
-    [ObservableProperty]
-    private bool _showCheckmark = false; // Флаг иконки "Подтвердить"
-
-    [ObservableProperty]
-    private Color _nameChangeColor = Color.FromRgba("#e2c11d");
 
     [ObservableProperty]
     private string _gameField = string.Empty; // Видимое игровое поле
@@ -102,95 +83,34 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _diffHardText = "Джигит 👺"; // Высокая
 
-    [ObservableProperty]
-    public bool _isThereUpdate = false; // Флаг наличия обновы
-        
-    private static string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
-
-    // ================
-    // Значения для поп-апа отладки:
-    [ObservableProperty]
-    public bool _isBombHighlightActive = false; // Флаг отладки "свободной от бомб" позиции
-
-    [ObservableProperty]
-    public bool _isSnakeAIActive = false; // Флаг использования змеей "автопилота"
-    // ================
-
-    [RelayCommand]
-    public async Task ShowDebugOptions()
+    // Метод инициализации при старте
+    public async Task InitializeAsync()
     {
-        _debugPopup.BindingContext = this;
-        Application.Current.MainPage.ShowPopup(_debugPopup);
-    }
+        // Загружаем сохранённые значения
+        bool savedStateBombHighlight = Preferences.Get("BombHighlightToggled", false);
+        bool savedStateAIEnabled = Preferences.Get("SnakeAIToggled", false);
+        bool savedStateCustomSpeed = Preferences.Get("CustomGameSpeedEnabled", false);
+        bool savedStateAIDebugPath = Preferences.Get("DebugAIPathToggled", false);
+        int savedStateInGameSpeed = Preferences.Get("LegacySpeed", 220);
 
-    [RelayCommand]
-    public Task CloseDebugPopup(Popup popup)
-    {
-        return popup?.CloseAsync() ?? Task.CompletedTask;
-    }
-
-    partial void OnIsBombHighlightActiveChanged(bool value)
-    {
-        _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
-    }
-
-    partial void OnIsSnakeAIActiveChanged(bool value)
-    {
-        _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
-    }
-
-    public async Task CheckForUpdates()
-    {
-        var versionInfo = new ReleaseInfo();
-        try
+        if(savedStateCustomSpeed)
         {
-            var newVersionInfo = await _github.CheckForAppUpdates();
-            versionInfo = newVersionInfo;
-            if (newVersionInfo.IsSuccesfulFetch)
-            {
-                var current = AppInfo.Current.Version;
-                var newVersion = Version.Parse(newVersionInfo.Version);
-
-                if (newVersion > current)
-                {
-                    IsThereUpdate = true;
-                }
-                else IsThereUpdate = false;
-            }
-            else
-            {
-                // Здесь уведомить пользователя, что обнов нету
-                return;
-            }
+            _game.ToggleCustomSpeedChange(savedStateCustomSpeed);
+            _game.SetIngameDebugSpeed(savedStateInGameSpeed);
         }
-        catch (Exception ex) {
-            // todo: Вывести сообщение
-            return;
-        }
-    }
-
-    [RelayCommand]
-    private async Task GoGetUpdate()
-    {
-        await Browser.Default.OpenAsync(_updLink, BrowserLaunchMode.SystemPreferred);
-    }
-
-    [RelayCommand]
-    private void ChangeName() // Задаем текущее имя игрока (будет использовано в записи рекорда)
-    {
-        var buffer = NameChangeColor;
-
-        ShowPencil = !ShowPencil;
-        ShowCheckmark = !ShowCheckmark;
-
-        NameChangeColor = ShowCheckmark ? Color.FromRgba("#6bb86b") : Color.FromRgba("#e2c11d");
-        //NameChangeEditImageSrc = IsNameChangeEnabled ? "checkmark.png" : "pencil.edit.png";
-        
-        if (!string.IsNullOrWhiteSpace(PlayerName))
+        else
         {
-            Preferences.Default.Set("PlayerName", PlayerName);
+            _game.ToggleCustomSpeedChange(false);
         }
-        SetStartBtnText();
+        _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight, savedStateBombHighlight);
+        _game.ToggleDebugOption(DebugOption.ToggleSnakeAi, savedStateAIEnabled);
+        _game.ToggleDebugOption(DebugOption.DrawAIpath, savedStateAIDebugPath);
+    }
+
+    [RelayCommand]
+    private async Task GoBack() // Возвращаемся на предыдущуюю страницу в стеке Shell
+    {
+        await Shell.Current.GoToAsync("..");
     }
 
     [RelayCommand]
@@ -218,7 +138,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void GoBack()
+    private void CancelGame()
     {
         IsStartVisible = false;
         IsDifficultyVisible = true;
@@ -228,14 +148,6 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task PauseActiveGame()
     {
-        _numberOfTaps++;
-
-        if ( (Status == GameStatus.Initialized || Status == GameStatus.Ended) && _numberOfTaps > 4 )
-        {
-           ShowDebug = !ShowDebug;
-            _numberOfTaps = 0;
-        }
-
         if (Status == GameStatus.Running)
         {
             _game.PauseGame();
@@ -344,17 +256,18 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void SetDirection(int newDir)
     {
-        if (Status != GameStatus.Paused)
-        {
-            var timeBuffer = DateTime.UtcNow;
+        //if (Status != GameStatus.Paused)
+        //{
+        //    var timeBuffer = DateTime.UtcNow;
 
-            if((timeBuffer - _lastTappedDirection).Value.TotalMilliseconds > _directionTimeoutMs)
-            {
-                _game.ChangeDirection((Direction) newDir);
+        //    if((timeBuffer - _lastTappedDirection).Value.TotalMilliseconds > _directionTimeoutMs)
+        //    {
+        //        _game.ChangeDirection((Direction) newDir);
 
-                _lastTappedDirection = DateTime.UtcNow;
-            }
-        }
+        //        _lastTappedDirection = DateTime.UtcNow;
+        //    }
+        //}
+        _game.ChangeDirection((Direction)newDir);
     }
 
     private void SetStartBtnText()

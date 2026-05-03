@@ -21,7 +21,7 @@ public static class FieldExtensions
             6 => "💀", // голова (гейм овер)
             7 => "💣", // бомба (ой-ой!)
             8 => "💥", // БУМ!
-            9 => "🔳", // Debug
+            9 => "🔳", // Debug bomb area
             _ => cell.ToString()
         };
 
@@ -38,6 +38,16 @@ public static class FieldExtensions
             Direction.Left => Direction.Right,
             Direction.Right => Direction.Left,
             _ => direction
+        };
+
+    public static string AsString(this Direction dir)
+        => dir switch
+        { 
+            Direction.Up => "Вверх",
+            Direction.Down => "Вниз",
+            Direction.Left => "Влево",
+            Direction.Right => "Вправо",
+            _ => "Неизвестное направление"
         };
 
 }

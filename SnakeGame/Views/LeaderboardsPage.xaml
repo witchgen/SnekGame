@@ -48,9 +48,9 @@
             Grid.Row="1"
             Spacing="15">
             <Button
-                Text="Вернуться к игре"
+                Text="В главное меню"
                 HorizontalOptions="Fill"
-                BackgroundColor="Gold"
+                BackgroundColor="#84a98c"
                 Command="{Binding GoBackCommand}" />
             <Label
                 Text="🏆 Рекорды 🏆"
@@ -74,9 +74,7 @@
                 ItemsSource="{Binding Records}"
                 SelectionMode="Single"
                 SelectedItem="{Binding SelectedRecord}"
-                SelectionChangedCommand="{Binding ItemTappedCommand}"
-                RemainingItemsThreshold="5"
-                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                SelectionChangedCommand="{Binding ItemTappedCommand}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout
                         Orientation="Vertical"

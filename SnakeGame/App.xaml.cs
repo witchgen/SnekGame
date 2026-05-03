@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
+using SnakeGame.ViewModels;
 
 namespace SnakeGame
 {
@@ -19,7 +19,7 @@ namespace SnakeGame
         {
             base.OnSleep();
 
-            if( Current?.MainPage?.BindingContext is MainViewModel mvm)
+            if( Current?.MainPage?.BindingContext is LegacyGameViewModel mvm)
             {
                 mvm.ForcePauseFromSystem();
             }
@@ -59,11 +59,11 @@ namespace SnakeGame
                     currentPage = Current?.MainPage;
                 }
 
-                if (currentPage?.BindingContext is MainViewModel mvm)
+                if (currentPage?.BindingContext is MainMenuViewModel mmvm)
                 {
                     try
                     {
-                        await mvm.CheckForUpdates();
+                        await mmvm.CheckForUpdates();
                         Preferences.Set("LastUpdateCheck", currentTimestamp);
                     }
                     catch

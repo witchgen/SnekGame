@@ -67,7 +67,16 @@ public interface IGameService
     /// Переключаем опции отладки во время игрового процесса
     /// </summary>
     /// <param name="option">Нужная опция <see cref="DebugOption"/> (будет переключена)</param>
-    void ToggleDebugOption(DebugOption option);
+    void ToggleDebugOption(DebugOption option, bool value);
+    /// <summary>
+    /// Меняем скорость игры для
+    /// </summary>
+    /// <param name="value">Значение в миллисекундах</param>
+    void SetIngameDebugSpeed(int value);
+    /// <summary>
+    /// Переключить флаг выставления скорости в рамках отладки игры
+    /// </summary>
+    void ToggleCustomSpeedChange(bool value);
 }
 
 public class GameService : IGameService
@@ -87,9 +96,14 @@ public class GameService : IGameService
 
     // Режим отладки (флаги):
     private bool _highlightBombSpawnArea = false;
-    public bool _snakeAiControlled = false;
+    private bool _snakeAiControlled = false;
+    private bool _customSpeedSet = false;
+    private bool _drawAIpath = false;
+    // Отладка времени выполнения ИИ (в мс):
+    private Stopwatch _totalSw;
+    private List<long> _iterations;
     // Путь ИИ:
-    private Queue<(int y, int x)> _currentAIPath = new();
+    private Direction? _aiBufferedMove = null;
 
     private GameState _gameState;
 
@@ -100,33 +114,81 @@ public class GameService : IGameService
     private int _speedMs = 500; // Скорость игры (медленная по дефолту)
     private int _diffMultiplier = 1; // Хранимая сложность (низкая по дефолту)
 
+    private readonly IBigThinkSnakeService _aiSnek;
+
+    public GameService(IBigThinkSnakeService aiSnek)
+    {
+        _aiSnek = aiSnek;
+    }
+
+    private enum DebugMark
+    {
+        None,
+        Path,
+        Flood,
+        BFS,
+        Danger,
+        NextMove
+    }
+
+    private DebugMark[,] _debugLayer;
+
     // Рисуем игровое поле
     private string DrawField()
     {
         var sb = new StringBuilder();
 
-        for (int i = 0; i <= _size; i++)
+        for (int y = 0; y <= _size; y++)
         {
-            for (int j = 0; j <= _size; j++)
+            for (int x = 0; x <= _size; x++)
             {
-                var symbol = _field[i, j].ToEmoji();
+                var debug = _debugLayer[y, x];
+
+                string symbol = debug switch
+                {
+                    DebugMark.Path => "🟦",   // путь ИИ
+                    DebugMark.NextMove => "🟪",   // следующий шаг
+                    DebugMark.Flood => "◽",   // flood-fill область
+                    DebugMark.BFS => "🟨",   // BFS фронт
+                    DebugMark.Danger => "🟥",   // опасная клетка
+                    _ => _field[y, x].ToEmoji()
+                };
+
                 sb.Append(symbol);
             }
+
             sb.Append(Environment.NewLine);
         }
 
         return sb.ToString();
+
+        //var sb = new StringBuilder();
+
+        //for (int i = 0; i <= _size; i++)
+        //{
+        //    for (int j = 0; j <= _size; j++)
+        //    {
+        //        var symbol = _field[i, j].ToEmoji();
+        //        sb.Append(symbol);
+        //    }
+        //    sb.Append(Environment.NewLine);
+        //}
+
+        //return sb.ToString();
     }
 
     public void SetDifficulty(Difficulty lvl)
     {
-        switch (lvl)
+        if(!_customSpeedSet) // При отладочной скорости оставляем ту, что была задана игроком
         {
-            case Difficulty.Easy: _speedMs = 400; break;
-            case Difficulty.Medium: _speedMs = 300; break;
-            case Difficulty.Hard:
-                _speedMs = 200; break;
-            default: _speedMs = 500; break;
+            switch (lvl)
+            {
+                case Difficulty.Easy: _speedMs = 400; break;
+                case Difficulty.Medium: _speedMs = 300; break;
+                case Difficulty.Hard:
+                    _speedMs = 200; break;
+                default: _speedMs = 500; break;
+            }
         }
 
         _diffMultiplier = (int)lvl;
@@ -142,8 +204,9 @@ public class GameService : IGameService
     // Первичная инициализация
     public void ResetGame()
     {
+        _debugLayer = new DebugMark[_size + 1, _size + 1];
         _field = _generator.GetNewGameField(_size);
-        _currentAIPath.Clear();
+        //_currentAIPath.Clear();
 
         _gameState = new GameState() {
             CurrentGameData = new PlayData()
@@ -152,13 +215,24 @@ public class GameService : IGameService
         _score = 0;
         var initPos = _generator.SetInitialSnakePosition(_size);
         
-        
-
         _actualHead = new SnekSegment(initPos, initPos);
         _nextBomb = (1, 1);
         _boom = false;
 
         FieldUpdated?.Invoke(this, DrawField());
+    }
+
+    private void MarkDebug(int y, int x, DebugMark mark)
+    {
+        if (y < 0 || y > _size || x < 0 || x > _size) return;
+        _debugLayer[y, x] = mark;
+    }
+
+    private void ClearDebugLayer()
+    {
+        for (int y = 0; y <= _size; y++)
+            for (int x = 0; x <= _size; x++)
+                _debugLayer[y, x] = DebugMark.None;
     }
 
     public void PauseGame()
@@ -168,7 +242,17 @@ public class GameService : IGameService
 
     public GameState GetGameState()
     {
-        return _gameState;
+        return new GameState
+        {
+            IsNewGame = _gameState.IsNewGame,
+            GameField = (int[,])_field.Clone(),
+            ApplePosition = _gameState.ApplePosition,
+            SolidSnake = _gameState.SolidSnake.CloneSnek(),
+            SnakeHeadPosition = _gameState.SnakeHeadPosition,
+            BombPosition = _gameState.BombPosition,
+            CurrentDirection = _gameState.CurrentDirection,
+            CurrentGameData = _gameState.CurrentGameData,
+        };
     }
 
     // Точка входа для игрового процесса новой игры, задаем новое состояние
@@ -177,7 +261,9 @@ public class GameService : IGameService
         _gameState = state;
 
         _gameState.SolidSnake = new Snek(_actualHead);
-        _direction = Direction.Up;
+        _gameState.CurrentDirection = Direction.Up;
+        _direction = _gameState.CurrentDirection;
+        _gameState.GameField = _field;
         ChangeDirection(_direction);
         _gameState.SnakeHeadPosition = _actualHead;
         _gameState.BombPosition = (1, 1);
@@ -192,6 +278,7 @@ public class GameService : IGameService
         }
 
         Status = GameStatus.Running;
+        //if (_snakeAiControlled) StartAiLoop();
         return await GameLoop();
     }
 
@@ -200,12 +287,19 @@ public class GameService : IGameService
     {
         _gameState = state;
         Status = GameStatus.Running;
+        //if (_snakeAiControlled) StartAiLoop();
         return await GameLoop();
     }
 
     // Основной игровой цикл змейки
     private async Task<GameStatus> GameLoop()
     {
+        if(_snakeAiControlled)
+        {
+            _totalSw = Stopwatch.StartNew();
+            _iterations = new List<long>();
+        }
+
         while (Status == GameStatus.Running)
         {
             var result = Tick();
@@ -228,8 +322,31 @@ public class GameService : IGameService
                     MaxSnakeLength = _gameState.SolidSnake.body.Count
                 };
 
+                if(_snakeAiControlled )
+                {
+                    _totalSw.Stop();
+                    Debug.WriteLine($"===== СТАТИСТИКА =====");
+                    Debug.WriteLine($"Всего: {_totalSw.ElapsedMilliseconds} мс");
+                    Debug.WriteLine($"Пройдено итераций: {_iterations.Count}");
+                    Debug.WriteLine($"Среднее: {_iterations.Average():F1} мс");
+                    Debug.WriteLine($"Мин: {_iterations.Min()} мс");
+                    Debug.WriteLine($"Макс: {_iterations.Max()} мс");
+                }
+
                 Status = GameStatus.Ended;
                 return GameStatus.Ended;
+            }
+
+            // === Запускаем фоновый расчёт СЛЕДУЮЩЕГО хода ===
+            // Делаем это ПОСЛЕ Tick, чтобы считать от актуального состояния
+            if (_snakeAiControlled)
+            {
+                var snapshot = GetGameState(); // копия на момент ПОСЛЕ хода
+                var iterSw = Stopwatch.StartNew(); // Ставим обработку ходов на таймер
+                _aiBufferedMove = _aiSnek.CalculateNextMove(snapshot);
+                iterSw.Stop();
+                _iterations.Add(iterSw.ElapsedMilliseconds);
+                Debug.WriteLine($"Итерация {_iterations.Count}: {iterSw.ElapsedMilliseconds} мс");
             }
 
             await Task.Delay(_speedMs);
@@ -249,18 +366,21 @@ public class GameService : IGameService
         {
             nextDirection = GetPendingSnakeDirection();
             ChangeDirection(nextDirection);
-
-            switch (nextDirection)
-            {
-                case Direction.Up: nextHead._y--; break;
-                case Direction.Down: nextHead._y++; break;
-                case Direction.Left: nextHead._x--; break;
-                case Direction.Right: nextHead._x++; break;
-            }
         }
         else // Если включена отладка, змея ползает сама
         {
-            nextHead = MoveSmartSnake();
+            if (_aiBufferedMove.HasValue && _direction != _aiBufferedMove.Value.ToOpposite())
+            {                
+                nextDirection = _aiBufferedMove.Value;
+            }
+        }
+
+        switch (nextDirection)
+        {
+            case Direction.Up: nextHead._y--; break;
+            case Direction.Down: nextHead._y++; break;
+            case Direction.Left: nextHead._x--; break;
+            case Direction.Right: nextHead._x++; break;
         }
 
         if (IsBombAhead(nextHead)) // Напоролись на бомбу
@@ -286,7 +406,7 @@ public class GameService : IGameService
 
         if (fed)
         {
-            _currentAIPath.Clear(); // Сброс пути для ИИ змеи, если "яблоко" съедено
+            //_currentAIPath.Clear(); // Сброс пути для ИИ змеи, если "яблоко" съедено
 
             if (_diffMultiplier > 0) // Если сложность выше легкой, с яблоком генерируется новая бомба...
             {
@@ -318,84 +438,12 @@ public class GameService : IGameService
 
         _actualHead = nextHead;
         _gameState.SnakeHeadPosition = _actualHead;
-
+        _gameState.GameField = _field;
         _gameState.SolidSnake.Move(_actualHead, fed);
 
         SyncFieldWithSnake(_gameState.SolidSnake);
 
         return GameStatus.Running;
-    }
-
-    private SnekSegment MoveSmartSnake()
-    {
-        // Если старый путь ещё актуален — продолжаем по нему
-        if (_currentAIPath.Count > 0)
-        {
-            var nextStep = _currentAIPath.Peek();
-            // Проверяем, не стала ли следующая клетка препятствием
-            if (IsSafeToMoveHere(nextStep.y, nextStep.x))
-            {
-                _currentAIPath.Dequeue();
-
-                return new SnekSegment(nextStep.y, nextStep.x);
-            }
-            // Если путь заблокирован — сбрасываем и ищем новый
-            _currentAIPath.Clear();
-        }
-
-        // Ищем новый путь
-        _currentAIPath = BFSforTarget(_gameState.ApplePosition);
-
-        if (_currentAIPath.Count > 0)
-        {
-            var step = _currentAIPath.Dequeue();
-            return new SnekSegment(step.y, step.x);
-        }
-
-        // Запасной вариант — идём к хвосту
-        var snekTail = _gameState.SolidSnake.body.Last.Value;
-        _currentAIPath = BFSforTarget((snekTail._y, snekTail._x));
-
-        if (_currentAIPath.Count > 6) // Если путь к хвосту слишком короткий, идем рандомными мувами чтобы с меньшей вероятностью врезаться
-        {            
-            var step = _currentAIPath.Dequeue();
-            return new SnekSegment(step.y, step.x);
-        }
-
-        //Если и до хвоста не можем найти путь, то делаем случайный шаг в сторону и молимся богу рандома
-        var nextHead = GetRandomSafeMove();
-        return nextHead;
-    }
-
-    private SnekSegment GetRandomSafeMove()
-    {
-        var safeMoves = new List<SnekSegment>();
-
-        foreach (var (dy, dx) in dirs)
-        {
-            int ny = _actualHead._y + dy;
-            int nx = _actualHead._x + dx;
-
-            if (IsSafeToMoveHere(ny, nx))
-                safeMoves.Add(new SnekSegment(ny, nx));
-        }
-
-        // Если есть безопасные варианты — выбираем случайный
-        if (safeMoves.Count > 0)
-            return safeMoves[_rnd.Next(safeMoves.Count)];
-
-        // Если вариантов нет, ползем вперед - на верную гибель
-        var (fdy, fdx) = dirs[(int)_direction];
-        return new SnekSegment(_actualHead._y + fdy, _actualHead._x + fdx);
-    }
-
-    /// <summary>
-    /// Проверяем ближайших соседей клекти в четырех направлениях
-    /// </summary>
-    /// <returns>true если встречено препятствие</returns>
-    private bool IsSafeToMoveHere(int y, int x)
-    {
-        return _field[y, x] is not (1 or 2 or 5 or 7);
     }
 
     static readonly (int dy, int dx)[] dirs =
@@ -405,83 +453,7 @@ public class GameService : IGameService
         (0, -1), // левая клетка
         (0, 1)   // правая клетка
     };
-
-    /// <summary>
-    /// Ищем путь к указанной цели
-    /// </summary>
-    /// <param name="desiredCell">Координаты, которые ищем (скорее всего "яблоко" либо хвост)</param>
-    /// <returns>Очередь координат-шагов для пути к цели (пустая если пути не найдено - перекрыт, к примеру)</returns>
-    private Queue<(int y, int x)> BFSforTarget((int y, int x) desiredCell)
-    {
-        var moveQueue = new Queue<(int y, int x)>();
-        moveQueue.Enqueue( (_actualHead._y, _actualHead._x) ); // Голова змеи как стартовая точка
-
-        var ourTail = _gameState.SolidSnake.body.Last.Value;
-
-        var cameFrom = new Dictionary<(int y, int x), (int y, int x)>();
-        cameFrom[(_actualHead._y, _actualHead._x)] = (-1, -1); // без предка (индикатор начала пути)
-
-        while ( moveQueue.Count > 0 )
-        {
-            var (y, x) = moveQueue.Dequeue();
-
-            if (y == desiredCell.y && x == desiredCell.x) // Нашли путь до нашей цели!
-            {
-                return RetracePath(cameFrom, (y, x));
-            }
-
-            foreach(var (dy, dx) in dirs) // Пока идем к цели, записываем пройденные клетки
-            {
-                int neighbor_y = y + dy;
-                int neighbor_x = x + dx;
-
-                // Проверка границ
-                if (neighbor_y < 0 || neighbor_y >= _field.GetLength(0)) continue;
-                if (neighbor_x < 0 || neighbor_x >= _field.GetLength(1)) continue;
-
-                var itsTail = neighbor_y == ourTail._y && neighbor_x == ourTail._x;
-
-                if (/*!itsTail && */!IsSafeToMoveHere(neighbor_y, neighbor_x)) continue;
-
-                if (cameFrom.ContainsKey((neighbor_y, neighbor_x))) continue;
-
-                // Добавляем:
-                moveQueue.Enqueue((neighbor_y, neighbor_x));
-                cameFrom[(neighbor_y, neighbor_x)] = (y, x);
-            }
-        }
-        // Не нашли пути к цели, возвращаем пустой путь:
-        return new Queue<(int, int)>();
-    }
-
-    /// <summary>
-    /// "Отматываем" найденный путь, чтобы змея могла его пройти
-    /// </summary>
-    /// <param name="path">Найденный путь (от финиша)</param>
-    /// <param name="target">Искомая точка (в нашем случае "яблоко")</param>
-    /// <returns>Развернутый в обратную сторону набор координат пути</returns>
-    private Queue<(int, int)> RetracePath(Dictionary<(int y, int x), (int y, int x)> path, (int y, int x) target)
-    {
-        var reversePath = new Stack<(int y, int x)>();
-        var current = target;
-
-        while( path.ContainsKey(current) )
-        {
-            var (y, x) = path[current];
-            if (y == -1 && x == -1) break; // дошли до стартовой точки
-            reversePath.Push(current);
-            current = (y, x);
-        }
-
-        var result = new Queue<(int, int)>();
-        while( reversePath.Count > 0 )
-        {
-            result.Enqueue(reversePath.Pop());
-        }
-
-        return result;
-    }
-
+        
     public void ChangeDirection(Direction dir)
     {
         if( _direction != dir.ToOpposite() )// Змее нельзя поворачивать "в себя"
@@ -535,7 +507,7 @@ public class GameService : IGameService
 
     private bool IsAppleBlocked(int cell)
     {
-        return cell is 1 or 2 or 3 or 5 or 7;
+        return cell is (1 or 2 or 3 or 5 or 7);
     }
 
     /// <summary>
@@ -599,7 +571,7 @@ public class GameService : IGameService
         {
             for (int c = colStart; c <= colEnd; c++)
             {
-                if (!predicate(_field[c, r])) // Учитываем, что в двумерном массиве первая координата - высота, вторая - длина
+                if (!predicate(_field[r, c])) // Помним, что в двумерном массиве первая координата - высота, вторая - длина
                     return false;
             }
         }
@@ -667,12 +639,13 @@ public class GameService : IGameService
             {
                 for (int c = colStart; c <= colEnd; c++)
                 {
-                    if (!(_field[c, r] is 1 or 2 or 3 or 5 or 7))
+                    if (!(_field[r, c] is 1 or 2 or 3 or 5 or 7))
                         // Рисуем места, где НЕ ДОЛЖНА заспавниться бомба
-                        _field[c, r] = 9;
+                        _field[r, c] = 9;
                 }
             }
         }
+
     }
 
     public string GetCurrentScore()
@@ -680,15 +653,28 @@ public class GameService : IGameService
         return _score.ToString();
     }
 
-    public void ToggleDebugOption(DebugOption option)
+    public void ToggleDebugOption(DebugOption option, bool value)
     {
         switch (option)
         {
             case DebugOption.ToggleBombSpawnAreaHighlight:
-                _highlightBombSpawnArea = !_highlightBombSpawnArea; break;
+                _highlightBombSpawnArea = value; break;
             case DebugOption.ToggleSnakeAi:
-                _snakeAiControlled = !_snakeAiControlled; break;
+                _snakeAiControlled = value; break;
+            case DebugOption.DrawAIpath:
+                _drawAIpath = value; break;
             default: break;
         }
+    }
+
+    public void SetIngameDebugSpeed(int value)
+    {
+        if (_customSpeedSet && ( value > 69 && value < 651 ) )
+            _speedMs = value;
+    }
+
+    public void ToggleCustomSpeedChange(bool value)
+    {
+        _customSpeedSet = value;
     }
 }
