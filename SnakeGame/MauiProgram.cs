@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CommunityToolkit.Maui;
 using SnakeGame.Services;
 using SnakeGame.ViewModels;
+using SnakeGame.Views;
 //using MauiLib;
 
 
@@ -33,6 +34,9 @@ public static class MauiProgram
         builder.Services.AddTransient<LegacyGamePage>();
         builder.Services.AddTransient<LeaderboardsPage>();
         builder.Services.AddTransient<LeaderboardViewModel>();
+        builder.Services.AddTransient<OptionsViewModel>();
+        builder.Services.AddTransient<MainMenu>();
+        builder.Services.AddTransient<OptionsPage>();
 
         return builder.Build();
     }

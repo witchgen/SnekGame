@@ -29,7 +29,7 @@ public partial class LegacyGameViewModel : ObservableObject
     private int _numberOfTaps = 0;
     private GameStatus Status => _game.Status;
 
-    public LegacyGameViewModel( IGameService game,
+    public LegacyGameViewModel(IGameService game,
         IRecordsService recordsService)
     {
         _game = game;
@@ -51,17 +51,17 @@ public partial class LegacyGameViewModel : ObservableObject
     //[ObservableProperty]
     //private bool _showDebug = false; // Флаг отобрадения режима отладки
 
-    [ObservableProperty]
-    private bool _IsNameChangeEnabled = false; // Флаг переключения режима смены имени (редактировать / подтвердить)
+    //[ObservableProperty]
+    //private bool _IsNameChangeEnabled = false; // Флаг переключения режима смены имени (редактировать / подтвердить)
 
-    [ObservableProperty]
-    private bool _showPencil = true; // флаг иконки картинки "Редактировать"
+    //[ObservableProperty]
+    //private bool _showPencil = true; // флаг иконки картинки "Редактировать"
 
-    [ObservableProperty]
-    private bool _showCheckmark = false; // Флаг иконки "Подтвердить"
+    //[ObservableProperty]
+    //private bool _showCheckmark = false; // Флаг иконки "Подтвердить"
 
-    [ObservableProperty]
-    private Color _nameChangeColor = Color.FromRgba("#e2c11d");
+    //[ObservableProperty]
+    //private Color _nameChangeColor = Color.FromRgba("#e2c11d");
 
     [ObservableProperty]
     private string _gameField = string.Empty; // Видимое игровое поле
@@ -182,25 +182,29 @@ public partial class LegacyGameViewModel : ObservableObject
         if (savedStateAIDebugPath) _game.ToggleDebugOption(DebugOption.DrawAIpath);
     }
 
-
-
     [RelayCommand]
-    private void ChangeName() // Задаем текущее имя игрока (будет использовано в записи рекорда)
+    private async Task GoBack() // Возвращаемся на предыдущуюю страницу в стеке Shell
     {
-        var buffer = NameChangeColor;
-
-        ShowPencil = !ShowPencil;
-        ShowCheckmark = !ShowCheckmark;
-
-        NameChangeColor = ShowCheckmark ? Color.FromRgba("#6bb86b") : Color.FromRgba("#e2c11d");
-        //NameChangeEditImageSrc = IsNameChangeEnabled ? "checkmark.png" : "pencil.edit.png";
-        
-        if (!string.IsNullOrWhiteSpace(PlayerName))
-        {
-            Preferences.Default.Set("PlayerName", PlayerName);
-        }
-        SetStartBtnText();
+        await Shell.Current.GoToAsync("..");
     }
+
+    //[RelayCommand]
+    //private void ChangeName() // Задаем текущее имя игрока (будет использовано в записи рекорда)
+    //{
+    //    var buffer = NameChangeColor;
+
+    //    ShowPencil = !ShowPencil;
+    //    ShowCheckmark = !ShowCheckmark;
+
+    //    NameChangeColor = ShowCheckmark ? Color.FromRgba("#6bb86b") : Color.FromRgba("#e2c11d");
+    //    //NameChangeEditImageSrc = IsNameChangeEnabled ? "checkmark.png" : "pencil.edit.png";
+        
+    //    if (!string.IsNullOrWhiteSpace(PlayerName))
+    //    {
+    //        Preferences.Default.Set("PlayerName", PlayerName);
+    //    }
+    //    SetStartBtnText();
+    //}
 
     [RelayCommand]
     private async Task GoToRecords()
@@ -227,7 +231,7 @@ public partial class LegacyGameViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void GoBack()
+    private void CancelGame()
     {
         IsStartVisible = false;
         IsDifficultyVisible = true;

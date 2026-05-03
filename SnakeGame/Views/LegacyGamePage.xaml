@@ -14,6 +14,11 @@
     <VerticalStackLayout
         Padding="16, 10, 16, 0"
         Spacing="5">
+        <Button
+            Text="В главное меню"
+            HorizontalOptions="Fill"
+            BackgroundColor="LightGreen"
+            Command="{Binding GoBackCommand}" />
         <Grid 
             RowDefinitions="*, Auto">
             <Label
@@ -81,7 +86,7 @@
             <Button
                 Grid.Column="0"
                 x:Name="CancelBtn"
-                Command="{Binding GoBackCommand}"
+                Command="{Binding CancelGameCommand}"
                 IsVisible="{Binding CanGoBack}"
                 BackgroundColor="#7B1156"
                 LineBreakMode="WordWrap"
@@ -96,7 +101,7 @@
                 Text="{Binding DifficultyText}"
                 />
         </Grid>
-        
+
         <Border
             HorizontalOptions="Fill"
             IsVisible="{Binding IsDifficultyVisible}"
@@ -105,53 +110,12 @@
             Stroke="DarkGreen"
             StrokeShape="RoundRectangle 18"
             StrokeThickness="2">
-            <Grid
-                ColumnDefinitions="Auto, *, Auto">
-                <Label 
-                        VerticalOptions="Center"
-                        Grid.Column="0"
-                        Padding="7, 0, 10, 4"
-                        FontSize="20"
-                        Text="Имя:"/>
-                <Entry 
-                    Grid.Column="1"
-                    MaxLength="80"
-                    FontSize="20"
-                    Margin="0, 0, -1, 0"
-                    VerticalTextAlignment="End"
-                    Placeholder="Анонимус"
-                    HorizontalOptions="Fill"
-                    IsEnabled="{Binding ShowCheckmark}"
-                    BackgroundColor="{Binding NameChangeFldColor}"
-                    TextColor="#66db66"
-                    Text="{Binding PlayerName}"/>
-                <Border
-                    Grid.Column="2"
-                    StrokeShape="RoundRectangle 18"
-                    BackgroundColor="{Binding NameChangeColor}" >
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ChangeNameCommand}" />
-                    </Border.GestureRecognizers>
-                    <StackLayout>
-                        <Image 
-                            Source="pencil_edit.png"
-                            IsVisible="{Binding ShowPencil}"
-                            Margin="12"
-                            WidthRequest="25"
-                            HeightRequest="25"
-                            VerticalOptions="Fill"
-                            HorizontalOptions="Fill" />
-                        <Image 
-                            Source="checkmark.png"
-                            IsVisible="{Binding ShowCheckmark}"
-                            Margin="12"
-                            WidthRequest="25"
-                            HeightRequest="25"
-                            VerticalOptions="Center"
-                            HorizontalOptions="Center" />
-                    </StackLayout>
-                </Border>
-            </Grid>
+            <Label 
+                VerticalOptions="Center"
+                Grid.Column="0"
+                Padding="7, 0, 10, 4"
+                FontSize="20"
+                Text="{Binding PlayerName, StringFormat='Имя: {0}'}"/>
         </Border>
         
         <Label

@@ -10,7 +10,7 @@ namespace SnakeGame
             InitializeComponent();
 
             Routing.RegisterRoute("MainMenu", typeof(MainMenu));
-            Routing.RegisterRoute("Options", typeof(Options));
+            Routing.RegisterRoute("OptionsPage", typeof(OptionsPage));
             Routing.RegisterRoute("LegacyGamePage", typeof(LegacyGamePage));
             Routing.RegisterRoute("LeaderboardsPage", typeof(LeaderboardsPage));
         }

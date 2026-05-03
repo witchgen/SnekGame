@@ -48,9 +48,9 @@
             Grid.Row="1"
             Spacing="15">
             <Button
-                Text="Вернуться к игре"
+                Text="В главное меню"
                 HorizontalOptions="Fill"
-                BackgroundColor="Gold"
+                BackgroundColor="LightGreen"
                 Command="{Binding GoBackCommand}" />
             <Label
                 Text="🏆 Рекорды 🏆"

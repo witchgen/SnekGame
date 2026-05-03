@@ -27,6 +27,9 @@ namespace SnakeGame.ViewModels
         private static int _numberOfTaps = 0;
 
         [ObservableProperty]
+        public string _currentVersion = AppInfo.Current.VersionString;
+
+        [ObservableProperty]
         public bool _isThereUpdate = false; // Флаг наличия обновы
         
         [ObservableProperty]

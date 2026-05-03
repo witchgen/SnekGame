@@ -5,6 +5,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     
     xmlns:local="clr-namespace:SnakeGame"
+    xmlns:vm="clr-namespace:SnakeGame.Views"
     
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     x:Class="SnakeGame.AppShell"
@@ -12,7 +13,11 @@
     <ShellContent
         Route="MainMenu"
         Title="Змея подколодная"
-        ContentTemplate="{DataTemplate local:MainMenu}" />
+        ContentTemplate="{DataTemplate vm:MainMenu}" />
+    <ShellContent
+        Route="OptionsPage"
+        Title="Настройки"
+        ContentTemplate="{DataTemplate vm:OptionsPage}" />
     <ShellContent
         Route="LegacyGamePage"
         Title="Змеюка Легаси"
