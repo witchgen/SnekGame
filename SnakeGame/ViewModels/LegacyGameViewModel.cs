@@ -99,69 +99,6 @@ public partial class LegacyGameViewModel : ObservableObject
     [ObservableProperty]
     private string _diffHardText = "Джигит 👺"; // Высокая
 
-    //[ObservableProperty]
-    //public bool _isThereUpdate = false; // Флаг наличия обновы
-
-    //[ObservableProperty]
-    //public string _updLink = "https://github.com/witchgen/SnekGame/releases/latest";
-
-    // ================
-    // Значения для поп-апа отладки:
-    //[ObservableProperty]
-    //public bool _isBombHighlightActive; // Флаг отладки "свободной от бомб" позиции
-    //[ObservableProperty]
-    //public bool _isSnakeAIActive; // Флаг использования змеей "автопилота"
-    //[ObservableProperty]
-    //public bool _isGameSpeedSliderActive; // Флаг показа ползунка скорости игры
-    //[ObservableProperty]
-    //public bool _isAIPathVisible; // Флаг показа построения пути ИИ
-    //[ObservableProperty]
-    //public int _gameSpeedMs = 120;
-    // ================
-
-    //[RelayCommand]
-    //public async Task ShowDebugOptions()
-    //{
-    //    _debugPopup.BindingContext = this;
-    //    Application.Current.MainPage.ShowPopup(_debugPopup);
-    //}
-
-    //[RelayCommand]
-    //public Task CloseDebugPopup(Popup popup)
-    //{
-    //    return popup?.CloseAsync() ?? Task.CompletedTask;
-    //}
-
-    //partial void OnIsBombHighlightActiveChanged(bool value)
-    //{
-    //    _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
-    //    Preferences.Set("BombHighlightToggled", value);
-    //}
-
-    //partial void OnIsSnakeAIActiveChanged(bool value)
-    //{
-    //    _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
-    //    Preferences.Set("SnakeAIToggled", value);
-    //}
-
-    //partial void OnIsAIPathVisibleChanged(bool value)
-    //{
-    //    _game.ToggleDebugOption(DebugOption.DrawAIpath);
-    //    Preferences.Set("DebugAIPathToggled", value);
-    //}
-
-    //partial void OnIsGameSpeedSliderActiveChanged(bool value)
-    //{
-    //    _game.ToggleCustomSpeedChange(value);
-    //    _game.SetIngameDebugSpeed(GameSpeedMs);
-    //    Preferences.Set("CustomGameSpeedEnabled", value);
-    //}
-
-    //partial void OnGameSpeedMsChanged(int value)
-    //{
-    //    _game.SetIngameDebugSpeed(value);
-    //}
-
     // Метод инициализации при старте
     public async Task InitializeAsync()
     {
@@ -187,24 +124,6 @@ public partial class LegacyGameViewModel : ObservableObject
     {
         await Shell.Current.GoToAsync("..");
     }
-
-    //[RelayCommand]
-    //private void ChangeName() // Задаем текущее имя игрока (будет использовано в записи рекорда)
-    //{
-    //    var buffer = NameChangeColor;
-
-    //    ShowPencil = !ShowPencil;
-    //    ShowCheckmark = !ShowCheckmark;
-
-    //    NameChangeColor = ShowCheckmark ? Color.FromRgba("#6bb86b") : Color.FromRgba("#e2c11d");
-    //    //NameChangeEditImageSrc = IsNameChangeEnabled ? "checkmark.png" : "pencil.edit.png";
-        
-    //    if (!string.IsNullOrWhiteSpace(PlayerName))
-    //    {
-    //        Preferences.Default.Set("PlayerName", PlayerName);
-    //    }
-    //    SetStartBtnText();
-    //}
 
     [RelayCommand]
     private async Task GoToRecords()
