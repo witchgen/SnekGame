@@ -237,6 +237,15 @@ public class GameService : IGameService
 
     public void PauseGame()
     {
+        // фиксируем состояние игры
+        _gameState.GameField = (int[,])_field.Clone();
+        _gameState.SnakeHeadPosition = _actualHead;
+        _gameState.SolidSnake = _gameState.SolidSnake.CloneSnek();
+        _gameState.CurrentDirection = _direction;
+        _gameState.BombPosition = _gameState.BombPosition;
+        _gameState.ApplePosition = _gameState.ApplePosition;
+        _gameState.CurrentGameData.Score = _score;
+
         Status = GameStatus.Paused;
     }
 
@@ -439,6 +448,9 @@ public class GameService : IGameService
         _actualHead = nextHead;
         _gameState.SnakeHeadPosition = _actualHead;
         _gameState.GameField = _field;
+        _gameState.CurrentDirection = _direction;
+        _gameState.CurrentGameData.Score = _score;
+        _gameState.BombPosition = _gameState.BombPosition;
         _gameState.SolidSnake.Move(_actualHead, fed);
 
         SyncFieldWithSnake(_gameState.SolidSnake);

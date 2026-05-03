@@ -162,12 +162,20 @@ public partial class LegacyGameViewModel : ObservableObject
         }
     }
 
-    public void ForcePauseFromSystem()
+    /// <summary>
+    /// Если мы нажали один раз кнопку "Назад" на смартфоне - может, случайно - игра ставится на паузу.
+    /// Повторное нажатие закрывает текущий экран и завершает сеанс игры
+    /// </summary>
+    public async Task ForcePauseFromSystem()
     {
         if (_game.Status == GameStatus.Running)
         {
             _game.PauseGame();
             Score = "- ПАУЗА -";
+        }
+        else
+        {
+            await Shell.Current.GoToAsync("..");
         }
     }
 
