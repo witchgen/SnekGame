@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SnakeGame.Models.GameInfo;
 
 /// <summary>
 /// Змеюка наша игровая. Инициализируется координатами головы, состоит из сегментов
 /// </summary>
-public class Snek
+public class Snek : ICloneable
 {
     public LinkedList<SnekSegment> body = new LinkedList<SnekSegment>();
+
+    private Snek() { }
 
     public Snek(SnekSegment head)
     {
@@ -16,6 +19,19 @@ public class Snek
             body.AddFirst(head);
         }
     }
+
+    public object Clone()
+    {
+        var clone = new Snek();
+        foreach (var segment in this.body)
+        {
+            clone.body.AddLast(segment.Clone());
+        }
+        return clone;
+    }
+
+    // Типизированный метод для удобства
+    public Snek CloneSnek() => (Snek)Clone();
 
     /// <summary>
     /// Сдвинуть змею на новые кооординаты головы

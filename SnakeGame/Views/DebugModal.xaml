@@ -31,6 +31,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
@@ -93,11 +94,11 @@
                         OffColor="Gray"
                         IsToggled="{Binding IsSnakeAIActive}"/>
 
-                    <!-- Переключатель видимости ползунка скорости игры -->
+                    <!-- AI -->
                     <Label 
                         Grid.Row="3"
                         Grid.Column="0"
-                        Text="Задавать скорость игры вручную"
+                        Text="Отображать маршрут автопилота"
                         TextColor="White"
                         VerticalOptions="Center"/>
 
@@ -108,12 +109,29 @@
                         ThumbColor="AliceBlue"
                         OnColor="LightGreen"
                         OffColor="Gray"
+                        IsToggled="{Binding IsAIPathVisible}"/>
+
+                    <!-- Переключатель видимости ползунка скорости игры -->
+                    <Label 
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Text="Задавать скорость игры вручную"
+                        TextColor="White"
+                        VerticalOptions="Center"/>
+
+                    <Switch
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        ThumbColor="AliceBlue"
+                        OnColor="LightGreen"
+                        OffColor="Gray"
                         IsToggled="{Binding IsGameSpeedSliderActive}"/>
 
                     <!-- Ползунок скорости игры -->                    
                     <Slider
                         x:Name="GameSpeedSlider"
-                        Grid.Row="4"
+                        Grid.Row="5"
                         Grid.ColumnSpan="2"
                         ThumbColor="AliceBlue"
                         MinimumTrackColor="DarkOrange"
@@ -123,7 +141,7 @@
                         IsVisible="{Binding IsGameSpeedSliderActive}"
                         Value="{Binding GameSpeedMs, Mode=TwoWay}"/>
                     <Label  x:Name="displayLabel"
-                            Grid.Row="5"
+                            Grid.Row="6"
                             Grid.ColumnSpan="2"
                             IsVisible="{Binding IsGameSpeedSliderActive}"
                             Text="{Binding GameSpeedMs,

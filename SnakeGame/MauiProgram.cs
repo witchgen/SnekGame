@@ -23,6 +23,8 @@ public static class MauiProgram
             });
 
         builder.Services.AddSingleton<AppShell>();
+        builder.Services.AddSingleton<IGameService, GameService>();
+        builder.Services.AddSingleton<IBigThinkSnakeService, BigThinkSnakeService>();
         builder.Services.AddSingleton<IRecordsService, RecordsService>();
         builder.Services.AddSingleton<IGithubUpdateService, GithubUpdateService>();
         builder.Services.AddTransient<MainViewModel>();

@@ -15,6 +15,12 @@ namespace SnakeGame
             BindingContext = mvm;
         }
 
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await (BindingContext as MainViewModel)?.InitializeAsync();
+        }
+
         protected override bool OnBackButtonPressed()
         {
             if(BindingContext is MainViewModel mvm)

@@ -31,14 +31,16 @@ public partial class MainViewModel : ObservableObject
     private Popup _debugPopup = new DebugModal();
     private GameStatus Status => _game.Status;
 
-    public MainViewModel(IRecordsService recordsService, 
+    public MainViewModel( IGameService game,
+        IRecordsService recordsService, 
         IGithubUpdateService github)
     {
+        _game = game;
         _recordsService = recordsService;
         _github = github;
 
-        // Подрубаем игровой сервис и задаем размеры поля + генерируем карту
-        _game = new GameService();
+        //// Подрубаем игровой сервис и задаем размеры поля + генерируем карту
+        //_game = new GameService();
         _game.FieldUpdated += OnFieldUpdated;
         _game.InitializeNewGame(14);
 
@@ -111,12 +113,13 @@ public partial class MainViewModel : ObservableObject
     // ================
     // Значения для поп-апа отладки:
     [ObservableProperty]
-    public bool _isBombHighlightActive = false; // Флаг отладки "свободной от бомб" позиции
-
+    public bool _isBombHighlightActive; // Флаг отладки "свободной от бомб" позиции
     [ObservableProperty]
-    public bool _isSnakeAIActive = false; // Флаг использования змеей "автопилота"
+    public bool _isSnakeAIActive; // Флаг использования змеей "автопилота"
     [ObservableProperty]
-    public bool _isGameSpeedSliderActive = false;
+    public bool _isGameSpeedSliderActive; // Флаг показа ползунка скорости игры
+    [ObservableProperty]
+    public bool _isAIPathVisible; // Флаг показа построения пути ИИ
     [ObservableProperty]
     public int _gameSpeedMs = 120;
     // ================
@@ -137,21 +140,47 @@ public partial class MainViewModel : ObservableObject
     partial void OnIsBombHighlightActiveChanged(bool value)
     {
         _game.ToggleDebugOption(DebugOption.ToggleBombSpawnAreaHighlight);
+        Preferences.Set("BombHighlightToggled", value);
     }
 
     partial void OnIsSnakeAIActiveChanged(bool value)
     {
         _game.ToggleDebugOption(DebugOption.ToggleSnakeAi);
+        Preferences.Set("SnakeAIToggled", value);
+    }
+
+    partial void OnIsAIPathVisibleChanged(bool value)
+    {
+        _game.ToggleDebugOption(DebugOption.DrawAIpath);
+        Preferences.Set("DebugAIPathToggled", value);
     }
 
     partial void OnIsGameSpeedSliderActiveChanged(bool value)
     {
         _game.ToggleCustomSpeedChange(value);
+        _game.SetIngameDebugSpeed(GameSpeedMs);
+        Preferences.Set("CustomGameSpeedEnabled", value);
     }
 
     partial void OnGameSpeedMsChanged(int value)
     {
         _game.SetIngameDebugSpeed(value);
+    }
+
+    // Метод инициализации при старте
+    public async Task InitializeAsync()
+    {
+        // Загружаем сохранённые значения
+        bool savedStateBombHighlight = Preferences.Get("BombHighlightToggled", false);
+        bool savedStateAIEnabled = Preferences.Get("SnakeAIToggled", false);
+        bool savedStateCustomSpeed = Preferences.Get("CustomGameSpeedEnabled", false);
+        bool savedStateAIDebugPath = Preferences.Get("DebugAIPathToggled", false);
+
+        // Устанавливаем свойства (триггерит логику игрового сервиса)
+        IsBombHighlightActive = savedStateBombHighlight;
+        IsSnakeAIActive = savedStateAIEnabled;
+        IsAIPathVisible = savedStateAIDebugPath;
+        IsGameSpeedSliderActive = savedStateCustomSpeed;
     }
 
     public async Task CheckForUpdates()
@@ -357,17 +386,18 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void SetDirection(Int16 newDir)
     {
-        if (Status != GameStatus.Paused)
-        {
-            var timeBuffer = DateTime.UtcNow;
+        //if (Status != GameStatus.Paused)
+        //{
+        //    var timeBuffer = DateTime.UtcNow;
 
-            if((timeBuffer - _lastTappedDirection).Value.TotalMilliseconds > _directionTimeoutMs)
-            {
-                _game.ChangeDirection((Direction) newDir);
+        //    if((timeBuffer - _lastTappedDirection).Value.TotalMilliseconds > _directionTimeoutMs)
+        //    {
+        //        _game.ChangeDirection((Direction) newDir);
 
-                _lastTappedDirection = DateTime.UtcNow;
-            }
-        }
+        //        _lastTappedDirection = DateTime.UtcNow;
+        //    }
+        //}
+        _game.ChangeDirection((Direction)newDir);
     }
 
     private void SetStartBtnText()

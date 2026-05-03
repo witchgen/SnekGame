@@ -1,4 +1,5 @@
 ﻿using System;
+using static SnakeGame.Models.GameInfo.Enums;
 
 namespace SnakeGame.Custom
 {
@@ -6,15 +7,21 @@ namespace SnakeGame.Custom
     {
         public class CantPlaceItemsException : Exception
         {
-            public CantPlaceItemsException()
-            {
+            public CantPlaceItemsException() { }
 
+            public CantPlaceItemsException(string msg) : base(msg) { }
+        }
+
+        public class CanNotSetDirectionException : Exception
+        {
+            public CanNotSetDirectionException() { }
+
+            public CanNotSetDirectionException(Direction dir) : base($"Could not set desired direction! Received direction: {dir.AsString()}")
+            {
+                
             }
 
-            public CantPlaceItemsException(string msg) : base(msg)
-            {
-
-            }
+            public CanNotSetDirectionException(string msg) : base(msg) { }
         }
     }
 }

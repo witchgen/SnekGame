@@ -8,7 +8,8 @@
             Up,
             Down,
             Left,
-            Right
+            Right,
+            None    // Для управления змеей с ИИ
         }
 
         public enum GameStatus
@@ -38,7 +39,8 @@
         public enum DebugOption
         {
             ToggleBombSpawnAreaHighlight,
-            ToggleSnakeAi
+            ToggleSnakeAi,
+            DrawAIpath
         }
     }
 }
