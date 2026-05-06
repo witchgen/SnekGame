@@ -1,12 +1,11 @@
-﻿using DrawnUi.Draw;
+﻿using Android.Runtime;
+using DrawnUi.Draw;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Storage;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace SnakeGame.Custom
@@ -20,7 +19,7 @@ namespace SnakeGame.Custom
         public float Spread { get; set; } = 2f;                                         // Разброс направлений (>1 = шире конус)
         public SKColor StarColor { get; set; } = SKColors.White;                        // Цвет "звездочек" - элементов, рисуемых если не смогли загрузить картинки
         public SKColor BgColor { get; set; } = new SKColor(43, 56, 81);                 // Цвет заднего фона ("космос")
-        public bool UseImages { get; set; } = false;                                    // true = SVG/PNG, false = круги
+        public bool UseImages { get; set; } = true;                                    // true = SVG/PNG, false = круги
         public bool ShowFps { get; set; } = Preferences.Get("ShowMainMenuFPS", false);  // Флаг показа FPS
 
         // ─── Состояние ───
