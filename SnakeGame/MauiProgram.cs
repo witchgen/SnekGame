@@ -5,6 +5,8 @@ using CommunityToolkit.Maui;
 using SnakeGame.Services;
 using SnakeGame.ViewModels;
 using SnakeGame.Views;
+using DrawnUi.Draw;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 //using MauiLib;
 
 
@@ -18,6 +20,11 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseSkiaSharp()
+            .UseDrawnUi(new DrawnUiStartupSettings
+            {
+                MobileIsFullscreen = true,
+            })
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

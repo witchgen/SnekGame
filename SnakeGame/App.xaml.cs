@@ -15,28 +15,48 @@ namespace SnakeGame
             MainPage = shell;
             Application.Current.UserAppTheme = AppTheme.Dark;
         }
+
+        /// <summary>
+        /// Получаем текущую страницу из Shell
+        /// </summary>
+        private Page? GetCurrentPage()
+        {
+            Page? currentPage = null;
+
+            if (Current?.MainPage is Shell shell)
+            {
+                currentPage = shell.CurrentPage;
+            }
+            else
+            {
+                currentPage = Current?.MainPage;
+            }
+
+            return currentPage;
+        }
+
         protected override void OnSleep()
         {
-            base.OnSleep();
-
-            if( Current?.MainPage?.BindingContext is LegacyGameViewModel mvm)
+            if (GetCurrentPage()?.BindingContext is LegacyGameViewModel lgvm)
             {
-                mvm.ForcePauseFromSystem();
+                lgvm.ForcePauseFromSystem();
             }
+
+            base.OnSleep();            
         }
 
         protected override async void OnStart()
         {
             base.OnStart();
 
-            SetUpdateCheck();
+            await SetUpdateCheck();
         }
 
-        protected override void OnResume()
+        protected override async void OnResume()
         {
             base.OnResume();
 
-            SetUpdateCheck();
+            await SetUpdateCheck();
         }
 
         private async Task SetUpdateCheck()
@@ -47,19 +67,8 @@ namespace SnakeGame
 
             if ((currentTimestamp - lastCheck) >= TimeSpan.FromHours(2))
             {
-                // Получаем текущую страницу из Shell
-                Page? currentPage = null;
 
-                if (Current?.MainPage is Shell shell)
-                {
-                    currentPage = shell.CurrentPage;
-                }
-                else
-                {
-                    currentPage = Current?.MainPage;
-                }
-
-                if (currentPage?.BindingContext is MainMenuViewModel mmvm)
+                if (GetCurrentPage()?.BindingContext is MainMenuViewModel mmvm)
                 {
                     try
                     {

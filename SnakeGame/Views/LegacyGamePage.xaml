@@ -10,7 +10,7 @@
     x:Class="SnakeGame.LegacyGamePage"
     x:DataType="local:LegacyGameViewModel"
     
-    Shell.BackButtonBehavior="{Binding SaveRecordsCommand}">
+    Shell.BackButtonBehavior="{Binding UseBackButtonAsSingleTimePauseCommand}">
     <VerticalStackLayout
         Padding="16, 10, 16, 0"
         Spacing="5">

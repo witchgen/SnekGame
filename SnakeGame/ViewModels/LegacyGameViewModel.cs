@@ -163,10 +163,24 @@ public partial class LegacyGameViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Если сворачиваем приожение, игра ставится на паузу
+    /// </summary>
+    /// <returns></returns>
+    public void ForcePauseFromSystem()
+    {
+        if (_game.Status == GameStatus.Running)
+        {
+            _game.PauseGame();
+            Score = "- ПАУЗА -";
+        }
+    }
+
+    /// <summary>
     /// Если мы нажали один раз кнопку "Назад" на смартфоне - может, случайно - игра ставится на паузу.
     /// Повторное нажатие закрывает текущий экран и завершает сеанс игры
     /// </summary>
-    public async Task ForcePauseFromSystem()
+    [RelayCommand]
+    public async Task UseBackButtonAsSingleTimePause()
     {
         if (_game.Status == GameStatus.Running)
         {
@@ -175,6 +189,7 @@ public partial class LegacyGameViewModel : ObservableObject
         }
         else
         {
+            await _recordsService.SaveToFileAsync();
             await Shell.Current.GoToAsync("..");
         }
     }

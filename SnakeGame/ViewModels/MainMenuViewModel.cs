@@ -36,7 +36,7 @@ namespace SnakeGame.ViewModels
         private bool _showDebug = false; // Флаг показа режима отладки
 
         [ObservableProperty]
-        private string _greeting = string.IsNullOrWhiteSpace(_currentName) ? "С подключением!" : $"Добро пожаловать, {_currentName}";
+        private string _greeting = string.IsNullOrWhiteSpace(_currentName) ? "С подключением!" : $"Добро пожаловать, {_currentName}!";
 
         public MainMenuViewModel(IGithubUpdateService github)
         {

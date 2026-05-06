@@ -2,96 +2,109 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:SnakeGame.ViewModels"
+             xmlns:draw="http://schemas.appomobi.com/drawnUi/2023/draw"
+             xmlns:snake="clr-namespace:SnakeGame.Custom"
              x:Class="SnakeGame.Views.MainMenu"
              x:DataType="local:MainMenuViewModel"
              Shell.NavBarIsVisible="False">
-    <VerticalStackLayout>
-        <Grid
-            HorizontalOptions="Center"
-            VerticalOptions="Fill"
-            RowDefinitions="*, *, *">
-            <VerticalStackLayout
-                    Grid.Row="0"
-                    Margin="20"
-                    Spacing="33"
-                    HorizontalOptions="Center">
-                <Label
-                    Text="🐍"
-                    FontSize="72"
-                    HorizontalOptions="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding AppointDebugOptionsCommand}" NumberOfTapsRequired="1" />
-                    </Label.GestureRecognizers>
-                </Label>
-                <Label 
-                    Text="{Binding Greeting}"
-                    FontSize="30"
-                    HorizontalTextAlignment="Center"
-                    TextColor="LightGreen"
-                    LineBreakMode="WordWrap"
-                    HorizontalOptions="Center"/>
-                <Button 
-                    Text="К игре! 🎮"
-                    BackgroundColor="#80ed99"
-                    Command="{Binding GoToLegacyGameCommand}"
+    <Grid
+        HorizontalOptions="Center"
+        VerticalOptions="Fill"
+        RowDefinitions="*, Auto">
+        <draw:Canvas
+            IsVisible="True"
+            CascadeInputTransparent="True"
+            Grid.Row="0"
+            Grid.RowSpan="3"
+            HorizontalOptions="Fill"
+            InputTransparent="True"
+            VerticalOptions="Fill">
+            <snake:SnekScreensaver                 
+                HorizontalOptions="Fill" 
+                VerticalOptions="Fill" />
+        </draw:Canvas>
+
+        <VerticalStackLayout
+            IsVisible="True"
+                Grid.Row="0"
+                Margin="5"
+                Spacing="25"
+                HorizontalOptions="Center">
+            <Label
+                Text="🐍"
+                FontSize="72"
+                HorizontalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AppointDebugOptionsCommand}" NumberOfTapsRequired="1" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label 
+                Text="{Binding Greeting}"
+                FontSize="30"
+                HorizontalTextAlignment="Center"
+                TextColor="LightGreen"
+                LineBreakMode="WordWrap"
+                HorizontalOptions="Center"/>
+            <Button 
+                Text="К игре! 🎮"
+                BackgroundColor="#80ed99"
+                Command="{Binding GoToLegacyGameCommand}"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                FontSize="22"/>
+            <Button
+                x:Name="LeaderboardBtn"
+                BackgroundColor="#57cc99"
+                Command="{Binding GoToRecordsCommand}"
+                FontSize="22"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                Text="К рекордам 🏆"></Button>
+            <Button 
+                    Text="Настройки 🛠️"
+                    BackgroundColor="#38a3a5"
+                    Command="{Binding GoToOptionsCommand}"
                     HorizontalOptions="Fill"
                     VerticalOptions="Center"
                     FontSize="22"/>
-                <Button
-                    x:Name="LeaderboardBtn"
-                    BackgroundColor="#57cc99"
-                    Command="{Binding GoToRecordsCommand}"
-                    FontSize="22"
-                    HorizontalOptions="Fill"
-                    VerticalOptions="Center"
-                    Text="К рекордам 🏆"></Button>
-                <Button 
-                        Text="Настройки 🛠️"
-                        BackgroundColor="#38a3a5"
-                        Command="{Binding GoToOptionsCommand}"
-                        HorizontalOptions="Fill"
-                        VerticalOptions="Center"
-                        FontSize="22"/>
-                <Button
-                    Text="Отладка"
-                    TextColor="Red"
-                    IsVisible="{Binding ShowDebug}"
-                    Command="{Binding ShowDebugOptionsCommand}"
-                    FontSize="18"
-                    BackgroundColor="Transparent"
-                    BorderColor="Red"
-                    HorizontalOptions="Fill"
-                    VerticalOptions="Center"
-                    BorderWidth="3"/>
-                
-            </VerticalStackLayout>
-            <BoxView Grid.Row="1" HeightRequest="10" BackgroundColor="Transparent" VerticalOptions="Fill" />
-            <VerticalStackLayout
-                Grid.Row="2"
+            <Button
+                Text="Отладка"
+                TextColor="Red"
+                IsVisible="{Binding ShowDebug}"
+                Command="{Binding ShowDebugOptionsCommand}"
+                FontSize="18"
+                BackgroundColor="Transparent"
+                BorderColor="Red"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                BorderWidth="3"/>
+
+        </VerticalStackLayout>
+        <VerticalStackLayout
+                Grid.Row="1"
                 Padding="16"
-                Spacing="15"
+                Spacing="10"
                 Margin="20">
-                <Label 
-                    TextColor="#888"
-                    FontSize="22"
-                    HorizontalTextAlignment="Center"
-                    Text="{Binding CurrentVersion,
-                            StringFormat='v{0}'}"/>
-                <Button
-                    BorderColor="AliceBlue"
-                    BorderWidth="2"
-                    x:Name="UpdateBtn"
-                    BackgroundColor="#22577a"
-                    Command="{Binding GoGetUpdateCommand}"
-                    IsVisible="{Binding IsThereUpdate}"
-                    VerticalOptions="End"
-                    HorizontalOptions="Fill"
-                    FontSize="17"
-                    LineBreakMode="WordWrap"
-                    TextColor="AliceBlue"
-                    Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
-                
-            </VerticalStackLayout>
-        </Grid>
-    </VerticalStackLayout>
+            
+            <Button
+                BorderColor="AliceBlue"
+                BorderWidth="2"
+                x:Name="UpdateBtn"
+                BackgroundColor="#22577a"
+                Command="{Binding GoGetUpdateCommand}"
+                IsVisible="{Binding IsThereUpdate}"
+                VerticalOptions="End"
+                HorizontalOptions="Fill"
+                FontSize="17"
+                LineBreakMode="WordWrap"
+                TextColor="AliceBlue"
+                Text="Доступно новое обновление! Жми сюда, чтобы скачать!"></Button>
+            <Label 
+                TextColor="#888"
+                FontSize="22"
+                HorizontalTextAlignment="Center"
+                Text="{Binding CurrentVersion,
+                        StringFormat='v{0}'}"/>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

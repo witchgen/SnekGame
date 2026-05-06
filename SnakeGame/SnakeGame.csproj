@@ -39,6 +39,7 @@
 	</PropertyGroup>
   <ItemGroup>
 	<PackageReference Include="CommunityToolkit.Maui" Version="14.1.0" />
+	<PackageReference Include="DrawnUi.Maui" Version="1.9.7.4" />
 	<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.51" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.51" />
@@ -56,6 +57,9 @@
 		<MauiImage Include="Resources\Vectors\*.svg" />
 	</ItemGroup>
 	<ItemGroup>
+		<EmbeddedResource Include="Assets\Screensaver\*.png" />
+	</ItemGroup>
+	<ItemGroup>
 	  <MauiIcon Include="Resources\AppIcon\snakeappicon.png" ForegroundScale="0.59" Color="#1368C7" />
 	</ItemGroup>
 	<ItemGroup>
@@ -71,6 +75,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\MainMenu.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\MainMenuRenderView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\OptionsPage.xaml">
