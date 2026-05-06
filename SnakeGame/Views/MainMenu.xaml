@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:SnakeGame.ViewModels"
              xmlns:draw="http://schemas.appomobi.com/drawnUi/2023/draw"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
              xmlns:snake="clr-namespace:SnakeGame.Custom"
              x:Class="SnakeGame.Views.MainMenu"
              x:DataType="local:MainMenuViewModel"
@@ -11,19 +12,17 @@
         HorizontalOptions="Center"
         VerticalOptions="Fill"
         RowDefinitions="*, Auto">
+        <!--<snake:SnekScreensaverGPU
+                ShowFps="{Binding ShowMenuBgFPS}"
+                Grid.RowSpan="2"
+                InputTransparent="True" />-->
         <draw:Canvas
-            IsVisible="True"
-            CascadeInputTransparent="True"
-            Grid.Row="0"
-            Grid.RowSpan="3"
+            VerticalOptions="Fill"
             HorizontalOptions="Fill"
-            InputTransparent="True"
-            VerticalOptions="Fill">
-            <snake:SnekScreensaver                 
-                HorizontalOptions="Fill" 
-                VerticalOptions="Fill" />
+            Grid.RowSpan="2">
+            <snake:SnekScreensaver
+                ShowFps="{Binding ShowMenuBgFPS}" />
         </draw:Canvas>
-
         <VerticalStackLayout
             IsVisible="True"
                 Grid.Row="0"

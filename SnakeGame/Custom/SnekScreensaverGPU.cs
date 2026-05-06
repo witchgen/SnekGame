@@ -1,17 +1,16 @@
-﻿using DrawnUi.Draw;
-using Microsoft.Maui.Controls;
+﻿using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Storage;
 using SkiaSharp;
+using SkiaSharp.Views.Maui;
+using SkiaSharp.Views.Maui.Controls;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 
 namespace SnakeGame.Custom
 {
-    public class SnekScreensaver : SkiaLayout
+    internal class SnekScreensaverGPU : SKGLView
     {
         // ─── Настройки ───
         public float Speed { get; set; } = 35f;                                         // Скорость полёта (пикселей/сек)
@@ -30,19 +29,6 @@ namespace SnakeGame.Custom
         private List<Star> _stars = new();
         private Random _rnd = new(42);
 
-        // ─── FPS ───
-        private int _frameCount;
-        private DateTime _fpsCheckTime = DateTime.UtcNow;
-        private int _currentFps;
-
-        // ─── Кэш для FPS-отрисовки ───
-        private readonly SKPaint _fpsPaint = new()
-        {
-            Style = SKPaintStyle.Fill,
-            Color = SKColors.Orange,
-            IsAntialias = true
-        };
-
         // ─── Кэш изображений ───
         private SKImage[] _images;
         private int _imageCount = 0;
@@ -59,66 +45,70 @@ namespace SnakeGame.Custom
             public float RotSpeed;   // Скорость вращения
         }
 
-        public SnekScreensaver()
-        {
+        public SnekScreensaverGPU() {
             HorizontalOptions = LayoutOptions.Fill;
             VerticalOptions = LayoutOptions.Fill;
-            UseCache = SkiaCacheType.ImageDoubleBuffered;
+            HasRenderLoop = true;
+
             LoadImages();
-
             InitStars();
-            StartTimer();
-        }
 
-        private void DrawFps(SKCanvas canvas)
-        {
-            _frameCount++;
-            var now = DateTime.UtcNow;
-            var delta = (now - _fpsCheckTime).TotalSeconds;
-
-            if (delta >= 1.0)
-            {
-                _currentFps = (int)(_frameCount / delta);
-                _frameCount = 0;
-                _fpsCheckTime = now;
-            }
-
-            string fpsText = $"FPS: {_currentFps}";
-            float padding = 8;
-            float textWidth = _fpsPaint.MeasureText(fpsText);
-            float boxWidth = textWidth + padding * 2;
-            float boxHeight = _fpsPaint.TextSize + padding * 2;
-            var font = new SKFont(typeface: SKTypeface.Default, size: 40);
-
-            var bgPaint = new SKPaint
-            {
-                Color = SKColors.Transparent,
-                Style = SKPaintStyle.Stroke
-            };
-
-            // Фон под текст
-            //canvas.DrawRect(10, 10, boxWidth, boxHeight, bgPaint);
-            // Текст
-            canvas.DrawText(fpsText, 10 + padding, 10 + boxHeight - padding / 2, font, _fpsPaint);
-        }
-
-        private void StartTimer()
-        {
             _lastFrameTime = DateTime.UtcNow;
-            _timer = Dispatcher.CreateTimer();
-            _timer.Interval = TimeSpan.FromMilliseconds(16);
-            _timer.Tick += (s, e) =>
-            {
-                var now = DateTime.UtcNow;
-                var dt = (float)(now - _lastFrameTime).TotalSeconds;
-                _lastFrameTime = now;
-                if (dt > 0.1f) dt = 0.1f;
 
-                _time += dt;
-                UpdateStars(dt);
-                Update();
-            };
-            _timer.Start();
+            PaintSurface += OnPaintSurface;
+        }
+
+        private void OnPaintSurface(object sender, SKPaintGLSurfaceEventArgs args)
+        {
+            var canvas = args.Surface.Canvas;
+            var width = args.BackendRenderTarget.Width;
+            var height = args.BackendRenderTarget.Height;
+            var cx = width / 2;
+            var cy = height / 2;
+
+            // Считаем dt и двигаем объекты
+            var now = DateTime.UtcNow;
+            var dt = (float)(now - _lastFrameTime).TotalSeconds;
+            _lastFrameTime = now;
+            if (dt > 0.1f) dt = 0.1f;
+
+            _time += dt;
+            UpdateStars(dt);
+
+            // Фон
+            canvas.Clear(BgColor);
+
+            // Рисуем от дальних к ближним (чтобы ближние перекрывали)
+            foreach (var star in _stars.OrderByDescending(s => s.Distance))
+            {
+                // Позиция с учётом угла
+                float x = cx + MathF.Cos(star.Angle) * star.Distance;
+                float y = cy + MathF.Sin(star.Angle) * star.Distance * (height / width); // Коррекция аспекта
+
+                // Масштаб: чем дальше, тем крупнее (эффект приближения)
+                float scale = star.Distance * 0.01f;
+                float drawSize = star.Size * scale;
+
+                // Отсечение за экраном
+                if (x < -drawSize || x > width + drawSize ||
+                    y < -drawSize || y > height + drawSize)
+                    continue;
+
+                // Яркость: ближние ярче
+                float brightness = Math.Clamp(scale / 5f, 0.3f, 1f);
+                var color = StarColor.WithAlpha((byte)(255 * brightness));
+
+                if (star.ImageIndex >= 0 && _images?[star.ImageIndex] != null)
+                {
+                    // Рисуем картинку
+                    DrawImage(canvas, _images[star.ImageIndex], x, y, drawSize, star.Rotation, color);
+                }
+                else
+                {
+                    // Рисуем "звезду" — круг с бликом
+                    DrawStar(canvas, x, y, drawSize, color);
+                }
+            }
         }
 
         private void InitStars()
@@ -163,55 +153,6 @@ namespace SnakeGame.Custom
                 SpawnStar();
             }
             //_stars.Sort((a, b) => b.Distance.CompareTo(a.Distance));
-        }
-
-        protected override void Paint(DrawingContext ctx)
-        {
-            var canvas = ctx.Context.Canvas;
-            var width = ctx.Context.Width;
-            var height = ctx.Context.Height;
-            var cx = width / 2;
-            var cy = height / 2;
-
-            // Фон
-            canvas.Clear(BgColor);
-
-            // Рисуем от дальних к ближним (чтобы ближние перекрывали)
-            foreach (var star in _stars.OrderByDescending(s => s.Distance))
-            {
-                // Позиция с учётом угла
-                float x = cx + MathF.Cos(star.Angle) * star.Distance;
-                float y = cy + MathF.Sin(star.Angle) * star.Distance * (height / width); // Коррекция аспекта
-
-                // Масштаб: чем дальше, тем крупнее (эффект приближения)
-                float scale = star.Distance * 0.01f;
-                float drawSize = star.Size * scale;
-
-                // Отсечение за экраном
-                if (x < -drawSize || x > width + drawSize ||
-                    y < -drawSize || y > height + drawSize)
-                    continue;
-
-                // Яркость: ближние ярче
-                float brightness = Math.Clamp(scale / 5f, 0.3f, 1f);
-                var color = StarColor.WithAlpha((byte)(255 * brightness));
-
-                if (star.ImageIndex >= 0 && _images?[star.ImageIndex] != null)
-                {
-                    // Рисуем картинку
-                    DrawImage(canvas, _images[star.ImageIndex], x, y, drawSize, star.Rotation, color);
-                }
-                else
-                {
-                    // Рисуем "звезду" — круг с бликом
-                    DrawStar(canvas, x, y, drawSize, color);
-                }
-            }
-
-            if(ShowFps)
-            {
-                DrawFps(canvas);
-            }
         }
 
         private void DrawStar(SKCanvas canvas, float x, float y, float size, SKColor color)
@@ -302,32 +243,5 @@ namespace SnakeGame.Custom
             _imageCount = _images.Length;
             UseImages = _imageCount > 0;
         }
-
-        //public void LoadSvgImages(params string[] svgPaths)
-        //{
-        //    var images = new List<SKImage>();
-        //    foreach (var path in svgPaths)
-        //    {
-        //        try
-        //        {
-        //            var svg = SkiaSharp.Extended.Svg.SKSvg.CreateFromFile(path);
-        //            if (svg?.Picture != null)
-        //            {
-        //                // Растеризуем SVG в bitmap
-        //                var info = new SKImageInfo(128, 128);
-        //                using var surface = SKSurface.Create(info);
-        //                var canvas = surface.Canvas;
-        //                canvas.Clear(SKColors.Transparent);
-        //                canvas.DrawPicture(svg.Picture);
-        //                images.Add(surface.Snapshot());
-        //            }
-        //        }
-        //        catch { /* игнорируем */ }
-        //    }
-
-        //    _images = images.ToArray();
-        //    _imageCount = _images.Length;
-        //    UseImages = _imageCount > 0;
-        //}
     }
 }

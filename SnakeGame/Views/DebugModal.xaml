@@ -33,6 +33,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
@@ -149,6 +150,23 @@
                                           StringFormat='Текущая скорость: {0:F0} мс'}"
                             HorizontalOptions="Center"
                             VerticalOptions="Center" />
+
+                    <!-- Показ FPS (меню) -->
+                    <Label 
+                        Grid.Row="7"
+                        Grid.Column="0"
+                        Text="Показывать FPS в главном меню"
+                        TextColor="White"
+                        VerticalOptions="Center"/>
+
+                    <Switch
+                        Grid.Row="7"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        ThumbColor="AliceBlue"
+                        OnColor="LightGreen"
+                        OffColor="Gray"
+                        IsToggled="{Binding ShowMenuBgFPS}"/>
                 </Grid>
             </ScrollView>
         </Border>

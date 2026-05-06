@@ -55,6 +55,8 @@ namespace SnakeGame.ViewModels
         public bool _isAIPathVisible = Preferences.Get("DebugAIPathToggled", false); // Флаг показа построения пути ИИ
         [ObservableProperty]
         public int _gameSpeedMs = Preferences.Get("LegacySpeed", 220);
+        [ObservableProperty]
+        private bool _showMenuBgFPS = Preferences.Get("ShowMainMenuFPS", false); // Флаг отрисовки FPS в главном меню
         // ================
 
         [RelayCommand]
@@ -93,6 +95,11 @@ namespace SnakeGame.ViewModels
         partial void OnGameSpeedMsChanged(int value)
         {
             Preferences.Set("LegacySpeed", value);
+        }
+
+        partial void OnShowMenuBgFPSChanged(bool value)
+        {
+            Preferences.Set("ShowMainMenuFPS", value);
         }
 
         [RelayCommand]
