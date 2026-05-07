@@ -12,10 +12,6 @@
         HorizontalOptions="Center"
         VerticalOptions="Fill"
         RowDefinitions="*, Auto">
-        <!--<snake:SnekScreensaverGPU
-                ShowFps="{Binding ShowMenuBgFPS}"
-                Grid.RowSpan="2"
-                InputTransparent="True" />-->
         <draw:Canvas
             VerticalOptions="Fill"
             HorizontalOptions="Fill"

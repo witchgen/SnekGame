@@ -81,4 +81,7 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="SnekEngine\World\" />
+	</ItemGroup>
 </Project>
