@@ -15,11 +15,11 @@ namespace SnakeGame.SnekEngine.Rendering
             _cellSize = cellSize;
         }
 
-        public void Draw(SKCanvas canvas)
+        public void DrawCells(SKCanvas canvas)
         {
             var paint = new SKPaint
             {
-                Color = new SKColor(157, 157, 157, 120),
+                Color = SKColors.DarkGray /*new SKColor(157, 157, 157, 255)*/,
                 StrokeWidth = 1,
                 IsAntialias = false,
                 Style = SKPaintStyle.Stroke
@@ -28,7 +28,7 @@ namespace SnakeGame.SnekEngine.Rendering
             var path = new SKPath();
 
             // Вертикальные линии
-            for (int i = 0; i <= _cols; i++)
+            for (int i = 1; i <= _cols; i++)
             {
                 float y = i * _cellSize;
                 path.MoveTo(y, 0);
@@ -36,7 +36,7 @@ namespace SnakeGame.SnekEngine.Rendering
             }
 
             // Горизонтальные линии
-            for (int j = 0; j <= _rows; j++)
+            for (int j = 1; j <= _rows; j++)
             {
                 float x = j * _cellSize;
                 path.MoveTo(0, x);
@@ -44,6 +44,20 @@ namespace SnakeGame.SnekEngine.Rendering
             }
 
             canvas.DrawPath(path, paint);
+        }
+
+        public void DrawField(SKCanvas canvas)
+        {
+            var paint = new SKPaint
+            {
+                Color = new SKColor(92, 159, 61, 255),
+                StrokeWidth = 1,
+                IsAntialias = false,
+                Style = SKPaintStyle.Fill
+            };
+
+            var path = new SKPath();
+            canvas.DrawRect(0, 0, _cols * _cellSize, _rows * _cellSize, paint);
         }
     }
 }

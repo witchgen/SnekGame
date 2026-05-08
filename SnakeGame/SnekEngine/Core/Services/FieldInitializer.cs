@@ -9,15 +9,14 @@ namespace SnakeGame.SnekEngine.Core.Services
     public class FieldInitializer : IFieldInitializer
     {
         private Random _rnd;
-        public FieldInitializer(Random rnd)
-        {
-            _rnd = rnd;
-        }
+        public FieldInitializer() { }
 
-        public GameSnapshot InitializeField(InitialSettings settings)
+        public GameSnapshot InitializeField(InitialSettings settings, Random rnd)
         {
             int rows = settings.Rows;
             int cols = settings.Cols;
+
+            _rnd = rnd;
 
             int[,] field = new int[rows, cols];
 

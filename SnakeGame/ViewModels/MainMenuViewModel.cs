@@ -46,17 +46,21 @@ namespace SnakeGame.ViewModels
         // ================
         // Значения для поп-апа отладки:
         [ObservableProperty]
-        public bool _isBombHighlightActive = Preferences.Get("BombHighlightToggled", false); // Флаг отладки "свободной от бомб" позиции
+        public bool _isBombHighlightActive = Preferences.Get("BombHighlightToggled", false);        // Флаг отладки "свободной от бомб" позиции
         [ObservableProperty]
-        public bool _isSnakeAIActive = Preferences.Get("SnakeAIToggled", false); // Флаг использования змеей "автопилота"
+        public bool _isSnakeAIActive = Preferences.Get("SnakeAIToggled", false);                    // Флаг использования змеей "автопилота"
         [ObservableProperty]
-        public bool _isGameSpeedSliderActive = Preferences.Get("CustomGameSpeedEnabled", false); // Флаг показа ползунка скорости игры
+        public bool _isGameSpeedSliderActive = Preferences.Get("CustomGameSpeedEnabled", false);    // Флаг показа ползунка скорости игры
         [ObservableProperty]
-        public bool _isAIPathVisible = Preferences.Get("DebugAIPathToggled", false); // Флаг показа построения пути ИИ
+        public bool _isAIPathVisible = Preferences.Get("DebugAIPathToggled", false);                // Флаг показа построения пути ИИ
         [ObservableProperty]
         public int _gameSpeedMs = Preferences.Get("LegacySpeed", 220);
         [ObservableProperty]
-        private bool _showMenuBgFPS = Preferences.Get("ShowMainMenuFPS", false); // Флаг отрисовки FPS в главном меню
+        private bool _showMenuBgFPS = Preferences.Get("ShowMainMenuFPS", false);                    // Флаг отрисовки FPS в главном меню
+        [ObservableProperty]
+        private bool _isMainGameModeVisible = Preferences.Get("MainGameOptionVisible", true);       // Флаг переключения основного режима игры
+        [ObservableProperty]
+        private bool _isLegacyGameModeVisible = Preferences.Get("LegacyGameOptionVisible", false);  // Флаг переключения легаси режима игры
         // ================
 
         [RelayCommand]
@@ -102,6 +106,12 @@ namespace SnakeGame.ViewModels
             Preferences.Set("ShowMainMenuFPS", value);
         }
 
+        partial void OnIsLegacyGameModeVisibleChanged(bool value)
+        {
+            Preferences.Set("LegacyGameOptionVisible", value);
+            Preferences.Set("MainGameOptionVisible", !value);
+        }
+
         [RelayCommand]
         private async Task GoToRecords()
         {
@@ -118,6 +128,12 @@ namespace SnakeGame.ViewModels
         private async Task GoToLegacyGame()
         {
             await Shell.Current.GoToAsync("LegacyGamePage"); 
+        }
+
+        [RelayCommand]
+        private async Task GoToMainGame()
+        {
+            await Shell.Current.GoToAsync("GamePage");
         }
 
         public async Task CheckForUpdates()

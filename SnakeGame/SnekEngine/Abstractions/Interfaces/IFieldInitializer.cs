@@ -1,4 +1,5 @@
 ﻿using SnakeGame.SnekEngine.Abstractions.Models;
+using System;
 
 namespace SnakeGame.SnekEngine.Abstractions.Interfaces
 {
@@ -9,6 +10,6 @@ namespace SnakeGame.SnekEngine.Abstractions.Interfaces
         /// </summary>
         /// <param name="settings">Стартовая конфигурация</param>
         /// <returns>Первый снимок раунда</returns>
-        GameSnapshot InitializeField(InitialSettings settings);
+        GameSnapshot InitializeField(InitialSettings settings, Random rnd);
     }
 }

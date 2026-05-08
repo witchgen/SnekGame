@@ -1,12 +1,16 @@
-﻿using Microsoft.Maui.Controls.Hosting;
-using Microsoft.Maui.Hosting;
+﻿using CommunityToolkit.Maui;
+using DrawnUi.Draw;
 using Microsoft.Extensions.DependencyInjection;
-using CommunityToolkit.Maui;
+using Microsoft.Maui.Controls.Hosting;
+using Microsoft.Maui.Hosting;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 using SnakeGame.Services;
+using SnakeGame.SnekEngine;
+using SnakeGame.SnekEngine.Abstractions.Interfaces;
+using SnakeGame.SnekEngine.Core.Services;
+using SnakeGame.SnekEngine.Rendering;
 using SnakeGame.ViewModels;
 using SnakeGame.Views;
-using DrawnUi.Draw;
-using SkiaSharp.Views.Maui.Controls.Hosting;
 //using MauiLib;
 
 
@@ -44,6 +48,16 @@ public static class MauiProgram
         builder.Services.AddTransient<OptionsViewModel>();
         builder.Services.AddTransient<MainMenu>();
         builder.Services.AddTransient<OptionsPage>();
+
+        builder.Services.AddSingleton<FieldInitializer>();
+        builder.Services.AddSingleton<FieldUpdater>();
+        //builder.Services.AddSingleton<FieldRenderer>();
+        //builder.Services.AddSingleton<GameRenderer>();
+        builder.Services.AddSingleton<IGameplayService, GameplayService>();
+        builder.Services.AddSingleton<IGraphicRenderService, GraphicRenderService>();
+        builder.Services.AddSingleton<GameDispatcher>();
+        builder.Services.AddTransient<GamePage>();
+        builder.Services.AddTransient<GameViewModel>();
 
         return builder.Build();
     }

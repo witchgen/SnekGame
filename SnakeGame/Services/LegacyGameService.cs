@@ -1,5 +1,4 @@
-﻿//using Android.OS;
-using SnakeGame.Custom;
+﻿using SnakeGame.Custom;
 using SnakeGame.Models.GameInfo;
 using System;
 using System.Collections.Generic;
@@ -79,7 +78,7 @@ public interface IGameService
     void ToggleCustomSpeedChange(bool value);
 }
 
-public class GameService : IGameService
+public class LegacyGameService : IGameService
 {
     private IFieldGenerator _generator = new FieldGenerator();
 
@@ -116,7 +115,7 @@ public class GameService : IGameService
 
     private readonly IBigThinkSnakeService _aiSnek;
 
-    public GameService(IBigThinkSnakeService aiSnek)
+    public LegacyGameService(IBigThinkSnakeService aiSnek)
     {
         _aiSnek = aiSnek;
     }

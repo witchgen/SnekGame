@@ -11,6 +11,7 @@ namespace SnakeGame
 
             Routing.RegisterRoute("MainMenu", typeof(MainMenu));
             Routing.RegisterRoute("OptionsPage", typeof(OptionsPage));
+            Routing.RegisterRoute("GamePage", typeof(GamePage));
             Routing.RegisterRoute("LegacyGamePage", typeof(LegacyGamePage));
             Routing.RegisterRoute("LeaderboardsPage", typeof(LeaderboardsPage));
         }

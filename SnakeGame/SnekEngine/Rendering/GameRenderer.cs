@@ -19,6 +19,21 @@ namespace SnakeGame.SnekEngine.Rendering
             _snakeR = new SnakeRenderer(_cellSize);
         }
 
+        public void Draw(SKCanvas canvas, GameSnapshot snapshot)
+        {
+            _wallsCache.Clear();
+            canvas.Clear(SKColors.Transparent);
+            _fieldR.DrawField(canvas);
+            _fieldR.DrawCells(canvas);
+            CacheWalls(snapshot.Field);
+            DrawWalls(canvas, snapshot.Field);
+            DrawApple(canvas, snapshot.Apple);
+            if (snapshot.Bombs != null)
+                DrawBomb(canvas, snapshot.Bombs);
+
+            _snakeR.DrawStatic(canvas, snapshot.CurrentSnake);
+        }
+
         private void DrawWalls(SKCanvas canvas, int[,] field)
         {
             using var paint = new SKPaint
@@ -44,27 +59,14 @@ namespace SnakeGame.SnekEngine.Rendering
 
         public void CacheWalls(int[,] field)
         {
-            for(int i = 0; i < field.GetLength(0); i++)
+            for (int i = 0; i < field.GetLength(0); i++)
             {
-                for(int j = 0; j< field.GetLength(1); j++)
+                for (int j = 0; j < field.GetLength(1); j++)
                 {
                     if (field[i, j] == 1)
                         _wallsCache.Add((i, j));
                 }
             }
-        }
-
-        public void Draw(SKCanvas canvas, GameSnapshot snapshot)
-        {
-            canvas.Clear();
-            _fieldR.Draw(canvas);
-            if (_wallsCache.Count == 0) CacheWalls(snapshot.Field);
-            DrawWalls(canvas, snapshot.Field);
-            DrawApple(canvas, snapshot.Apple);
-            if (snapshot.Bombs != null)
-                DrawBomb(canvas, snapshot.Bombs);
-
-            _snakeR.DrawStatic(canvas, snapshot.CurrentSnake);
         }
 
         private void DrawApple(SKCanvas canvas, (int i, int j) apple)
@@ -90,7 +92,7 @@ namespace SnakeGame.SnekEngine.Rendering
         {
             using var paint = new SKPaint
             {
-                Color = SKColors.Yellow,
+                Color = SKColors.Black,
                 IsAntialias = true,
                 Style = SKPaintStyle.Fill
             };

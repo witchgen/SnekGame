@@ -9,14 +9,9 @@ namespace SnakeGame.SnekEngine.Core.Services
 {
     internal class FieldUpdater : IFieldUpdater
     {
-        private readonly Random _rnd;
+        public FieldUpdater() { }
 
-        public FieldUpdater(Random rnd)
-        {
-            _rnd = rnd;
-        }
-
-        public GameSnapshot UpdateField(GameSnapshot snapshot, Direction direction)
+        public GameSnapshot UpdateField(GameSnapshot snapshot, Direction direction, Random rnd)
         {
             var field = snapshot.Field;
             var snake = snapshot.CurrentSnake;
@@ -50,11 +45,11 @@ namespace SnakeGame.SnekEngine.Core.Services
             snake.Move(newHead, ateApple);
 
             if (ateApple)
-                snapshot.Apple = PlaceApple(field); // новое яблоко
+                snapshot.Apple = PlaceApple(field, rnd); // новое яблоко
 
             // 4. Бомба
             if (ateApple && snapshot.Bombs != null)
-                snapshot.Bombs = PlaceBomb(field, snapshot.Bombs.Count);
+                snapshot.Bombs = PlaceBomb(field, snapshot.Bombs.Count, rnd);
 
             // 5. Обновляем поле
             UpdateFieldArray(field, snake, snapshot.Apple, snapshot.Bombs);
@@ -102,15 +97,15 @@ namespace SnakeGame.SnekEngine.Core.Services
                     field[bomb.i, bomb.j] = 4;
         }
 
-        private (int i, int j) PlaceApple(int[,] field)
+        private (int i, int j) PlaceApple(int[,] field, Random rnd)
         {
             int rows = field.GetLength(0);
             int cols = field.GetLength(1);
 
             for (int attempt = 0; attempt < 1500; attempt++)
             {
-                int i = _rnd.Next(1, rows - 1);
-                int j = _rnd.Next(1, cols - 1);
+                int i = rnd.Next(1, rows - 1);
+                int j = rnd.Next(1, cols - 1);
 
                 if (field[i, j] == 0)
                 {
@@ -122,7 +117,7 @@ namespace SnakeGame.SnekEngine.Core.Services
             throw new CantPlaceItemsException();
         }
 
-        private HashSet<(int i, int j)>? PlaceBomb(int[,] field, int amount)
+        private HashSet<(int i, int j)>? PlaceBomb(int[,] field, int amount, Random rnd)
         {
             if (amount < 0 || amount > 15) return null;
 
@@ -133,8 +128,8 @@ namespace SnakeGame.SnekEngine.Core.Services
 
             for (int attempt = 0; attempt <= maxAttempts; attempt++)
             {
-                int i = _rnd.Next(1, rows - 1);
-                int j = _rnd.Next(1, cols - 1);
+                int i = rnd.Next(1, rows - 1);
+                int j = rnd.Next(1, cols - 1);
 
                 if (bombs.Count == amount) return bombs;
 

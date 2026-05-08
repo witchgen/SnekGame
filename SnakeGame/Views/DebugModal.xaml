@@ -34,6 +34,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
@@ -167,6 +168,24 @@
                         OnColor="LightGreen"
                         OffColor="Gray"
                         IsToggled="{Binding ShowMenuBgFPS}"/>
+
+                    <!-- Показ FPS (меню) -->
+                    <Label 
+                        Grid.Row="8"
+                        Grid.Column="0"
+                        Text="Вернуться на легаси версию игры"
+                        TextColor="LightYellow"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center"/>
+
+                    <Switch
+                        Grid.Row="8"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        ThumbColor="AliceBlue"
+                        OnColor="LightGreen"
+                        OffColor="Gray"
+                        IsToggled="{Binding IsLegacyGameModeVisible}"/>
                 </Grid>
             </ScrollView>
         </Border>

@@ -22,6 +22,7 @@
             IsVisible="True"
                 Grid.Row="0"
                 Margin="5"
+                Padding="20"
                 Spacing="25"
                 HorizontalOptions="Center">
             <Label
@@ -42,6 +43,15 @@
             <Button 
                 Text="К игре! 🎮"
                 BackgroundColor="#80ed99"
+                IsVisible="{Binding IsMainGameModeVisible}"
+                Command="{Binding GoToMainGameCommand}"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                FontSize="22"/>
+            <Button 
+                Text="Назад в прошлое! 🐰👉⏱️"
+                BackgroundColor="#80ed99"
+                IsVisible="{Binding IsLegacyGameModeVisible}"
                 Command="{Binding GoToLegacyGameCommand}"
                 HorizontalOptions="Fill"
                 VerticalOptions="Center"

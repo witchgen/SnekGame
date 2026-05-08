@@ -8,6 +8,6 @@ namespace SnakeGame.SnekEngine.Abstractions.Interfaces
         /// Инициализация игрового раунда
         /// </summary>
         /// <returns>Первичный снимок игры, по нему будет "ориентироваться" рендер</returns>
-        GameSnapshot InitializeLevel();
+        GameSnapshot InitializeLevel(InitialSettings setup);
     }
 }

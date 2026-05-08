@@ -1,6 +1,7 @@
 ﻿using SnakeGame.SnekEngine.Abstractions.Interfaces;
 using SnakeGame.SnekEngine.Abstractions.Models;
 using System;
+using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.Core.Services
 {
@@ -8,15 +9,23 @@ namespace SnakeGame.SnekEngine.Core.Services
     {
         private readonly FieldInitializer _initializer;
         private readonly FieldUpdater _updater;
-        private readonly Random _rnd;
+        private Random _rnd;
         private InitialSettings _settings;
+        private Direction _currentDir;
 
-        public GameplayService(InitialSettings setup) 
+        public GameplayService(FieldInitializer initializer,
+            FieldUpdater updater) 
         {
-            _rnd = new Random(setup.Seed ?? Environment.TickCount);
-            _settings = setup;
+            _initializer = initializer;
+            _updater = updater;
         }
 
-        public GameSnapshot InitializeLevel() => _initializer.InitializeField(_settings);
+        public GameSnapshot InitializeLevel(InitialSettings setup)
+        {
+            _settings = setup;
+            _currentDir = setup.FirstDirection;
+            _rnd = new Random(setup.Seed ?? Environment.TickCount);
+            return _initializer.InitializeField(_settings, _rnd);
+        }
     }
 }

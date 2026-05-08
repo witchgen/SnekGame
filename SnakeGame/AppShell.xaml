@@ -23,6 +23,11 @@
         Title="Настройки"
         Shell.NavBarIsVisible="False"
         ContentTemplate="{DataTemplate vm:OptionsPage}" />
+    <ShellContent 
+        Route="GamePage"
+        Title="Змея актуальная"
+        Shell.NavBarIsVisible="False"
+        ContentTemplate="{DataTemplate vm:GamePage}"/>
     <ShellContent
         Route="LegacyGamePage"
         Title="Змеюка Легаси"
