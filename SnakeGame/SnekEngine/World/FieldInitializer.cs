@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using static SnakeGame.Custom.CustomExceptions;
 
-namespace SnakeGame.SnekEngine.Core.Services
+namespace SnakeGame.SnekEngine.World
 {
     public class FieldInitializer : IFieldInitializer
     {
@@ -27,8 +27,8 @@ namespace SnakeGame.SnekEngine.Core.Services
                 SetBasicWalls(field);
 
             // 2. Змея
-            var snake = new Snake(new Snake.SnakeSegment(settings.SnakeSpawnPoint));
-            field[settings.SnakeSpawnPoint.i, settings.SnakeSpawnPoint.j] = 2;
+            var snake = new Snake(new Snake.SnakeSegment((settings.SnakeSpawnPointI, settings.SnakeSpawnPointJ)));
+            field[settings.SnakeSpawnPointI, settings.SnakeSpawnPointJ] = 2;
 
             // 3. Яблоко
             var apple = PlaceApple(field);

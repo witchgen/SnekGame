@@ -9,6 +9,7 @@ using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Interfaces;
 using SnakeGame.SnekEngine.Core.Services;
 using SnakeGame.SnekEngine.Rendering;
+using SnakeGame.SnekEngine.World;
 using SnakeGame.ViewModels;
 using SnakeGame.Views;
 //using MauiLib;

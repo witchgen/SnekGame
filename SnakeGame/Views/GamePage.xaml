@@ -5,10 +5,20 @@
              x:Class="SnakeGame.Views.GamePage"
              x:DataType="local:GameViewModel">
 
-    <Grid RowDefinitions="*,*" Padding="10">
+    <Grid RowDefinitions="*,*" RowSpacing="15">
+
+        <!-- Игровое поле -->
+        <skia:SKCanvasView Grid.Row="0"
+            x:Name="gameScreen"
+            PaintSurface="OnGameScreenPaintSurface"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill"
+            Background="Transparent"
+            EnableTouchEvents="True">
+        </skia:SKCanvasView>
 
         <!-- Панель настроек -->
-        <VerticalStackLayout Spacing="8" Grid.Row="1">
+        <VerticalStackLayout Spacing="8" Margin="10" Grid.Row="1">
 
             <Button Text="Перегенерировать поле"
                 Command="{Binding GenerateFieldCommand}" />
@@ -35,7 +45,7 @@
                     Placeholder="Cols"
                     Keyboard="Numeric"
                     Text="{Binding Settings.Cols}" />
-                
+
                 <Label
                     Grid.Row="1" Grid.Column="0"
                     VerticalTextAlignment="Center"
@@ -44,7 +54,7 @@
                 <Entry Grid.Row="1" Grid.Column="1"
                     Placeholder="Snake spawn i"
                     Keyboard="Numeric"
-                    Text="{Binding Settings.SnakeSpawnPoint.i}" />
+                    Text="{Binding Settings.SnakeSpawnPointI}" />
                 <Label
                     Grid.Row="1" Grid.Column="2"
                     VerticalTextAlignment="Center"
@@ -53,7 +63,7 @@
                 <Entry Grid.Row="1" Grid.Column="3"
                     Placeholder="Snake spawn j"
                     Keyboard="Numeric"
-                    Text="{Binding Settings.SnakeSpawnPoint.j}" />
+                    Text="{Binding Settings.SnakeSpawnPointJ}" />
 
                 <Label
                     Grid.Row="2" Grid.Column="0"
@@ -77,16 +87,6 @@
             </Grid>
 
         </VerticalStackLayout>
-
-        <!-- Игровое поле -->
-        <skia:SKCanvasView Grid.Row="0"
-                    x:Name="gameScreen"
-                    PaintSurface="OnGameScreenPaintSurface"
-                    VerticalOptions="Fill"
-                    HorizontalOptions="Fill"
-                    Background="Transparent"
-                    EnableTouchEvents="True">
-        </skia:SKCanvasView>
 
     </Grid>
 </ContentPage>

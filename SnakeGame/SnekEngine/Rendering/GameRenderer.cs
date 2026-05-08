@@ -39,7 +39,7 @@ namespace SnakeGame.SnekEngine.Rendering
             using var paint = new SKPaint
             {
                 Color = new SKColor(80, 80, 80),
-                IsAntialias = true,
+                IsAntialias = false,
                 Style = SKPaintStyle.Fill
             };
 

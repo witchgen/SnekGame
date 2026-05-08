@@ -1,5 +1,6 @@
 ﻿using SnakeGame.SnekEngine.Abstractions.Interfaces;
 using SnakeGame.SnekEngine.Abstractions.Models;
+using SnakeGame.SnekEngine.World;
 using System;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 

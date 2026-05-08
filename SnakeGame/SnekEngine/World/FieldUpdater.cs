@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using static SnakeGame.Custom.CustomExceptions;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
-namespace SnakeGame.SnekEngine.Core.Services
+namespace SnakeGame.SnekEngine.World
 {
     internal class FieldUpdater : IFieldUpdater
     {

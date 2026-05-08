@@ -27,26 +27,26 @@ public partial class GamePage : ContentPage
         float canvasWidth = e.Info.Width;
 		float canvasHeight = e.Info.Height;
 
-        float radius = 20f;
+        //float radius = 35f;
 
-        // создаём скруглённый прямоугольник
-        using var clipPath = new SKPath();
-        clipPath.AddRoundRect(new SKRect(0, 0, canvasWidth, canvasHeight), radius, radius);
+        //// создаём скруглённый прямоугольник
+        //using var clipPath = new SKPath();
+        //clipPath.AddRoundRect(new SKRect(0, 0, canvasWidth, canvasHeight), radius, radius);
 
-        // обрезаем всё по форме
-        canvas.ClipPath(clipPath, antialias: true);
+        //// обрезаем всё по форме
+        //canvas.ClipPath(clipPath, antialias: true);
 
-        // рисуем рамку
-        using (var borderPaint = new SKPaint
-        {
-            Color = SKColors.Gray,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = 3,
-            IsAntialias = true
-        })
-        {
-            canvas.DrawPath(clipPath, borderPaint);
-        }
+        //// рисуем рамку
+        //using (var borderPaint = new SKPaint
+        //{
+        //    Color = SKColors.Transparent,
+        //    Style = SKPaintStyle.Stroke,
+        //    StrokeWidth = 3,
+        //    IsAntialias = true
+        //})
+        //{
+        //    canvas.DrawPath(clipPath, borderPaint);
+        //}
 
         // размеры поля
         int cols = _gvm.Settings.Cols;

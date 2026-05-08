@@ -18,9 +18,10 @@ namespace SnakeGame.ViewModels
         [ObservableProperty]
         private InitialSettings _settings = new()
         {
-            Rows = 20,
-            Cols = 20,
-            SnakeSpawnPoint = (10, 10),
+            Rows = 17,
+            Cols = 17,
+            SnakeSpawnPointI = 8,
+            SnakeSpawnPointJ = 8,
             BombsCount = 1,
             CustomWalls = false
         };
@@ -34,7 +35,7 @@ namespace SnakeGame.ViewModels
         [RelayCommand]
         public void GenerateField()
         {
-            _dispatcher.StartRound(Settings, _canvasWidth, _canvasHeight);
+            _dispatcher.InitializeRound(Settings, _canvasWidth, _canvasHeight);
             RequestRedraw?.Invoke();
         }
 

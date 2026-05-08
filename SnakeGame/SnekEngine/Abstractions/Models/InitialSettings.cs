@@ -8,7 +8,8 @@ namespace SnakeGame.SnekEngine.Abstractions.Models
         public int? Seed { get; set; }
         public int Rows { get; set; }
         public int Cols { get; set; }
-        public (int i, int j) SnakeSpawnPoint { get; set; }
+        public int SnakeSpawnPointI { get; set; }
+        public int SnakeSpawnPointJ { get; set; }
         public Direction FirstDirection { get; set; }
         public int BombsCount { get; set; } = 0;
         public bool CustomWalls { get; set; } = false;
