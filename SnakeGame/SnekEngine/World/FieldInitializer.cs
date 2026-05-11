@@ -42,10 +42,10 @@ namespace SnakeGame.SnekEngine.World
             return new GameSnapshot
             {
                 Field = field,
-                CurrentSnake = snake,
+                Snake = snake,
                 Apple = apple,
                 Bombs = bombs,
-                CurrentScore = 0
+                Score = 0
             };
         }
 

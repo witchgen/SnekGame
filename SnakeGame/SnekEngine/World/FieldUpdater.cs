@@ -14,13 +14,22 @@ namespace SnakeGame.SnekEngine.World
         public GameSnapshot UpdateField(GameSnapshot snapshot, Direction direction, Random rnd)
         {
             var field = snapshot.Field;
-            var snake = snapshot.CurrentSnake;
+            var snake = snapshot.Snake;
             var head = snake.Body.First.Value;
 
             // 1. Новая позиция головы
-            var newHead = MoveHead(head, direction);
+            (int i, int j) newHead = (0, 0);
+            CellContent nextCell = CellContent.Empty;
+            try
+            {
+                newHead = MoveHead(head, direction);
 
-            var nextCell = CheckAhead(field, newHead);
+                nextCell = CheckAhead(field, newHead);
+            }
+            catch // Ловим лицом границу поля?
+            {
+                nextCell = CellContent.Wall;
+            }
 
             // 2. Проверка столкновений
             if (nextCell == CellContent.Wall)
@@ -35,7 +44,7 @@ namespace SnakeGame.SnekEngine.World
             }
             else if(nextCell == CellContent.Bomb)
             {
-                snapshot.EndReason |= GameOverReason.Bomb;
+                snapshot.EndReason = GameOverReason.Bomb;
                 return snapshot;
             }
 
@@ -45,7 +54,10 @@ namespace SnakeGame.SnekEngine.World
             snake.Move(newHead, ateApple);
 
             if (ateApple)
+            {
+                snapshot.Score += 100;
                 snapshot.Apple = PlaceApple(field, rnd); // новое яблоко
+            }
 
             // 4. Бомба
             if (ateApple && snapshot.Bombs != null)
@@ -85,7 +97,13 @@ namespace SnakeGame.SnekEngine.World
 
         private void UpdateFieldArray(int[,] field, Snake snake, (int i, int j) apple, HashSet<(int i, int j)>? bombs)
         {
-            Array.Clear(field, 0, field.Length);
+            //Array.Clear(field, 0, field.Length);
+
+            // СТЕНЫ РЕАЛИЗОВАТЬ НОРМАЛЬНО БЛЭТ
+            for (int i = 0; i < field.GetLength(0); i++)
+                for (int j = 0; j < field.GetLength(1); j++)
+                    if (field[i, j] != 1) // не стена
+                        field[i, j] = 0;
 
             foreach (var seg in snake.Body)
                 field[seg.i, seg.j] = 2;

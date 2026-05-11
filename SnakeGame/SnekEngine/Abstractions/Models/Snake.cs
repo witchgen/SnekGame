@@ -1,11 +1,13 @@
-﻿
-using Java.Util;
+﻿using ShimSkiaSharp;
 using SnakeGame.Models.GameInfo;
 using System;
 using System.Collections.Generic;
 
 namespace SnakeGame.SnekEngine.Abstractions.Models
 {
+    /// <summary>
+    /// Наша змея. Состоит из связанных сегментов, при копировании состояние предпочтительно использовать метод <see cref="GetAsClone()"/>
+    /// </summary>
     public class Snake : ICloneable
     {
         public LinkedList<SnakeSegment> Body = new();
@@ -20,6 +22,9 @@ namespace SnakeGame.SnekEngine.Abstractions.Models
             }
         }
 
+        /// <summary>
+        /// Возвращаем новый объект змеи, идентичный оригиналукопия оригинала
+        /// <returns></returns>
         public object Clone()
         {
             var clone = new Snake();
@@ -30,6 +35,10 @@ namespace SnakeGame.SnekEngine.Abstractions.Models
             return clone;
         }
 
+        /// <summary>
+        /// Обертка для удобства
+        /// </summary>
+        /// <returns></returns>
         public Snek GetAsClone() => (Snek)Clone();
 
         /// <summary>
@@ -43,9 +52,14 @@ namespace SnakeGame.SnekEngine.Abstractions.Models
             if (!isChomp) Body.RemoveLast(); // Если змея съела "яблоко", подчищаем на один сегмент меньше
         }
 
+        /// <summary>
+        /// Отдельный сегмент тела змеи, имеет координаты высота-широта
+        /// </summary>
         public class SnakeSegment
         {
+            // Высота (строка)
             public int i;
+            // Ширина (столбец)
             public int j;
 
             public SnakeSegment((int i, int j) coords) { i = coords.i; j = coords.j; }

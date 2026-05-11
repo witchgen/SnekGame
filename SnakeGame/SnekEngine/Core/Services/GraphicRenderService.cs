@@ -21,9 +21,19 @@ namespace SnakeGame.SnekEngine.Core.Services
             _renderer = new GameRenderer(rows, cols, cellSize);
         }
 
-        public void Render(SKCanvas canvas, GameSnapshot snapshot)
+        public void RenderStatic(SKCanvas canvas, GameSnapshot initial)
         {
-            _renderer.Draw(canvas, snapshot);
+            _renderer.DrawStatic(canvas, initial);
+        }
+
+        public void Render(SKCanvas canvas, GameSnapshot previous, GameSnapshot current, float t)
+        {
+            _renderer.Draw(canvas, previous, current, t);
+        }
+
+        public void RenderResults(SKCanvas canvas, float width, float height, PlayInfo results)
+        {
+            _renderer.DrawResultsScreen(canvas, width, height, results);
         }
     }
 }

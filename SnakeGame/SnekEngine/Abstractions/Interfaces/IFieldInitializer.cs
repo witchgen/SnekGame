@@ -3,6 +3,9 @@ using System;
 
 namespace SnakeGame.SnekEngine.Abstractions.Interfaces
 {
+    /// <summary>
+    /// Инициализатор игрового поля объектами
+    /// </summary>
     public interface IFieldInitializer
     {
         /// <summary>

@@ -12,7 +12,6 @@ namespace SnakeGame.SnekEngine.Core.Services
         private readonly FieldUpdater _updater;
         private Random _rnd;
         private InitialSettings _settings;
-        private Direction _currentDir;
 
         public GameplayService(FieldInitializer initializer,
             FieldUpdater updater) 
@@ -24,9 +23,15 @@ namespace SnakeGame.SnekEngine.Core.Services
         public GameSnapshot InitializeLevel(InitialSettings setup)
         {
             _settings = setup;
-            _currentDir = setup.FirstDirection;
-            _rnd = new Random(setup.Seed ?? Environment.TickCount);
+            _rnd = new Random(setup.Seed);
             return _initializer.InitializeField(_settings, _rnd);
+        }
+
+        public GameSnapshot Tick(GameSnapshot currentState, Direction buffer)
+        {
+            var newState = _updater.UpdateField(currentState, buffer, _rnd);
+
+            return newState;
         }
     }
 }

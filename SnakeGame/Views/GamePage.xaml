@@ -8,25 +8,61 @@
     <Grid RowDefinitions="*,*" RowSpacing="15">
 
         <!-- Игровое поле -->
+        <!-- Видно всегда, кроме фазы настройки -->
         <skia:SKCanvasView Grid.Row="0"
             x:Name="gameScreen"
             PaintSurface="OnGameScreenPaintSurface"
+            IsVisible="True"
             VerticalOptions="Fill"
             HorizontalOptions="Fill"
             Background="Transparent"
-            EnableTouchEvents="True">
+            EnableTouchEvents="False">
         </skia:SKCanvasView>
 
+        <!-- Тачскрин для управления жестами -->
+        <!-- Видно только во время игры -->
+        <Border 
+            IsVisible="{Binding IsPlaying}"
+            Grid.Row="1"
+            Margin="25"
+            Stroke="DarkSlateBlue"
+            StrokeThickness="3"
+            StrokeShape="RoundRectangle 20">
+            <skia:SKCanvasView
+                x:Name="TouchPanel"
+                Touch="OnTouchPanelTouch"
+                PaintSurface="OnTouchPanelPaint"
+                BackgroundColor="Transparent"
+                EnableTouchEvents="True"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill"/>
+        </Border>
+
         <!-- Панель настроек -->
-        <VerticalStackLayout Spacing="8" Margin="10" Grid.Row="1">
+        <!-- Видно при инициализации или геймовере -->
+        <VerticalStackLayout Spacing="8" Margin="10" Grid.Row="1" IsVisible="{Binding IsSetupVisible}">
 
-            <Button Text="Перегенерировать поле"
-                Command="{Binding GenerateFieldCommand}" />
+            <!-- GameOver: кнопка возврата к настройкам -->
+            <Button Text="← К настройкам"
+                    IsVisible="{Binding ShowGameOver}"
+                    Command="{Binding ShowSetupCommand}"
+                    BackgroundColor="Green"/>
+            <!-- Setup: генерация поля -->
+            <Button Text="Сгенерировать поле"
+                    IsVisible="{Binding CanGenerateField}"
+                    IsEnabled="{Binding SettingsAreValid}"
+                    Command="{Binding GenerateFieldCommand}" />
+            <!-- Ready: старт игры -->
+            <Button Text="Стартуем!"
+                    BackgroundColor="OrangeRed"
+                    Command="{Binding StartGameCommand}"
+                    IsVisible="{Binding CanStartGame}"/>
 
-            <Grid 
+            <!-- Настройки — только в Setup -->
+            <Grid
                 RowDefinitions="Auto, Auto, Auto"
                 ColumnDefinitions="*, *, *, *"
-                IsVisible="True">
+                IsVisible="{Binding CanGenerateField}">
                 <Label
                     Grid.Row="0" Grid.Column="0"
                     VerticalTextAlignment="Center"

@@ -1,5 +1,5 @@
 ﻿using System;
-using static SnakeGame.Models.GameInfo.Enums;
+using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.Abstractions.Models
 {
@@ -24,7 +24,7 @@ namespace SnakeGame.SnekEngine.Abstractions.Models
         /// <summary>
         /// Набранные очки
         /// </summary>
-        public int Score { get; set; }
+        public int FinalScore { get; set; }
         /// <summary>
         /// Последняя длина змеи перед гамовером (включает начальные 3 сегмента)
         /// </summary>

@@ -1,4 +1,6 @@
-﻿using SkiaSharp;
+﻿using Android.Telecom;
+using Javax.Net.Ssl;
+using SkiaSharp;
 
 namespace SnakeGame.SnekEngine.Rendering
 {
@@ -13,6 +15,29 @@ namespace SnakeGame.SnekEngine.Rendering
             _rows = rows;
             _cols = cols;
             _cellSize = cellSize;
+        }
+
+        public void DrawFieldCells(SKCanvas canvas, SKImage cell)
+        {
+            using var paint = new SKPaint
+            {
+                IsAntialias = false
+            };
+
+            for(int i = 0; i < _rows; i++)
+            {
+                for(int j = 0; j < _cols; j++)
+                {
+                    var rect = new SKRect(
+                        j * _cellSize,
+                        i * _cellSize,
+                        (j + 1) * _cellSize,
+                        (i + 1) * _cellSize
+                    );
+
+                    canvas.DrawImage(cell, rect, paint);
+                }
+            }
         }
 
         public void DrawCells(SKCanvas canvas)

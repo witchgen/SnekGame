@@ -1,4 +1,5 @@
 ﻿using SnakeGame.SnekEngine.Abstractions.Models;
+using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.Abstractions.Interfaces
 {
@@ -9,5 +10,11 @@ namespace SnakeGame.SnekEngine.Abstractions.Interfaces
         /// </summary>
         /// <returns>Первичный снимок игры, по нему будет "ориентироваться" рендер</returns>
         GameSnapshot InitializeLevel(InitialSettings setup);
+        /// <summary>
+        /// Один такт игрового процесса (логика)
+        /// </summary>
+        /// <param name="currentState"></param>
+        /// <returns></returns>
+        GameSnapshot Tick(GameSnapshot currentState, Direction buffer);
     }
 }

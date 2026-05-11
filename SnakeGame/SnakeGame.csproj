@@ -59,6 +59,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Include="Assets\Screensaver\*.png" />
+		<EmbeddedResource Include="Assets\Game\*.png" />
 	</ItemGroup>
 	<ItemGroup>
 	  <MauiIcon Include="Resources\AppIcon\snakeappicon.png" ForegroundScale="0.59" Color="#1368C7" />
