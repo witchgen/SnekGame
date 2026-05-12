@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using SkiaSharp;
 using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Models;
+using SnakeGame.SnekEngine.Core.Services;
 using System;
 using System.Threading.Tasks;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
@@ -13,6 +14,7 @@ namespace SnakeGame.ViewModels
     public partial class GameViewModel : ObservableObject
     {
         private readonly GameDispatcher _dispatcher;
+        private readonly GameLoopService _loop;
 
         public event Action? RequestRedraw; // Запрос перерисовки, вызываем при изменении состояния либо изменении самого холста (поменялось поле)
         private float _canvasWidth;
@@ -49,18 +51,21 @@ namespace SnakeGame.ViewModels
             SnakeSpawnPointI = 8,
             SnakeSpawnPointJ = 8,
             BombsCount = 1,
-            CustomWalls = false
+            CustomWalls = false,
+            SpeedFactor = 1
         };
 
-        public GameViewModel(GameDispatcher dispatcher)
+        public GameViewModel(GameDispatcher dispatcher, GameLoopService loop)
         {
             _dispatcher = dispatcher;
+            _loop = loop;
             Settings.PropertyChanged += (s, e) => ValidateSettings();
-            //IsGameIdle = true;
-            //HasGameStarted = false;
-            //IsSetupVisible = true;
-            RequestRedraw?.Invoke();
+
+            _loop.TickCompleted += () => RequestRedraw?.Invoke();
+            // Подписка на завершение игры
+            _dispatcher.GameEnded += OnGameEnded;
         }
+
 
         partial void OnScreenStateChanged(GameScreenState value)
         {
@@ -69,6 +74,15 @@ namespace SnakeGame.ViewModels
             IsPlaying = value == GameScreenState.Playing;
             ShowGameOver = value == GameScreenState.GameOver;
             IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
+        }
+
+        private void OnGameEnded(GameOverReason reason)
+        {
+            _loop.Stop(); // останавливаем игровой цикл
+            ScreenState = GameScreenState.GameOver;
+            //ShowGameOver = true;
+
+            RequestRedraw?.Invoke();
         }
 
         // Частичный метод, автоматически вызывается при изменении Settings
@@ -123,33 +137,34 @@ namespace SnakeGame.ViewModels
         }
 
         [RelayCommand]
-        public async Task StartGame()
+        public void StartGame()
         {
             ScreenState = GameScreenState.Playing;
             _dispatcher.StartRound();
-            RequestRedraw?.Invoke();
+            _loop.Start();
         }
 
         [RelayCommand]
         public void ShowSetup()
         {
+            _loop.Stop();
             Settings.Seed = 0; // Сбрасываем зерно при возврате в настройки
             ScreenState = GameScreenState.Setup;
             RequestRedraw?.Invoke();
         }
 
-        public void Update(float deltaTime)
-        {
-            var endReason = _dispatcher.Round?.CurrentState?.EndReason;
-            if(endReason != null && ScreenState == GameScreenState.Playing)
-            {
-                ScreenState = GameScreenState.GameOver;
-                return;
-            }
+        //public void Update(float deltaTime)
+        //{
+        //    var endReason = _dispatcher.Round?.CurrentState?.EndReason;
+        //    if(endReason != null && ScreenState == GameScreenState.Playing)
+        //    {
+        //        ScreenState = GameScreenState.GameOver;
+        //        return;
+        //    }
 
-            _dispatcher.Update(deltaTime);
-            RequestRedraw?.Invoke();
-        }
+        //    _dispatcher.Update(deltaTime);
+        //    RequestRedraw?.Invoke();
+        //}
 
         public void UpdateCanvasSize(float w, float h)
         {

@@ -52,7 +52,7 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<FieldInitializer>();
         builder.Services.AddSingleton<FieldUpdater>();
-        //builder.Services.AddSingleton<FieldRenderer>();
+        builder.Services.AddSingleton<GameLoopService>();
         //builder.Services.AddSingleton<GameRenderer>();
         builder.Services.AddSingleton<IGameplayService, GameplayService>();
         builder.Services.AddSingleton<IGraphicRenderService, GraphicRenderService>();

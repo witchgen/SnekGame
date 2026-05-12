@@ -22,9 +22,12 @@ namespace SnakeGame.SnekEngine
         public PlayInfo Round { get; private set; }
         private GameSnapshot _prev;
         private GameSnapshot _curr;
+        public event Action<GameOverReason>? GameEnded; // Событие завершения раунда, подхватываем в модели представления для корректной регистрации
 
         private float _accumulated;
-        private float _tickDuration = 0.3f; // Логический тик в 200 мс
+        private float _baseTickDuration = 0.2f; // базовый тик, 200 мс
+        private float _tickDuration = 0.2f;     // текущий тик с учётом сложности
+        private float _speedFactor = 1.0f;      // множитель сложности
 
         public GameDispatcher(IGameplayService gameplay,
             IGraphicRenderService graphics)
@@ -43,10 +46,6 @@ namespace SnakeGame.SnekEngine
         {
             _graphics.Configure(setup.Rows, setup.Cols, canvasW, canvasH);
 
-            //var newSeed = setup.Seed == 0 ? new Random().Next(1, Int32.MaxValue - 1) : setup.Seed;
-
-            //setup.Seed = newSeed;
-
             _curr = _game.InitializeLevel(setup);
             Round = new PlayInfo
             {
@@ -54,10 +53,24 @@ namespace SnakeGame.SnekEngine
                 Seed = setup.Seed,
                 CurrentState = _curr
             };
-            _prev = _curr;
+            _prev = _curr.Clone();
             _directionBuffer = setup.FirstDirection;
+            SetSpeedFactor(setup.SpeedFactor);
 
             _playStatus = GameStatus.Initialized;
+        }
+
+        /// <summary>
+        /// Устанавливаем множитель скорости игры (сложность).
+        /// 1.0 = базовая скорость, >1.0 = быстрее, <1.0 = медленнее.
+        /// </summary>
+        public void SetSpeedFactor(float factor)
+        {
+            // Ограничим разумный диапазон
+            _speedFactor = Math.Clamp(factor, 0.25f, 5.0f);
+
+            // Итоговая длительность тика: базовая / скорость
+            _tickDuration = _baseTickDuration / _speedFactor;
         }
 
         public void StartRound()
@@ -82,7 +95,10 @@ namespace SnakeGame.SnekEngine
                 return;
 
             // Капируем delta — при лаге не прыгаем далеко
-            deltaTime = Math.Min(deltaTime, 0.05f); // max 50ms за кадр
+            //deltaTime = Math.Min(deltaTime, 0.05f); // max 50ms за кадр
+
+            // Кэп на случай лагов, чтобы не улететь в безумие
+            deltaTime = Math.Min(deltaTime, 0.1f); // максимум 100 мс за кадр
             _accumulated += deltaTime;
 
             var dir = _directionBuffer;
@@ -104,6 +120,8 @@ namespace SnakeGame.SnekEngine
                     Round.FinalScore = _curr.Score;
                     Round.DtEnded = DateTime.UtcNow;
                     _playStatus = GameStatus.Ended;
+
+                    GameEnded?.Invoke(_curr.EndReason.Value);
                     return;
                 }
             }
@@ -115,17 +133,15 @@ namespace SnakeGame.SnekEngine
         /// <param name="direction"></param>
         public void RefreshDirection(Direction direction)
         {
-            // Не позволяем завернуть "в себя"
-            if(direction != _directionBuffer.ToOpposite())
+            // Не позволяем завернуть "в себя" + проверяем, что направление не заблокировано препятствием
+            if(direction != _directionBuffer.ToOpposite() && _curr.AvailableDirections.Contains(direction))
                 _directionBuffer = direction;
         }
 
         /// <summary>
-        /// Рисуем контент игрового экрана в зависимости от состояния
+        /// Рендер с интерполяцией между _prev и _curr.
+        /// t = _accumulated / _tickDuration ∈ [0..1]
         /// </summary>
-        /// <param name="canvas"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
         public void Render(SKCanvas canvas, float width, float height)
         {
             if (_curr == null)
@@ -145,32 +161,11 @@ namespace SnakeGame.SnekEngine
                 case GameStatus.Running:
                     {
                         //double t = Math.Clamp(_accumulated / _tickDuration, 0f, 1f);
-                        //var speedCurve = 12.5d; // difficulty?
-                        //t = Math.Pow(t, speedCurve);
-                        //_graphics.Render(canvas, _prev!, _curr, (float)t);
-                        //break;
-
-                        //double t = Math.Clamp(_accumulated / _tickDuration, 0f, 1f);
-
-                        //// speed ∈ [1..5]
-                        //double speed = 2.0; // например
-
-                        //// интерполяция с ускорением
-                        //double eased = Math.Pow(t, 1.0 / speed);
-
-                        //_graphics.Render(canvas, _prev!, _curr, (float)eased);
-                        //break;
-
-                        // Чем выше уровень — тем быстрее (меньше duration)
-                        //_tickDuration = Math.Max(0.05f, 0.3f - (2 * 0.05f)); // 1 - 5 * 0.05f
-
-                        double t = Math.Clamp(_accumulated / _tickDuration, 0f, 1f);
-
-                        //double eased = Math.Pow(t, 1.0 / _visualSmoothness); // всегда плавно
-                        double eased = t ; // smoothstep
-                        _graphics.Render(canvas, _prev!, _curr, (float)eased);
-
-                        System.Diagnostics.Debug.WriteLine($"accum={_accumulated:F4} t={t:F4} eased={eased:F4}");
+                        //double eased = t ; // smoothstep
+                        float t = 0f;
+                        if (_tickDuration > 0)
+                            t = Math.Clamp(_accumulated / _tickDuration, 0f, 1f);
+                        _graphics.Render(canvas, _prev!, _curr, t);
 
                         break;
                     }

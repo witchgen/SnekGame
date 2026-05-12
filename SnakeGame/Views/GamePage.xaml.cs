@@ -43,11 +43,11 @@ public partial class GamePage : ContentPage
 
     private void OnGameScreenPaintSurface(object sender, SKPaintSurfaceEventArgs e)
     {
-        long now = _sw.ElapsedMilliseconds;
-        float delta = (now - _last) / 1000f;
-        _last = now;
+        //long now = _sw.ElapsedMilliseconds;
+        //float delta = (now - _last) / 1000f;
+        //_last = now;
 
-        _gvm.Update(delta);
+        //_gvm.Update(delta);
 
         var canvas = e.Surface.Canvas;
 

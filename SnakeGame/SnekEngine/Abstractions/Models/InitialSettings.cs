@@ -26,6 +26,8 @@ namespace SnakeGame.SnekEngine.Abstractions.Models
         [ObservableProperty]
         public bool _customWalls = false;              // Если false, рисуем стены по периметру
         [ObservableProperty]
+        public float _speedFactor;                        // модификатор скорости
+        [ObservableProperty]
         public HashSet<(int i, int j)> _walls = new(); // Если стены были расставлены вручную, иначе просто по периметру поля (на будущее)
     }
 }

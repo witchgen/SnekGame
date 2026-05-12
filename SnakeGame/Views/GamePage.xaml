@@ -60,7 +60,7 @@
 
             <!-- Настройки — только в Setup -->
             <Grid
-                RowDefinitions="Auto, Auto, Auto"
+                RowDefinitions="Auto, Auto, Auto, Auto"
                 ColumnDefinitions="*, *, *, *"
                 IsVisible="{Binding CanGenerateField}">
                 <Label
@@ -120,6 +120,24 @@
                     Placeholder="Seed (optional)"
                     Keyboard="Numeric"
                     Text="{Binding Settings.Seed}" />
+
+                <Label
+                    Grid.Row="3" Grid.Column="0"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="End"
+                    Text="Фактор скорости игры:"/>
+                <Label
+                    Grid.Row="3" Grid.Column="1"
+                    VerticalTextAlignment="Center"
+                    HorizontalTextAlignment="Center"
+                    Text="{Binding Settings.SpeedFactor}"/>
+                <Stepper Grid.Row="3" Grid.Column="2"
+                    Grid.ColumnSpan="2"
+                    BackgroundColor="AliceBlue"
+                    Maximum="3"
+                    Minimum="0.5"
+                    Value="{Binding Settings.SpeedFactor}"
+                    Increment="0.1" />
             </Grid>
 
         </VerticalStackLayout>

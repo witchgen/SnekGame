@@ -3,6 +3,7 @@ using SnakeGame.SnekEngine.Abstractions.Models;
 using System;
 using System.Collections.Generic;
 using static SnakeGame.Custom.CustomExceptions;
+using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.World
 {
@@ -39,8 +40,11 @@ namespace SnakeGame.SnekEngine.World
             if (settings.BombsCount > 0)
                 bombs = PlaceInitialBombs(field, settings.BombsCount);
 
+            var safeDirs = GetAvailableDirections(field, snake.Body.First.Value);
+
             return new GameSnapshot
             {
+                AvailableDirections = safeDirs,
                 Field = field,
                 Snake = snake,
                 Apple = apple,
@@ -71,6 +75,46 @@ namespace SnakeGame.SnekEngine.World
         {
             foreach (var (i, j) in walls)
                 field[i, j] = 1;
+        }
+
+        static readonly (int dy, int dx)[] dirs =
+        {
+            (-1, 0), // вверх
+            (1, 0),  // вниз
+            (0, -1), // налево
+            (0, 1)   // направо
+        };
+
+        /// <summary>
+        /// Получаем текущие безопасные направления для змеи (не позволяем направить змею в препятствие или саму себя)
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="head"></param>
+        /// <returns></returns>
+        private HashSet<Direction> GetAvailableDirections(int[,] field, Snake.SnakeSegment head)
+        {
+            var safeDirs = new HashSet<Direction>();
+            foreach(var (dy, dx) in dirs)
+            {
+                int di = head.i + dy;
+                int dj = head.j + dx;
+
+                if (field[di,dj] is (0 or 3))
+                {
+                    var currentDir = (dy, dx) switch
+                    {
+                        (-1, 0) => Direction.Up,
+                        (1, 0)  => Direction.Down,
+                        (0, -1) => Direction.Left,
+                        (0, 1)  => Direction.Right,
+                        _ => Direction.Up
+                    };
+
+                    safeDirs.Add(currentDir);
+                }
+            }
+
+            return safeDirs;
         }
 
         private (int i, int j) PlaceApple(int[,] field)
