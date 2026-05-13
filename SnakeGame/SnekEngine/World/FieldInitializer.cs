@@ -36,7 +36,7 @@ namespace SnakeGame.SnekEngine.World
 
             HashSet<(int i, int j)> bombs = null;
 
-            // 4. Бомба (если включено)
+            // 4. Бомбы (если включено)
             if (settings.BombsCount > 0)
                 bombs = PlaceInitialBombs(field, settings.BombsCount);
 
@@ -53,6 +53,10 @@ namespace SnakeGame.SnekEngine.World
             };
         }
 
+        /// <summary>
+        /// Базовые стены по периметру (строим, если не было указано другое расположение)
+        /// </summary>
+        /// <param name="field"></param>
         private void SetBasicWalls(int[,] field)
         {
             int rows = field.GetLength(0);

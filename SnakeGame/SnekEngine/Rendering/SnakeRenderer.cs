@@ -77,6 +77,18 @@ namespace SnakeGame.SnekEngine.Rendering
         }
 
         /// <summary>
+        /// Отрисовка статичной змеи во время паузы (с сохранением длины)
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="snake"></param>
+        public void DrawStaticPause(SKCanvas canvas, Snake snake)
+        {
+            float targetLength = (snake.Body.Count - 1) * _cellSize;
+            var trimmedSnake = TrimPath(_renderPath, targetLength);
+            DrawTube(canvas, trimmedSnake);
+        }
+
+        /// <summary>
         /// Рисуем змею по ходу движения: просчитываем точки, опираясь на разницу между старой / новой позицией и рисуем линию по этим точкам
         /// </summary>
         /// <param name="canvas"></param>

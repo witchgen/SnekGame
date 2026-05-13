@@ -2,6 +2,7 @@
 using Microsoft.Maui.Dispatching;
 using System;
 using System.Diagnostics;
+using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.Core.Services
 {
@@ -26,6 +27,20 @@ namespace SnakeGame.SnekEngine.Core.Services
 
         private void OnTick(object? sender, EventArgs e)
         {
+            //if (!_sw.IsRunning)
+            //{
+            //    _sw.Start();
+            //    _lastMs = _sw.ElapsedMilliseconds;
+            //    return;
+            //}
+
+            //long now = _sw.ElapsedMilliseconds;
+            //float delta = (now - _lastMs) / 1000f;
+            //_lastMs = now;
+
+            //_dispatcher.Update(delta); // шаг по дельте времени
+            //TickCompleted?.Invoke();    // сигнал на перерисовку
+
             if (!_sw.IsRunning)
             {
                 _sw.Start();
@@ -37,21 +52,27 @@ namespace SnakeGame.SnekEngine.Core.Services
             float delta = (now - _lastMs) / 1000f;
             _lastMs = now;
 
-            _dispatcher.Update(delta); // шаг по дельте времени
-            TickCompleted?.Invoke();    // сигнал на перерисовку
+            // Логика — только если игровой процесс запущен
+            if (_dispatcher.PlayStatus == GameStatus.Running)
+                _dispatcher.Update(delta);
+
+            // Рендер - всегда
+            TickCompleted?.Invoke();
         }
 
-        public void Start()
-        {
-            _sw.Restart();
-            _lastMs = _sw.ElapsedMilliseconds;
-            _timer.Start();
-        }
-        public void Stop()
-        {
-            _timer.Stop();
-            _sw.Stop();
-        }
+        //public void Start()
+        //{
+        //    _sw.Restart();
+        //    _lastMs = _sw.ElapsedMilliseconds;
+        //    _timer.Start();
+        //}
+        //public void Stop()
+        //{
+        //    _timer.Stop();
+        //    _sw.Stop();
+        //}
+        public void Start() => _timer.Start();
+        public void Stop() => _timer.Stop();
         public void Dispose()
         {
             _timer.Stop();

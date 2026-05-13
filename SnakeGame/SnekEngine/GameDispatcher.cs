@@ -16,6 +16,7 @@ namespace SnakeGame.SnekEngine
 
         // СОСТОЯНИЕ ИГРОВОГО ПРОЦЕССА:
         private GameStatus _playStatus = GameStatus.Idle;
+        public GameStatus PlayStatus => _playStatus;
         private Direction _directionBuffer;
 
         // СНИМКИ СОСТОЯНИЯ:
@@ -71,6 +72,18 @@ namespace SnakeGame.SnekEngine
 
             // Итоговая длительность тика: базовая / скорость
             _tickDuration = _baseTickDuration / _speedFactor;
+        }
+
+        public void SwitchPause()
+        {
+            if(_playStatus == GameStatus.Running)
+            {
+                _playStatus = GameStatus.Paused;
+            }
+            else if(_playStatus == GameStatus.Paused)
+            {
+                _playStatus = GameStatus.Running;
+            }
         }
 
         public void StartRound()
@@ -155,7 +168,14 @@ namespace SnakeGame.SnekEngine
 
                 case GameStatus.Initialized:
                     // поле + статичная змея
-                    _graphics.RenderStatic(canvas, _curr);
+                    _graphics.RenderStatic(canvas, _curr, isPaused: false);
+                    break;
+
+                case GameStatus.Paused:
+                    // 1. Рисуем игровое поле в статике
+                    _graphics.RenderStatic(canvas, _curr, isPaused: true);
+                    // 2. Рисуем затемнение и текст
+                    _graphics.RenderPauseOverlay(canvas, width, height);
                     break;
 
                 case GameStatus.Running:

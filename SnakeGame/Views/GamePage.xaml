@@ -13,14 +13,12 @@
             x:Name="gameScreen"
             PaintSurface="OnGameScreenPaintSurface"
             IsVisible="True"
-            VerticalOptions="Fill"
-            HorizontalOptions="Fill"
             Background="Transparent"
             EnableTouchEvents="False">
         </skia:SKCanvasView>
 
         <!-- Тачскрин для управления жестами -->
-        <!-- Видно только во время игры -->
+        <!-- Видно только во время игры (И ПАУЗЫ) -->
         <Border 
             IsVisible="{Binding IsPlaying}"
             Grid.Row="1"
@@ -33,9 +31,7 @@
                 Touch="OnTouchPanelTouch"
                 PaintSurface="OnTouchPanelPaint"
                 BackgroundColor="Transparent"
-                EnableTouchEvents="True"
-                HorizontalOptions="Fill"
-                VerticalOptions="Fill"/>
+                EnableTouchEvents="True"/>
         </Border>
 
         <!-- Панель настроек -->
@@ -133,7 +129,7 @@
                     Text="{Binding Settings.SpeedFactor}"/>
                 <Stepper Grid.Row="3" Grid.Column="2"
                     Grid.ColumnSpan="2"
-                    BackgroundColor="AliceBlue"
+                    BackgroundColor="Transparent"
                     Maximum="3"
                     Minimum="0.5"
                     Value="{Binding Settings.SpeedFactor}"

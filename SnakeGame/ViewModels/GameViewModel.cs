@@ -71,7 +71,7 @@ namespace SnakeGame.ViewModels
         {
             CanGenerateField = value == GameScreenState.Setup;
             CanStartGame = value == GameScreenState.Ready;
-            IsPlaying = value == GameScreenState.Playing;
+            IsPlaying = value == GameScreenState.Playing || value == GameScreenState.Paused;
             ShowGameOver = value == GameScreenState.GameOver;
             IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
         }
@@ -144,6 +144,28 @@ namespace SnakeGame.ViewModels
             _loop.Start();
         }
 
+        public void PauseGame()
+        {
+            if (ScreenState != GameScreenState.Playing)
+                return;
+
+            //_loop.Stop();   // Останавливаем игровой цикл (НЕ ДЕЛАЕМ ЭТОГО В НЫНЕШНЕМ ВАРИАНТЕ!)
+            _dispatcher.SwitchPause();
+            ScreenState = GameScreenState.Paused;
+            RequestRedraw?.Invoke();    // Перерисовать оверлей
+        }
+
+        public void ResumeGame()
+        {
+            if (ScreenState != GameScreenState.Paused)
+                return;
+
+            //_loop.Start();  // Возобновляем игровой цикл (ТОЖЕ УБРАТЬ!)
+            _dispatcher.SwitchPause();
+            ScreenState = GameScreenState.Playing;
+            RequestRedraw?.Invoke();
+        }
+
         [RelayCommand]
         public void ShowSetup()
         {
@@ -180,6 +202,11 @@ namespace SnakeGame.ViewModels
         public void Render(SKCanvas canvas, float width, float height)
         {
             _dispatcher.Render(canvas, width, height);
+        }
+
+        public void TickRender()
+        {
+            RequestRedraw?.Invoke();
         }
     }
 }

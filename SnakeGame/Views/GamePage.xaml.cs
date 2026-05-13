@@ -1,6 +1,7 @@
 using Microsoft.Maui.Controls;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
+using SnakeGame.SnekEngine.Abstractions.Models;
 using SnakeGame.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,11 @@ public partial class GamePage : ContentPage
 	private readonly GameViewModel _gvm;
     Stopwatch _sw = Stopwatch.StartNew();
     long _last = 0;
+
+    // PAUSE:
+    private DateTime _lastTapped = DateTime.MinValue;
+    private int _numberTapped = 0;
+    private readonly List<WaterRipple> _ripples = new();
 
     private SKPoint _touchStart; // для тачпада
     private SKPoint _lastDirectionPoint;
@@ -37,8 +43,9 @@ public partial class GamePage : ContentPage
 
 		_gvm.RequestRedraw += () =>
 		{
-			gameScreen.InvalidateSurface();
-		};
+            gameScreen.InvalidateSurface();
+            TouchPanel.InvalidateSurface();
+        };
 	}
 
     private void OnGameScreenPaintSurface(object sender, SKPaintSurfaceEventArgs e)
@@ -89,28 +96,78 @@ public partial class GamePage : ContentPage
         switch (e.ActionType)
         {
             case SKTouchAction.Pressed:
-                _swipePoints.Clear();
-                _touchStart = e.Location;
-                _lastDirectionPoint = e.Location;
-                //_swipePoints.Add(_touchStart);
-                AddTrailPoint(e.Location);
-                break;
+                {
+                    // --- ДВОЙНОЙ ТАП (ПАУЗА / РЕЗЮМ) ---
+                    var now = DateTime.UtcNow;
+                    _numberTapped++;
+
+                    if ((now - _lastTapped).TotalMilliseconds < 250 && _numberTapped >= 2)
+                    {
+                        if (_gvm.ScreenState == GameScreenState.Playing)
+                            _gvm.PauseGame();
+                        else if (_gvm.ScreenState == GameScreenState.Paused)
+                            _gvm.ResumeGame();
+
+                        // ripple по двойному тапу
+                        AddWaterRipple(e.Location);
+
+                        _numberTapped = 0;
+                        _lastTapped = now;
+
+                        InvalidateBoth();
+                        break;
+                    }
+
+                    _lastTapped = now;
+
+                    // --- НАЧАЛО СВАЙПА ---
+                    _swipeTrail.Clear();
+                    AddTrailPoint(e.Location);
+
+                    _touchStart = e.Location;
+                    _lastDirectionPoint = e.Location;
+
+                    InvalidateBoth();
+                    break;
+                }
 
             case SKTouchAction.Moved:
-                AddTrailPoint(e.Location);
-                //_swipePoints.Add(e.Location);
-                TryChangeDirection(e.Location);
-                TouchPanel.InvalidateSurface();
-                break;
+                {
+                    // trail
+                    AddTrailPoint(e.Location);
+
+                    // смена направления
+                    TryChangeDirection(e.Location);
+
+                    InvalidateBoth();
+                    break;
+                }
 
             case SKTouchAction.Released:
-                //DetectSwipe(_touchStart, e.Location);
-                _swipeTrail.Clear();
-                TouchPanel.InvalidateSurface();
-                break;
+                {
+                    _swipeTrail.Clear();
+                    InvalidateBoth();
+                    break;
+                }
         }
 
         e.Handled = true;
+    }
+
+    private void InvalidateBoth()
+    {
+        TouchPanel.InvalidateSurface();
+        gameScreen.InvalidateSurface();
+    }
+
+    public void AddWaterRipple(SKPoint point)
+    {
+        _ripples.Add(new WaterRipple
+        {
+            Center = point,
+            Time = 0f,
+            Duration = 0.5f // полсекунды
+        });
     }
 
     private void DetectSwipe(SKPoint start, SKPoint end)
@@ -182,10 +239,44 @@ public partial class GamePage : ContentPage
         var canvas = e.Surface.Canvas;
         canvas.Clear(SKColors.Transparent);
 
-        if (_swipeTrail.Count < 2) return;
+        // обновляем анимации ripple/trail
+        UpdateRippleAndTrail(0.016f); // 60 FPS — норм, dt не критичен для визуала
+
+        DrawSwipeTrail(canvas);
+        DrawRipples(canvas);
+    }
+
+    private void UpdateRippleAndTrail(float dt)
+    {
+        // Ripple
+        for (int i = _ripples.Count - 1; i >= 0; i--)
+        {
+            var r = _ripples[i];
+            r.Time += dt;
+
+            if (r.Time >= r.Duration)
+                _ripples.RemoveAt(i);
+            else
+                _ripples[i] = r;
+        }
+
+        // Trail
+        var now = DateTimeOffset.UtcNow;
+        while (_swipeTrail.Count > 0 && now - _swipeTrail[0].Time > _trailDuration)
+            _swipeTrail.RemoveAt(0);
+    }
+
+    /// <summary>
+    /// "След кометы" на тач-панели при проведении пальцем (ДОРАБОТАТЬ БЫ ВИЗУАЛ)
+    /// </summary>
+    private void DrawSwipeTrail(SKCanvas canvas)
+    {
+        if (_swipeTrail.Count < 2)
+            return;
 
         var now = DateTimeOffset.UtcNow;
-        var paint = new SKPaint
+
+        using var paint = new SKPaint
         {
             StrokeWidth = 24,
             Style = SKPaintStyle.Stroke,
@@ -204,13 +295,12 @@ public partial class GamePage : ContentPage
             byte alpha1 = (byte)(255 * Math.Max(0, 1 - age1));
             byte alpha2 = (byte)(255 * Math.Max(0, 1 - age2));
 
-            // Градиентный шейдер вдоль сегмента
             var colors = new[]
             {
             SKColors.CornflowerBlue.WithAlpha(alpha1),
             SKColors.CornflowerBlue.WithAlpha(alpha2)
         };
-
+            // Градиентный шейдер вдоль сегмента
             var shader = SKShader.CreateLinearGradient(
                 _swipeTrail[i].Point,
                 _swipeTrail[i + 1].Point,
@@ -220,11 +310,36 @@ public partial class GamePage : ContentPage
 
             paint.Shader = shader;
 
-            var path = new SKPath();
-            path.MoveTo(_swipeTrail[i].Point);
-            path.LineTo(_swipeTrail[i + 1].Point);
-
-            canvas.DrawPath(path, paint);
+            canvas.DrawLine(_swipeTrail[i].Point, _swipeTrail[i + 1].Point, paint);
         }
     }
+
+    /// <summary>
+    /// "Волны" на тач-панели при тапе для паузы (ДОРАБОТАТЬ БЫ ВИЗУАЛ)
+    /// </summary>
+    private void DrawRipples(SKCanvas canvas)
+    {
+        foreach (var r in _ripples)
+        {
+            // Плавное исчезновение
+            float t = r.Time / r.Duration;
+            byte alpha = (byte)(255 * (1f - t));
+
+            // Два расходящихся круга
+            float radius1 = 20 + 80 * t;    // от 20 до 100
+            float radius2 = 40 + 120 * t;   // от 40 до 160
+
+            using var paint = new SKPaint
+            {
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 3,
+                Color = SKColors.CornflowerBlue.WithAlpha(alpha),
+                IsAntialias = true
+            };
+
+            canvas.DrawCircle(r.Center.X, r.Center.Y, radius1, paint);
+            canvas.DrawCircle(r.Center.X, r.Center.Y, radius2, paint);
+        }
+    }
+
 }

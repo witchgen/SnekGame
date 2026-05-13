@@ -16,7 +16,8 @@ namespace SnakeGame.SnekEngine.Abstractions.Interfaces
         /// </summary>
         /// <param name="canvas"></param>
         /// <param name="initial">Стартовое состояние раунда</param>
-        void RenderStatic(SKCanvas canvas, GameSnapshot initial);
+        /// <param name="isPaused">Флаг паузы для корректной отрисовки змеи</param>
+        void RenderStatic(SKCanvas canvas, GameSnapshot initial, bool isPaused);
         /// <summary>
         /// Рендерим игровой визуал
         /// </summary>
@@ -24,6 +25,11 @@ namespace SnakeGame.SnekEngine.Abstractions.Interfaces
         /// <param name="current">Актуальный снимок текущей игры</param>
         /// <param name="t">Интерполяция</param>
         void Render(SKCanvas canvas, GameSnapshot previous, GameSnapshot current, float t);
+        /// <summary>
+        /// Показать оверлей паузы
+        /// </summary>
+        /// <param name="canvas"></param>
+        void RenderPauseOverlay(SKCanvas canvas, float width, float height);
         /// <summary>
         /// Рендер экрана геймовера с результатами
         /// </summary>

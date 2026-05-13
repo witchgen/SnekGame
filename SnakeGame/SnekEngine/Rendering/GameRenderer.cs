@@ -1,5 +1,6 @@
 ﻿using SkiaSharp;
 using SnakeGame.SnekEngine.Abstractions.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,6 +17,7 @@ namespace SnakeGame.SnekEngine.Rendering
         private readonly SnakeRenderer _snakeR;
         private readonly float _cellSize;
         private List<(int i, int j)> _wallsCache = new();
+        private float _pauseAnimTime = 0f; // Для анимации паузы
         private static readonly (int di, int dj)[] Directions =
         {
             (0, 1),   // Направо
@@ -36,7 +38,7 @@ namespace SnakeGame.SnekEngine.Rendering
         /// </summary>
         /// <param name="canvas"></param>
         /// <param name="snapshot"></param>
-        public void DrawStatic(SKCanvas canvas, GameSnapshot snapshot)
+        public void DrawStatic(SKCanvas canvas, GameSnapshot snapshot, bool isPaused)
         {
             canvas.Clear(SKColors.Transparent);
             _wallsCache.Clear();
@@ -58,7 +60,12 @@ namespace SnakeGame.SnekEngine.Rendering
             if (snapshot.Bombs != null)
                 DrawBombGraphic(canvas, snapshot.Bombs);
 
-            _snakeR.DrawStatic(canvas, snapshot.Snake);
+            // Если игра на паузе, рисуем змею по последним позициям на поле
+            if (isPaused)
+                _snakeR.DrawStaticPause(canvas, snapshot.Snake);
+            // Если новая игра, рисуем стартовую точку змеи
+            else
+                _snakeR.DrawStatic(canvas, snapshot.Snake);
         }
 
         /// <summary>
@@ -89,6 +96,119 @@ namespace SnakeGame.SnekEngine.Rendering
                 DrawBombGraphic(canvas, current.Bombs);
 
             _snakeR.Draw(canvas, previous.Snake, current.Snake, t);
+        }
+
+        public void RenderPauseOverlay(SKCanvas canvas, float width, float height)
+        {
+            UpdatePauseAnimation();
+
+            // Затемнение
+            using var overlay = new SKPaint
+            {
+                Color = new SKColor(0, 0, 0, 110)
+            };
+            canvas.DrawRect(0, 0, width, height, overlay);
+
+            // Анимация текста
+            float scale = 1.0f + 0.15f * (float)Math.Sin(_pauseAnimTime * 2.5f);
+            float fontSize = 84f * scale;
+
+            using var font = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), fontSize);
+            using var textPaint = new SKPaint
+            {
+                Color = SKColors.PaleGoldenrod,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center
+            };
+
+            float x = width / 2f;
+            float y = height / 2f + fontSize * 0.35f; // baseline fix
+
+            canvas.DrawText("[ ПАУЗА ]", x, y, font, textPaint);
+        }
+
+        public void DrawPauseOverlay(SKCanvas canvas, float width, float height, float animTime)
+        {
+            //var bounds = canvas.DeviceClipBounds;
+
+            //using var overlay = new SKPaint
+            //{
+            //    Color = new SKColor(0, 0, 0, 110)
+            //};
+            //canvas.DrawRect(0, 0, width, height, overlay);
+
+            ////var overlay = new SKPaint { Color = new SKColor(0, 0, 0, 180) };
+            ////canvas.DrawRect(bounds, overlay);
+            //// текст
+            //string pauseText = "[ ПАУЗА ]";
+
+            //// Шрифт и стиль
+            //using var pauseFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), 84);
+            //using var textPaint = new SKPaint
+            //{
+            //    Color = SKColors.PaleGoldenrod,
+            //    IsAntialias = true
+            //};
+
+            //// Центрирование
+            //float startX = (width - pauseFont.MeasureText(pauseText)) / 2f;
+            //float startY = (height - pauseFont.Size) / 2f;
+
+            //canvas.DrawText(pauseText, startX, startY, pauseFont, textPaint);
+
+            // Размытие фона
+            using (var blurPaint = new SKPaint
+            {
+                ImageFilter = SKImageFilter.CreateBlur(8f, 8f)
+            })
+            {
+                canvas.SaveLayer(blurPaint);
+
+                // Рисуем прозрачный прямоугольник,
+                // чтобы слой "захватил" уже нарисованный фон
+                canvas.DrawRect(0, 0, width, height, new SKPaint { Color = SKColors.Transparent });
+            }
+
+            canvas.Restore();
+
+            // Полупрозрачный тёмный слой
+            using var overlay = new SKPaint
+            {
+                Color = new SKColor(0, 0, 0, 110)
+            };
+            canvas.DrawRect(0, 0, width, height, overlay);
+
+            // Анимация масштаба текста
+            //                процент изменения                 периодичность
+            float scale = 1.0f + 0.15f * (float)Math.Sin(animTime * 2.5f);
+            float baseSize = 84f;
+            float fontSize = baseSize * scale;
+
+            string pauseText = "[ ПАУЗА ]";
+
+            // Шрифт и стиль
+            using var pauseFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), fontSize);
+            using var textPaint = new SKPaint
+            {
+                Color = SKColors.PaleGoldenrod,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center
+            };
+
+            // Центрирование
+            //float startX = (width - pauseFont.MeasureText(pauseText)) / 2f;
+            //float startY = (height - pauseFont.Size) / 2f;
+            float startX = width / 2f;
+            float startY = height / 2f + fontSize / 3f;  // корректировка по baseline
+
+            canvas.DrawText(pauseText, startX, startY, pauseFont, textPaint);
+
+            
+        }
+
+        public void UpdatePauseAnimation()
+        {
+            _pauseAnimTime += 0.016f; // ~60 FPS
         }
 
         public void DrawResultsScreen(SKCanvas canvas, float width, float height, PlayInfo results)
