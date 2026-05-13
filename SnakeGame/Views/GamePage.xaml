@@ -1,140 +1,443 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
-             xmlns:local="clr-namespace:SnakeGame.ViewModels"
-             x:Class="SnakeGame.Views.GamePage"
-             x:DataType="local:GameViewModel">
+<ContentPage
+    x:Class="SnakeGame.Views.GamePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SnakeGame.ViewModels"
+    xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
+    x:DataType="local:GameViewModel">
 
     <Grid RowDefinitions="*,*" RowSpacing="15">
 
-        <!-- Игровое поле -->
-        <!-- Видно всегда, кроме фазы настройки -->
-        <skia:SKCanvasView Grid.Row="0"
+        <!--  Игровое поле  -->
+        <!--  Видно всегда, кроме фазы настройки  -->
+        <skia:SKCanvasView
             x:Name="gameScreen"
-            PaintSurface="OnGameScreenPaintSurface"
-            IsVisible="True"
+            Grid.Row="0"
             Background="Transparent"
-            EnableTouchEvents="False">
-        </skia:SKCanvasView>
+            EnableTouchEvents="False"
+            IsVisible="True"
+            PaintSurface="OnGameScreenPaintSurface" />
 
-        <!-- Тачскрин для управления жестами -->
-        <!-- Видно только во время игры (И ПАУЗЫ) -->
-        <Border 
-            IsVisible="{Binding IsPlaying}"
+        <!--  Тачскрин для управления жестами  -->
+        <!--  Видно только во время игры (И ПАУЗЫ)  -->
+        <Border
             Grid.Row="1"
             Margin="25"
+            IsVisible="{Binding IsPlaying}"
             Stroke="DarkSlateBlue"
-            StrokeThickness="3"
-            StrokeShape="RoundRectangle 20">
+            StrokeShape="RoundRectangle 20"
+            StrokeThickness="3">
             <skia:SKCanvasView
                 x:Name="TouchPanel"
-                Touch="OnTouchPanelTouch"
-                PaintSurface="OnTouchPanelPaint"
                 BackgroundColor="Transparent"
-                EnableTouchEvents="True"/>
+                EnableTouchEvents="True"
+                PaintSurface="OnTouchPanelPaint"
+                Touch="OnTouchPanelTouch" />
         </Border>
 
-        <!-- Панель настроек -->
-        <!-- Видно при инициализации или геймовере -->
-        <VerticalStackLayout Spacing="8" Margin="10" Grid.Row="1" IsVisible="{Binding IsSetupVisible}">
+        <!--  Панель настроек  -->
+        <!--  Видно при инициализации или геймовере  -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            Margin="10"
+            IsVisible="{Binding IsSetupVisible}"
+            Spacing="8">
 
-            <!-- GameOver: кнопка возврата к настройкам -->
-            <Button Text="← К настройкам"
-                    IsVisible="{Binding ShowGameOver}"
-                    Command="{Binding ShowSetupCommand}"
-                    BackgroundColor="Green"/>
-            <!-- Setup: генерация поля -->
-            <Button Text="Сгенерировать поле"
-                    IsVisible="{Binding CanGenerateField}"
-                    IsEnabled="{Binding SettingsAreValid}"
-                    Command="{Binding GenerateFieldCommand}" />
-            <!-- Ready: старт игры -->
-            <Button Text="Стартуем!"
-                    BackgroundColor="OrangeRed"
-                    Command="{Binding StartGameCommand}"
-                    IsVisible="{Binding CanStartGame}"/>
 
-            <!-- Настройки — только в Setup -->
-            <Grid
-                RowDefinitions="Auto, Auto, Auto, Auto"
-                ColumnDefinitions="*, *, *, *"
-                IsVisible="{Binding CanGenerateField}">
-                <Label
-                    Grid.Row="0" Grid.Column="0"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Высота:"/>
-                <Entry Grid.Row="0" Grid.Column="1"
-                    Placeholder="Rows"
-                    Keyboard="Numeric"
-                    Text="{Binding Settings.Rows}" />
-                <Label
-                    Grid.Row="0" Grid.Column="2"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Ширина:"/>
-                <Entry Grid.Row="0" Grid.Column="3"
-                    Placeholder="Cols"
-                    Keyboard="Numeric"
-                    Text="{Binding Settings.Cols}" />
 
-                <Label
-                    Grid.Row="1" Grid.Column="0"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Клетка спавна (высота):"/>
-                <Entry Grid.Row="1" Grid.Column="1"
-                    Placeholder="Snake spawn i"
-                    Keyboard="Numeric"
-                    Text="{Binding Settings.SnakeSpawnPointI}" />
-                <Label
-                    Grid.Row="1" Grid.Column="2"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Клетка спавна (ширина):"/>
-                <Entry Grid.Row="1" Grid.Column="3"
-                    Placeholder="Snake spawn j"
-                    Keyboard="Numeric"
-                    Text="{Binding Settings.SnakeSpawnPointJ}" />
+            <!--  Настройки — только в Setup  -->
+            <Border
+                BackgroundColor="#305036"
+                Stroke="#6CB06C"
+                StrokeShape="RoundRectangle 28"
+                StrokeThickness="2">
+                <VerticalStackLayout
+                    Grid.Row="1"
+                    Margin="10"
+                    IsVisible="{Binding IsSetupVisible}"
+                    Spacing="8">
 
-                <Label
-                    Grid.Row="2" Grid.Column="0"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Кол-во бомб:"/>
-                <Entry Grid.Row="2" Grid.Column="1"
-                    Placeholder="Bombs count"
-                    Keyboard="Numeric"
-                    Text="{Binding Settings.BombsCount}" />
+                    <!--  Ready: старт игры  -->
+                    <Button
+                        Margin="5"
+                        BackgroundColor="#53D64A"
+                        Command="{Binding StartGameCommand}"
+                        CornerRadius="28"
+                        FontSize="18"
+                        IsVisible="{Binding CanStartGame}"
+                        Text="Стартуем!">
+                        <Button.Shadow>
+                            <Shadow
+                                Brush="Black"
+                                Opacity="0.5"
+                                Radius="10"
+                                Offset="0,2" />
+                        </Button.Shadow>
+                    </Button>
 
-                <Label
-                    Grid.Row="2" Grid.Column="2"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Зерно:"/>
-                <Entry Grid.Row="2" Grid.Column="3"
-                    Placeholder="Seed (optional)"
-                    Keyboard="Numeric"
-                    Text="{Binding Settings.Seed}" />
+                    <!--  GameOver: кнопка возврата к настройкам  -->
+                    <Button
+                        Margin="5"
+                        BackgroundColor="#6CB06C"
+                        Command="{Binding ShowSetupCommand}"
+                        CornerRadius="28"
+                        FontSize="18"
+                        IsVisible="{Binding ShowGameOver}"
+                        Text="К настройкам">
+                        <Button.Shadow>
+                            <Shadow
+                                Brush="Black"
+                                Opacity="0.5"
+                                Radius="10"
+                                Offset="0,2" />
+                        </Button.Shadow>
+                    </Button>
+                    <!--  Setup: генерация поля  -->
+                    <Border
+                        Margin="5"
+                        IsVisible="{Binding CanGenerateField}"
+                        Stroke="#8CBB60"
+                        StrokeShape="RoundRectangle 28"
+                        StrokeThickness="2">
+                        <Border.Shadow>
+                            <Shadow
+                                Brush="Black"
+                                Opacity="0.5"
+                                Radius="10"
+                                Offset="0,2" />
+                        </Border.Shadow>
+                        <Border
+                            Stroke="#477447"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="3">
+                            <Button
+                                BackgroundColor="#6CB06C"
+                                Command="{Binding GenerateFieldCommand}"
+                                FontAutoScalingEnabled="True"
+                                FontSize="18"
+                                IsEnabled="{Binding SettingsAreValid}"
+                                Text="Сгенерировать поле" />
+                        </Border>
+                    </Border>
 
-                <Label
-                    Grid.Row="3" Grid.Column="0"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="End"
-                    Text="Фактор скорости игры:"/>
-                <Label
-                    Grid.Row="3" Grid.Column="1"
-                    VerticalTextAlignment="Center"
-                    HorizontalTextAlignment="Center"
-                    Text="{Binding Settings.SpeedFactor}"/>
-                <Stepper Grid.Row="3" Grid.Column="2"
-                    Grid.ColumnSpan="2"
-                    BackgroundColor="Transparent"
-                    Maximum="3"
-                    Minimum="0.5"
-                    Value="{Binding Settings.SpeedFactor}"
-                    Increment="0.1" />
-            </Grid>
+
+
+                    <Grid
+                        Margin="3"
+                        ColumnDefinitions="*, *, *, *"
+                        ColumnSpacing="20"
+                        IsVisible="{Binding CanGenerateField}"
+                        RowDefinitions="*, *, *, *"
+                        RowSpacing="5">
+
+                        <Border
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="1.5">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="Black"
+                                    Opacity="0.5"
+                                    Radius="10"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid
+                                BackgroundColor="#305036"
+                                ColumnDefinitions="3*, 2*"
+                                ColumnSpacing="10"
+                                HorizontalOptions="Fill">
+                                <Label
+                                    Grid.Column="0"
+                                    HorizontalOptions="End"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Высота"
+                                    VerticalTextAlignment="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="#477447"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Center">
+                                    <Entry
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Placeholder="Rows"
+                                        Text="{Binding Settings.Rows}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border
+                            Grid.Row="0"
+                            Grid.Column="2"
+                            Grid.ColumnSpan="2"
+                            BackgroundColor="#305036"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="1.5">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="Black"
+                                    Opacity="0.5"
+                                    Radius="10"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid
+                                ColumnDefinitions="3*, 2*"
+                                ColumnSpacing="10"
+                                HorizontalOptions="Fill">
+                                <Label
+                                    Grid.Column="0"
+                                    HorizontalOptions="End"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Ширина"
+                                    VerticalTextAlignment="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="#477447"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Center">
+                                    <Entry
+                                        Grid.Row="0"
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Placeholder="Cols"
+                                        Text="{Binding Settings.Cols}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            BackgroundColor="#305036"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="1.5">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="Black"
+                                    Opacity="0.5"
+                                    Radius="10"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid
+                                ColumnDefinitions="3*, 2*"
+                                ColumnSpacing="10"
+                                HorizontalOptions="Fill">
+                                <Label
+                                    Grid.Column="0"
+                                    HorizontalOptions="End"
+                                    HorizontalTextAlignment="Center"
+                                    LineBreakMode="WordWrap"
+                                    Text="Спавн (высота)"
+                                    VerticalTextAlignment="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="#477447"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Center">
+                                    <Entry
+                                        Grid.Row="0"
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Placeholder="Snake spawn i"
+                                        Text="{Binding Settings.SnakeSpawnPointI}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            Grid.ColumnSpan="2"
+                            BackgroundColor="#305036"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="1.5">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="Black"
+                                    Opacity="0.5"
+                                    Radius="10"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid
+                                ColumnDefinitions="3*, 2*"
+                                ColumnSpacing="10"
+                                HorizontalOptions="Fill">
+                                <Label
+                                    Grid.Column="0"
+                                    HorizontalOptions="End"
+                                    HorizontalTextAlignment="Center"
+                                    LineBreakMode="WordWrap"
+                                    Text="Спавн (ширина)"
+                                    VerticalTextAlignment="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="#477447"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Center">
+                                    <Entry
+                                        Grid.Row="0"
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Placeholder="Snake spawn j"
+                                        Text="{Binding Settings.SnakeSpawnPointJ}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            BackgroundColor="#305036"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="1.5">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="Black"
+                                    Opacity="0.5"
+                                    Radius="10"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid
+                                ColumnDefinitions="3*, 2*"
+                                ColumnSpacing="10"
+                                HorizontalOptions="Fill">
+                                <Label
+                                    Grid.Column="0"
+                                    HorizontalOptions="End"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Кол-во бомб"
+                                    VerticalTextAlignment="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="#477447"
+                                    HorizontalOptions="Fill"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Fill">
+                                    <Entry
+                                        Grid.Row="0"
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Placeholder="Bombs count"
+                                        Text="{Binding Settings.BombsCount}"
+                                        VerticalOptions="Center" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Border
+                            Grid.Row="2"
+                            Grid.Column="2"
+                            Grid.ColumnSpan="2"
+                            BackgroundColor="#305036"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="1.5">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="Black"
+                                    Opacity="0.5"
+                                    Radius="10"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid
+                                ColumnDefinitions="3*, 2*"
+                                ColumnSpacing="10"
+                                HorizontalOptions="Fill">
+                                <Label
+                                    Grid.Column="0"
+                                    HorizontalOptions="End"
+                                    HorizontalTextAlignment="Center"
+                                    Text="Зерно"
+                                    VerticalTextAlignment="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    BackgroundColor="#477447"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Fill">
+                                    <Entry
+                                        Grid.Row="0"
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Placeholder="Зерно (число)"
+                                        Text="{Binding Settings.Seed}"
+                                        VerticalOptions="Center" />
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            FontSize="18"
+                            HorizontalTextAlignment="Center"
+                            Text="{Binding Settings.SpeedFactor, StringFormat='Скорость игры: {0:F1}'}"
+                            VerticalTextAlignment="Center" />
+                        <Grid
+                            Grid.Row="3"
+                            Grid.Column="2"
+                            Grid.ColumnSpan="2"
+                            ColumnDefinitions="*, *"
+                            ColumnSpacing="10">
+                            <Button
+                                Grid.Column="0"
+                                BackgroundColor="#477447"
+                                BorderColor="#8CBB60"
+                                BorderWidth="1.5"
+                                Command="{Binding DecrementStepSpeedCommand}"
+                                CornerRadius="100"
+                                FontAttributes="Bold"
+                                FontSize="26"
+                                Text="−"
+                                TextColor="#8CBB60">
+                                <Button.Shadow>
+                                    <Shadow
+                                        Brush="Black"
+                                        Opacity="0.5"
+                                        Radius="10"
+                                        Offset="0,2" />
+                                </Button.Shadow>
+                            </Button>
+                            <Button
+                                Grid.Column="1"
+                                BackgroundColor="#477447"
+                                BorderColor="#8CBB60"
+                                BorderWidth="1.5"
+                                Command="{Binding IncrementStepSpeedCommand}"
+                                CornerRadius="100"
+                                FontAttributes="Bold"
+                                FontAutoScalingEnabled="True"
+                                FontSize="26"
+                                Text="+"
+                                TextColor="#8CBB60">
+                                <Button.Shadow>
+                                    <Shadow
+                                        Brush="Black"
+                                        Opacity="0.5"
+                                        Radius="10"
+                                        Offset="0,2" />
+                                </Button.Shadow>
+                            </Button>
+                        </Grid>
+
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
 
         </VerticalStackLayout>
 

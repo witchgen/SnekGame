@@ -97,10 +97,11 @@ namespace SnakeGame.SnekEngine.Rendering
         /// <param name="prevHead"></param>
         /// <param name="nextHead"></param>
         /// <param name="t"></param>
-        public void DrawSnake(SKCanvas canvas, Snake prev, Snake curr,
-                      Snake.SnakeSegment prevHead,
-                      Snake.SnakeSegment nextHead,
-                      float t)
+        public void DrawSnake(SKCanvas canvas, 
+                        Snake prev, Snake curr,
+                        Snake.SnakeSegment prevHead,
+                        Snake.SnakeSegment nextHead,
+                        float t)
         {
             //
             // 1. Обновляем renderPath на ТИКЕ

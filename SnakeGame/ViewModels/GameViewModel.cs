@@ -72,7 +72,7 @@ namespace SnakeGame.ViewModels
             CanGenerateField = value == GameScreenState.Setup;
             CanStartGame = value == GameScreenState.Ready;
             IsPlaying = value == GameScreenState.Playing || value == GameScreenState.Paused;
-            ShowGameOver = value == GameScreenState.GameOver;
+            ShowGameOver = value == GameScreenState.GameOver || value == GameScreenState.Ready;
             IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
         }
 
@@ -121,6 +121,28 @@ namespace SnakeGame.ViewModels
             bool validBombs = s.BombsCount >= 1 && s.BombsCount <= allowedMaxBombs;
 
             SettingsAreValid = validDimensions && validSpawn && validBombs;
+        }
+
+        /// <summary>
+        /// Команда для кнопки инкремента скорости
+        /// </summary>
+        [RelayCommand]
+        public void IncrementStepSpeed()
+        {
+            if(Settings.SpeedFactor < 2.5f)
+                Settings.SpeedFactor += 0.1f;
+        }
+
+        /// <summary>
+        /// Команда для кнопки декремента скорости
+        /// </summary>
+        [RelayCommand]
+        public void DecrementStepSpeed()
+        {
+            if(Settings.SpeedFactor >= 0.5f)
+            {
+                Settings.SpeedFactor -= 0.1f;
+            }
         }
 
         [RelayCommand]

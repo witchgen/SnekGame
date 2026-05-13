@@ -1,191 +1,191 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<toolkit:Popup 
-            xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-            xmlns:local="clr-namespace:SnakeGame"
-            xmlns:vm="clr-namespace:SnakeGame.ViewModels"
-            xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-            x:Class="SnakeGame.Views.DebugModal"
-            x:DataType="vm:MainMenuViewModel"
-            x:Name="DebugPopup"
-            Padding="5"
-            BackgroundColor="#1E1E1E">
+<toolkit:Popup
+    x:Class="SnakeGame.Views.DebugModal"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:SnakeGame"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:vm="clr-namespace:SnakeGame.ViewModels"
+    x:Name="DebugPopup"
+    Padding="5"
+    x:DataType="vm:MainMenuViewModel"
+    BackgroundColor="#1E1E1E">
     <Grid
+        Padding="0"
         HorizontalOptions="Center"
-        VerticalOptions="Center"
-        Padding="0">
+        VerticalOptions="Center">
 
-        <!-- Модальное окно -->
+        <!--  Модальное окно  -->
         <Border
-            BackgroundColor="#1E1E1E"
-            StrokeThickness="0"
             Padding="20"
-            StrokeShape="RoundRectangle 20">
+            BackgroundColor="#1E1E1E"
+            StrokeShape="RoundRectangle 20"
+            StrokeThickness="0">
 
             <ScrollView>
                 <Grid RowSpacing="20">
 
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Заголовок -->
-                    <Label 
+                    <!--  Заголовок  -->
+                    <Label
                         Grid.Row="0"
                         Grid.Column="0"
-                        Text="Настройки отладки"
                         FontSize="20"
+                        Text="Настройки отладки"
                         TextColor="LightGray"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
-                    <!-- Кнопка закрытия -->
+                    <!--  Кнопка закрытия  -->
                     <Button
                         Grid.Row="0"
                         Grid.Column="1"
-                        Text="✖"
-                        FontSize="18"
-                        BackgroundColor="Transparent"
-                        TextColor="Red"
                         Padding="5"
+                        BackgroundColor="Transparent"
                         Command="{Binding CloseDebugPopupCommand}"
-                        CommandParameter="{Binding Source={x:Reference DebugPopup}}"/>
+                        CommandParameter="{Binding Source={x:Reference DebugPopup}}"
+                        FontSize="18"
+                        Text="✖"
+                        TextColor="Red" />
 
-                    <!-- Подсветка бомб -->
-                    <Label 
+                    <!--  Подсветка бомб  -->
+                    <Label
                         Grid.Row="1"
                         Grid.Column="0"
                         Text="Подсвечивать зону спавна бомб"
                         TextColor="White"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Switch
                         Grid.Row="1"
                         Grid.Column="1"
-                        VerticalOptions="Center"
-                        ThumbColor="AliceBlue"
-                        OnColor="LightGreen"
+                        IsToggled="{Binding IsBombHighlightActive}"
                         OffColor="Gray"
-                        IsToggled="{Binding IsBombHighlightActive}"/>
+                        OnColor="LightGreen"
+                        ThumbColor="AliceBlue"
+                        VerticalOptions="Center" />
 
-                    <!-- AI -->
-                    <Label 
+                    <!--  AI  -->
+                    <Label
                         Grid.Row="2"
                         Grid.Column="0"
                         Text="Змея на автопилоте"
                         TextColor="White"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Switch
                         Grid.Row="2"
                         Grid.Column="1"
-                        VerticalOptions="Center"
-                        ThumbColor="AliceBlue"
-                        OnColor="LightGreen"
+                        IsToggled="{Binding IsSnakeAIActive}"
                         OffColor="Gray"
-                        IsToggled="{Binding IsSnakeAIActive}"/>
+                        OnColor="LightGreen"
+                        ThumbColor="AliceBlue"
+                        VerticalOptions="Center" />
 
-                    <!-- AI -->
-                    <Label 
+                    <!--  AI  -->
+                    <Label
                         Grid.Row="3"
                         Grid.Column="0"
                         Text="Отображать маршрут автопилота"
                         TextColor="White"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Switch
                         Grid.Row="3"
                         Grid.Column="1"
-                        VerticalOptions="Center"
-                        ThumbColor="AliceBlue"
-                        OnColor="LightGreen"
+                        IsToggled="{Binding IsAIPathVisible}"
                         OffColor="Gray"
-                        IsToggled="{Binding IsAIPathVisible}"/>
+                        OnColor="LightGreen"
+                        ThumbColor="AliceBlue"
+                        VerticalOptions="Center" />
 
-                    <!-- Переключатель видимости ползунка скорости игры -->
-                    <Label 
+                    <!--  Переключатель видимости ползунка скорости игры  -->
+                    <Label
                         Grid.Row="4"
                         Grid.Column="0"
                         Text="Задавать скорость игры вручную"
                         TextColor="White"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Switch
                         Grid.Row="4"
                         Grid.Column="1"
-                        VerticalOptions="Center"
-                        ThumbColor="AliceBlue"
-                        OnColor="LightGreen"
+                        IsToggled="{Binding IsGameSpeedSliderActive}"
                         OffColor="Gray"
-                        IsToggled="{Binding IsGameSpeedSliderActive}"/>
+                        OnColor="LightGreen"
+                        ThumbColor="AliceBlue"
+                        VerticalOptions="Center" />
 
-                    <!-- Ползунок скорости игры -->                    
+                    <!--  Ползунок скорости игры  -->
                     <Slider
                         x:Name="GameSpeedSlider"
                         Grid.Row="5"
                         Grid.ColumnSpan="2"
-                        ThumbColor="AliceBlue"
-                        MinimumTrackColor="DarkOrange"
-                        MaximumTrackColor="CornflowerBlue"
-                        Maximum="650"
-                        Minimum="70"
                         IsVisible="{Binding IsGameSpeedSliderActive}"
-                        Value="{Binding GameSpeedMs, Mode=TwoWay}"/>
-                    <Label  x:Name="displayLabel"
-                            Grid.Row="6"
-                            Grid.ColumnSpan="2"
-                            IsVisible="{Binding IsGameSpeedSliderActive}"
-                            Text="{Binding GameSpeedMs,
-                                          StringFormat='Текущая скорость: {0:F0} мс'}"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center" />
+                        Maximum="650"
+                        MaximumTrackColor="CornflowerBlue"
+                        Minimum="70"
+                        MinimumTrackColor="DarkOrange"
+                        ThumbColor="AliceBlue"
+                        Value="{Binding GameSpeedMs, Mode=TwoWay}" />
+                    <Label
+                        x:Name="displayLabel"
+                        Grid.Row="6"
+                        Grid.ColumnSpan="2"
+                        HorizontalOptions="Center"
+                        IsVisible="{Binding IsGameSpeedSliderActive}"
+                        Text="{Binding GameSpeedMs, StringFormat='Текущая скорость: {0:F0} мс'}"
+                        VerticalOptions="Center" />
 
-                    <!-- Показ FPS (меню) -->
-                    <Label 
+                    <!--  Показ FPS (меню)  -->
+                    <Label
                         Grid.Row="7"
                         Grid.Column="0"
                         Text="Показывать FPS в главном меню"
                         TextColor="White"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Switch
                         Grid.Row="7"
                         Grid.Column="1"
-                        VerticalOptions="Center"
-                        ThumbColor="AliceBlue"
-                        OnColor="LightGreen"
+                        IsToggled="{Binding ShowMenuBgFPS}"
                         OffColor="Gray"
-                        IsToggled="{Binding ShowMenuBgFPS}"/>
+                        OnColor="LightGreen"
+                        ThumbColor="AliceBlue"
+                        VerticalOptions="Center" />
 
-                    <!-- Показ FPS (меню) -->
-                    <Label 
+                    <!--  Показ FPS (меню)  -->
+                    <Label
                         Grid.Row="8"
                         Grid.Column="0"
+                        FontAttributes="Bold"
                         Text="Вернуться на легаси версию игры"
                         TextColor="LightYellow"
-                        FontAttributes="Bold"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center" />
 
                     <Switch
                         Grid.Row="8"
                         Grid.Column="1"
-                        VerticalOptions="Center"
-                        ThumbColor="AliceBlue"
-                        OnColor="LightGreen"
+                        IsToggled="{Binding IsLegacyGameModeVisible}"
                         OffColor="Gray"
-                        IsToggled="{Binding IsLegacyGameModeVisible}"/>
+                        OnColor="LightGreen"
+                        ThumbColor="AliceBlue"
+                        VerticalOptions="Center" />
                 </Grid>
             </ScrollView>
         </Border>
