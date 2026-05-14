@@ -1,6 +1,7 @@
 ﻿using Android.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Storage;
 using SkiaSharp;
 using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Models;
@@ -52,7 +53,7 @@ namespace SnakeGame.ViewModels
             SnakeSpawnPointJ = 8,
             BombsCount = 1,
             CustomWalls = false,
-            SpeedFactor = 1
+            SpeedFactor = 1.0f
         };
 
         public GameViewModel(GameDispatcher dispatcher, GameLoopService loop)
@@ -122,6 +123,41 @@ namespace SnakeGame.ViewModels
 
             SettingsAreValid = validDimensions && validSpawn && validBombs;
         }
+
+        // == УПРАВЛЕНИЕ ПРЕДПОЧТЕНИЯМИ: ==
+        [RelayCommand]
+        public void SavePreferences()
+        {
+            Preferences.Set("Settings.Rows", Settings.Rows);
+            Preferences.Set("Settings.Cols", Settings.Cols);
+            Preferences.Set("Settings.SpawnI", Settings.SnakeSpawnPointI);
+            Preferences.Set("Settings.SpawnJ", Settings.SnakeSpawnPointJ);
+            Preferences.Set("Settings.Bombs", Settings.BombsCount);
+            Preferences.Set("Settings.Speed", Settings.SpeedFactor);
+        }
+
+        [RelayCommand]
+        public void LoadPreferences()
+        {
+            Settings.Rows = Preferences.Get("Settings.Rows", 17);
+            Settings.Cols = Preferences.Get("Settings.Cols", 17);
+            Settings.SnakeSpawnPointI = Preferences.Get("Settings.SpawnI", 8);
+            Settings.SnakeSpawnPointJ = Preferences.Get("Settings.SpawnJ", 8);
+            Settings.BombsCount = Preferences.Get("Settings.Bombs", 1);
+            Settings.SpeedFactor = Preferences.Get("Settings.Speed", 1.0f);
+        }
+
+        [RelayCommand]
+        public void ResetPreferences()
+        {
+            Settings.Rows = 17;
+            Settings.Cols = 17;
+            Settings.SnakeSpawnPointI = 8;
+            Settings.SnakeSpawnPointJ = 8;
+            Settings.BombsCount = 1;
+            Settings.SpeedFactor = 1.0f;
+        }
+        // ================
 
         /// <summary>
         /// Команда для кнопки инкремента скорости

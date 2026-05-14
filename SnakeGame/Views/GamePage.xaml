@@ -58,40 +58,52 @@
                     Spacing="8">
 
                     <!--  Ready: старт игры  -->
-                    <Button
+                    <Border
                         Margin="5"
-                        BackgroundColor="#53D64A"
-                        Command="{Binding StartGameCommand}"
-                        CornerRadius="28"
-                        FontSize="18"
                         IsVisible="{Binding CanStartGame}"
-                        Text="Стартуем!">
-                        <Button.Shadow>
+                        Stroke="#8CBB60"
+                        StrokeShape="RoundRectangle 28"
+                        StrokeThickness="2">
+                        <Border.Shadow>
                             <Shadow
                                 Brush="Black"
                                 Opacity="0.5"
                                 Radius="10"
                                 Offset="0,2" />
-                        </Button.Shadow>
-                    </Button>
+                        </Border.Shadow>
+                        <Button
+                            BackgroundColor="#84C248"
+                            BorderColor="#477447"
+                            BorderWidth="3"
+                            Command="{Binding StartGameCommand}"
+                            CornerRadius="28"
+                            FontSize="18"
+                            Text="Стартуем!" />
+                    </Border>
 
                     <!--  GameOver: кнопка возврата к настройкам  -->
-                    <Button
+                    <Border
                         Margin="5"
-                        BackgroundColor="#6CB06C"
-                        Command="{Binding ShowSetupCommand}"
-                        CornerRadius="28"
-                        FontSize="18"
                         IsVisible="{Binding ShowGameOver}"
-                        Text="К настройкам">
-                        <Button.Shadow>
+                        Stroke="#8CBB60"
+                        StrokeShape="RoundRectangle 28"
+                        StrokeThickness="2">
+                        <Border.Shadow>
                             <Shadow
                                 Brush="Black"
                                 Opacity="0.5"
                                 Radius="10"
                                 Offset="0,2" />
-                        </Button.Shadow>
-                    </Button>
+                        </Border.Shadow>
+                        <Button
+                            BackgroundColor="#6CB06C"
+                            BorderColor="#477447"
+                            BorderWidth="3"
+                            Command="{Binding ShowSetupCommand}"
+                            CornerRadius="28"
+                            FontSize="18"
+                            Text="К настройкам" />
+                    </Border>
                     <!--  Setup: генерация поля  -->
                     <Border
                         Margin="5"
@@ -116,9 +128,118 @@
                                 FontAutoScalingEnabled="True"
                                 FontSize="18"
                                 IsEnabled="{Binding SettingsAreValid}"
-                                Text="Сгенерировать поле" />
+                                Text="Сгенерировать поле">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Disabled">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#718270" />
+                                                    <Setter Property="TextColor" Value="Darkred" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#6CB06C" />
+                                                    <Setter Property="TextColor" Value="Black" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
+                            </Button>
                         </Border>
                     </Border>
+                    <!--  Setup: предпочтения  -->
+                    <Label
+                        IsVisible="{Binding CanGenerateField}"
+                        Margin="-8"
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        Text="Предпочтения"
+                        VerticalOptions="Center" />
+                    <Grid
+                        ColumnDefinitions="*, *, *"
+                        ColumnSpacing="3"
+                        IsVisible="{Binding CanGenerateField}">
+                        <Grid.Shadow>
+                            <Shadow
+                                Brush="Black"
+                                Opacity="0.5"
+                                Radius="10"
+                                Offset="0,2" />
+                        </Grid.Shadow>
+                        <Border
+                            Grid.Column="0"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="2">
+                            <Button
+                                BackgroundColor="#6CB06C"
+                                BorderColor="#477447"
+                                BorderWidth="2"
+                                Command="{Binding SavePreferencesCommand}"
+                                CornerRadius="28"
+                                FontAutoScalingEnabled="True"
+                                FontSize="12"
+                                IsEnabled="{Binding SettingsAreValid}"
+                                LineBreakMode="WordWrap"
+                                Text="Сохранить">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Disabled">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#718270" />
+                                                    <Setter Property="TextColor" Value="Darkred" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="#6CB06C" />
+                                                    <Setter Property="TextColor" Value="Black" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
+                            </Button>
+                        </Border>
+                        <Border
+                            Grid.Column="1"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="2">
+                            <Button
+                                BackgroundColor="#6CB06C"
+                                BorderColor="#477447"
+                                BorderWidth="2"
+                                Command="{Binding LoadPreferencesCommand}"
+                                CornerRadius="28"
+                                FontAutoScalingEnabled="True"
+                                FontSize="12"
+                                LineBreakMode="WordWrap"
+                                Text="Загрузить">
+                            </Button>
+                        </Border>
+                        <Border
+                            Grid.Column="2"
+                            Stroke="#8CBB60"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="2">
+                            <Button
+                                BackgroundColor="#6CB06C"
+                                BorderColor="#477447"
+                                BorderWidth="2"
+                                Command="{Binding ResetPreferencesCommand}"
+                                CornerRadius="28"
+                                FontAutoScalingEnabled="True"
+                                FontSize="12"
+                                LineBreakMode="WordWrap"
+                                Text="Сбросить">
+                            </Button>
+                        </Border>
+                    </Grid>
 
 
 
