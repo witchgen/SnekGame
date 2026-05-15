@@ -191,6 +191,9 @@ namespace SnakeGame.SnekEngine
                     }
 
                 case GameStatus.Ended:
+                    // 1. Рисуем игровое поле в статике
+                    _graphics.RenderStatic(canvas, _curr, isPaused: true);
+                    // 2. Рисуем экран геймовера
                     _graphics.RenderResults(canvas, width, height, Round);
                     break;
             }

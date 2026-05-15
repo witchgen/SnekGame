@@ -1,5 +1,4 @@
-﻿using Android.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Storage;
 using SkiaSharp;
@@ -7,7 +6,6 @@ using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Models;
 using SnakeGame.SnekEngine.Core.Services;
 using System;
-using System.Threading.Tasks;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.ViewModels
@@ -24,15 +22,19 @@ namespace SnakeGame.ViewModels
         [ObservableProperty]
         private GameScreenState _screenState = GameScreenState.Setup;
 
-        [ObservableProperty]
-        private bool _isSetupVisible = true;
         //public bool IsSetupVisible => ScreenState is GameScreenState.Setup or GameScreenState.GameOver;
         public bool IsGameFieldVisible => ScreenState is GameScreenState.Ready or GameScreenState.Playing or GameScreenState.GameOver;
         [ObservableProperty]
-        private bool _canGenerateField = true;
+        private bool _canShowBottomBar = true;
+
+        [ObservableProperty]
+        private bool _isSetupVisible = true;
 
         [ObservableProperty]
         private bool _canStartGame = false;
+
+        [ObservableProperty]
+        private bool _canReroll = false;
 
         [ObservableProperty]
         private bool _isPlaying = false;
@@ -70,11 +72,14 @@ namespace SnakeGame.ViewModels
 
         partial void OnScreenStateChanged(GameScreenState value)
         {
-            CanGenerateField = value == GameScreenState.Setup;
+            CanShowBottomBar = value is not (GameScreenState.Playing or GameScreenState.Paused);
             CanStartGame = value == GameScreenState.Ready;
             IsPlaying = value == GameScreenState.Playing || value == GameScreenState.Paused;
-            ShowGameOver = value == GameScreenState.GameOver || value == GameScreenState.Ready;
-            IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
+            ShowGameOver = value == GameScreenState.GameOver;
+            //IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
+
+            //IsSetupVisible = value is not (GameScreenState.Playing or GameScreenState.Paused);
+            CanReroll = value is (GameScreenState.Ready or GameScreenState.GameOver);
         }
 
         private void OnGameEnded(GameOverReason reason)
@@ -122,6 +127,23 @@ namespace SnakeGame.ViewModels
             bool validBombs = s.BombsCount >= 1 && s.BombsCount <= allowedMaxBombs;
 
             SettingsAreValid = validDimensions && validSpawn && validBombs;
+        }
+
+        [RelayCommand]
+        private void ShowSetup()
+        {
+            _loop.Stop();
+            Settings.Seed = 0; // Сбрасываем зерно при возврате в настройки
+            IsSetupVisible = true;
+            RequestRedraw?.Invoke();
+        }
+
+        [RelayCommand]
+        private void CloseSetup()
+        {
+            // Если игра идёт — просто закрываем панель
+            // Если геймовер — показываем кнопку "К настройкам"
+            IsSetupVisible = false;
         }
 
         // == УПРАВЛЕНИЕ ПРЕДПОЧТЕНИЯМИ: ==
@@ -194,10 +216,21 @@ namespace SnakeGame.ViewModels
             RequestRedraw?.Invoke();
         }
 
+        /// <summary>
+        /// Перестроить поле после первичной генерации
+        /// </summary>
+        [RelayCommand]
+        public void ResetField()
+        {
+            Settings.Seed = new Random().Next(1, int.MaxValue - 1);
+            GenerateFieldCommand.Execute(null);
+        }
+
         [RelayCommand]
         public void StartGame()
         {
             ScreenState = GameScreenState.Playing;
+            IsSetupVisible = false;
             _dispatcher.StartRound();
             _loop.Start();
         }
@@ -224,14 +257,14 @@ namespace SnakeGame.ViewModels
             RequestRedraw?.Invoke();
         }
 
-        [RelayCommand]
-        public void ShowSetup()
-        {
-            _loop.Stop();
-            Settings.Seed = 0; // Сбрасываем зерно при возврате в настройки
-            ScreenState = GameScreenState.Setup;
-            RequestRedraw?.Invoke();
-        }
+        //[RelayCommand]
+        //public void ShowSetup()
+        //{
+        //    _loop.Stop();
+        //    Settings.Seed = 0; // Сбрасываем зерно при возврате в настройки
+        //    ScreenState = GameScreenState.Setup;
+        //    RequestRedraw?.Invoke();
+        //}
 
         //public void Update(float deltaTime)
         //{

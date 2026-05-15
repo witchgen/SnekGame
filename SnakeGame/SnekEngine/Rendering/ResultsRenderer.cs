@@ -21,9 +21,93 @@ namespace SnakeGame.SnekEngine.Rendering
             _endReason = results.DeathReason;
         }
 
+        /// <summary>
+        /// ИСПРАВЛЕННЫЙ МЕТОД!
+        /// width/height — размеры игрового поля (не Canvas!)
+        /// cellSize — для масштабирования элементов относительно клеток
+        /// </summary>
         public void RenderEndScreen(SKCanvas canvas, float width, float height)
         {
+            // === ОВЕРЛЕЙ ТОЧНО ПО РАЗМЕРУ ПОЛЯ ===
+            using var overlay = new SKPaint
+            {
+                Color = new SKColor(0, 0, 0, 110)
+            };
+            canvas.DrawRect(0, 0, width, height, overlay);
+
+            // === ТЕКСТ ПРОПОРЦИОНАЛЕН РАЗМЕРУ ПОЛЯ ===
+            string endText = _endReason switch
+            {
+                GameOverReason.BitTail => "WASTED\nУкусил сам себя!",
+                GameOverReason.Wall => "WASTED\nНе справился с управлением!",
+                GameOverReason.Bomb => "BOOM!\nБомба взорвалась!",
+                _ => "WASTED"
+            };
+
+            // Размер шрифта: пропорционален cellSize и размеру поля
+            float baseFontSize = Math.Min(width, height) * 0.08f; // 8% от меньшей стороны
+            float titleFontSize = baseFontSize * 1.0f;
+            float scoreFontSize = baseFontSize * 0.9f;
+            float nameFontSize = baseFontSize * 1.1f;
+
+            // Центрирование
+            float centerX = width / 2f;
+            float centerY = height / 2f;
+
+            // Рисуем заголовок "WASTED"
+            using var titleFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), titleFontSize);
+            using var titlePaint = new SKPaint
+            {
+                Color = SKColors.DarkRed,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center
+            };
+
+            float titleY = centerY - height * 0.15f;
+            canvas.DrawText("WASTED", centerX, titleY, titleFont, titlePaint);
+
+            // Рисуем причину смерти
+            using var reasonFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), scoreFontSize);
+            using var reasonPaint = new SKPaint
+            {
+                Color = SKColors.DarkRed,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center
+            };
+            float reasonY = centerY - height * 0.02f;
+            canvas.DrawText(endText.Replace("WASTED\n", ""), centerX, reasonY, reasonFont, reasonPaint);
+
+            // Рисуем счёт
+            using var scoreFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), scoreFontSize);
+            using var scorePaint = new SKPaint
+            {
+                Color = SKColors.Gold,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center
+            };
+
+            float scoreY = centerY + height * 0.12f;
+            canvas.DrawText($"Очки: {_score}", centerX, scoreY, scoreFont, scorePaint);
+
+            // Рисуем имя игрока
+            using var nameFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Normal), nameFontSize);
+            using var namePaint = new SKPaint
+            {
+                Color = SKColors.PaleGoldenrod,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center
+            };
+
+            float nameY = centerY + height * 0.25f;
+            canvas.DrawText($"Спасибо за игру, {_playerName}", centerX, nameY, nameFont, namePaint);
+        }
+
+        [Obsolete]
+        public void RenderEndScreen(SKCanvas canvas, float proto_width, float proto_height, bool isObsolete)
+        {
             var bounds = canvas.DeviceClipBounds;
+            var width = bounds.Width;
+            var height = bounds.Height;
 
             //var endSnapshot = canvas.Surface.Snapshot();
             //var grayscale = new SKPaint();

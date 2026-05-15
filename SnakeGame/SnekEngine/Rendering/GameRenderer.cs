@@ -180,7 +180,7 @@ namespace SnakeGame.SnekEngine.Rendering
 
             // Анимация масштаба текста
             //                процент изменения                 периодичность
-            float scale = 1.0f + 0.15f * (float)Math.Sin(animTime * 2.5f);
+            float scale = 1.0f + 0.10f * (float)Math.Sin(animTime * 2.9f);
             float baseSize = 84f;
             float fontSize = baseSize * scale;
 
