@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SnakeGame.Services;
+namespace SnakeGame.Services.LegacyGame;
 
 public interface IFieldGenerator
 {

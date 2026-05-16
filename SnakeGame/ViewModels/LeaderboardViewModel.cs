@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using static SnakeGame.Models.GameInfo.GameState;
+using static SnakeGame.Models.LegacyGame.GameInfo.GameState;
 using SnakeGame.Services;
-using SnakeGame.Models.GameInfo;
+using SnakeGame.Models.LegacyGame.GameInfo;
 
 namespace SnakeGame;
 

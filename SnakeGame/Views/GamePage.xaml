@@ -19,59 +19,112 @@
         <Grid
             AbsoluteLayout.LayoutBounds="0,0,1,1"
             AbsoluteLayout.LayoutFlags="All"
-            RowDefinitions="Auto, 3*, 2*, Auto"
+            RowDefinitions="Auto, *, Auto"
             RowSpacing="0">
 
             <!--  ROW 0: Счетчик очков + верхнее меню  -->
             <Grid
                 Grid.Row="0"
-                BackgroundColor="Transparent"
+                BackgroundColor="#1a2f1a"
                 ColumnDefinitions="*, *, *"
                 ColumnSpacing="8">
                 <Label
                     Grid.Column="1"
-                    IsVisible="{Binding ShowScore}"
                     FontSize="22"
                     HorizontalOptions="Center"
-                    Text="{Binding GameScore}">
+                    IsVisible="{Binding ShowScore}"
+                    Text="{Binding GameScore}"
+                    VerticalOptions="Center">
                     <Label.Behaviors>
                         <behavior:ScorePulseBehavior />
                     </Label.Behaviors>
                 </Label>
+                <!--  "В меню"  -->
+                <Border
+                    IsEnabled="{Binding ShowMenuButton}"
+                    Padding="-5"
+                    Margin="2"
+                    Grid.Column="2"
+                    Stroke="#8CBB60"
+                    StrokeShape="RoundRectangle 28"
+                    StrokeThickness="2">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="Black"
+                            Opacity="0.5"
+                            Radius="10"
+                            Offset="0,2" />
+                    </Border.Shadow>
+                    <Border
+                        Stroke="#477447"
+                        StrokeShape="RoundRectangle 28"
+                        StrokeThickness="3">
+                        <Button
+                            BackgroundColor="#6CB06C"
+                            Command="{Binding GoToMenuCommand}"
+                            IsEnabled="{Binding ShowMenuButton}"
+                            CornerRadius="28"
+                            FontSize="14"
+                            Text="В меню" />
+                    </Border>
+                    <!--  Для сохранения размеров панели не скрываем кнопку полностью, а отключаем и делаем 100% прозрачной  -->
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroupList>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Property="Opacity" Value="0" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="Normal">
+                                    <VisualState.Setters>
+                                        <Setter Property="Opacity" Value="100" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateGroupList>
+                    </VisualStateManager.VisualStateGroups>
+                </Border>
             </Grid>
 
 
-            <!--  ROW 1: ИГРОВОЕ ПОЛЕ  -->
-            <skia:SKCanvasView
-                x:Name="gameScreen"
-                Grid.Row="1"
-                EnableTouchEvents="False"
-                HorizontalOptions="Center"
-                PaintSurface="OnGameScreenPaintSurface"
-                VerticalOptions="Start" />
+            <!--  ROW 1: ИГРОВОЕ ПОЛЕ + ТАЧПАД  -->
 
-            <!--  ROW 2: ТАЧПАД (виден только во время игры/паузы)  -->
-            <Border
-                Grid.Row="2"
-                Grid.RowSpan="2"
-                Margin="15,5,15,10"
-                HorizontalOptions="Fill"
-                IsVisible="{Binding IsPlaying}"
-                Stroke="#477447"
-                StrokeShape="RoundRectangle 20"
-                StrokeThickness="3"
-                VerticalOptions="Fill">
+            <Grid
+                Grid.Row="1"
+                Grid.RowSpan="3"
+                RowDefinitions="3*, 2*">
                 <skia:SKCanvasView
-                    x:Name="TouchPanel"
-                    BackgroundColor="Transparent"
-                    EnableTouchEvents="True"
-                    PaintSurface="OnTouchPanelPaint"
-                    Touch="OnTouchPanelTouch" />
-            </Border>
+                    x:Name="gameScreen"
+                    Grid.Row="0"
+                    EnableTouchEvents="False"
+                    HorizontalOptions="Center"
+                    PaintSurface="OnGameScreenPaintSurface"
+                    VerticalOptions="Start" />
+
+                <!--  ТАЧПАД (виден только во время игры/паузы)  -->
+                <Border
+                    Grid.Row="1"
+                    Grid.RowSpan="1"
+                    Margin="15,5,15,10"
+                    HorizontalOptions="Fill"
+                    IsVisible="{Binding IsPlaying}"
+                    Stroke="#477447"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="3"
+                    VerticalOptions="Fill">
+                    <skia:SKCanvasView
+                        x:Name="TouchPanel"
+                        BackgroundColor="Transparent"
+                        EnableTouchEvents="True"
+                        PaintSurface="OnTouchPanelPaint"
+                        Touch="OnTouchPanelTouch" />
+                </Border>
+            </Grid>
 
             <!--  ROW 3: ФИКСИРОВАННАЯ ПАНЕЛЬ КНОПОК  -->
             <Grid
-                Grid.Row="3"
+                Grid.Row="2"
                 Padding="8,5"
                 BackgroundColor="#1a2f1a"
                 ColumnDefinitions="*, *, *"

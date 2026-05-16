@@ -5,6 +5,7 @@ using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using SnakeGame.Services;
+using SnakeGame.Services.LegacyGame;
 using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Interfaces;
 using SnakeGame.SnekEngine.Core.Services;

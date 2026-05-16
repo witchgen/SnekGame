@@ -1,4 +1,4 @@
-﻿using static SnakeGame.Models.GameInfo.Enums;
+﻿using static SnakeGame.Models.LegacyGame.GameInfo.Enums;
 
 namespace SnakeGame.Custom;
 

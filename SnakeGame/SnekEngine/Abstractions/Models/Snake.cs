@@ -1,5 +1,5 @@
 ﻿using ShimSkiaSharp;
-using SnakeGame.Models.GameInfo;
+using SnakeGame.Models.LegacyGame.GameInfo;
 using System;
 using System.Collections.Generic;
 

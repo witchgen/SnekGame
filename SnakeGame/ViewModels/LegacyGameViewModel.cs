@@ -1,19 +1,15 @@
-﻿using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Mvvm;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Storage;
 using SnakeGame.Models.GameInfo;
-using SnakeGame.Models.Github;
+using SnakeGame.Models.LegacyGame.GameInfo;
 using SnakeGame.Services;
-using SnakeGame.Views;
+using SnakeGame.Services.LegacyGame;
 using System;
 using System.Threading.Tasks;
-using static SnakeGame.Models.GameInfo.Enums;
+using static SnakeGame.Models.LegacyGame.GameInfo.Enums;
 
 namespace SnakeGame;
 

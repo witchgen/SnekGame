@@ -1,11 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using SkiaSharp;
 using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Models;
 using SnakeGame.SnekEngine.Core.Services;
 using System;
+using System.Threading.Tasks;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.ViewModels
@@ -41,6 +43,9 @@ namespace SnakeGame.ViewModels
 
         [ObservableProperty]
         private bool _isPlaying = false;
+
+        [ObservableProperty]
+        private bool _showMenuButton = true;
 
         [ObservableProperty]
         private bool _showScore = false;
@@ -85,6 +90,7 @@ namespace SnakeGame.ViewModels
             ShowGameOver = value == GameScreenState.GameOver;
             //IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
             ShowScore = value is (GameScreenState.Ready or GameScreenState.Playing or GameScreenState.Paused);
+            ShowMenuButton = value is not GameScreenState.Playing;
             //IsSetupVisible = value is not (GameScreenState.Playing or GameScreenState.Paused);
             CanReroll = value is (GameScreenState.Ready or GameScreenState.GameOver);
         }
@@ -140,6 +146,12 @@ namespace SnakeGame.ViewModels
             bool validBombs = s.BombsCount >= 1 && s.BombsCount <= allowedMaxBombs;
 
             SettingsAreValid = validDimensions && validSpawn && validBombs;
+        }
+
+        [RelayCommand]
+        private async Task GoToMenu()
+        {
+            await Shell.Current.GoToAsync("..");
         }
 
         [RelayCommand]

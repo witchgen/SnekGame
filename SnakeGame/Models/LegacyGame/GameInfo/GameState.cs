@@ -1,6 +1,6 @@
-﻿using static SnakeGame.Models.GameInfo.Enums;
+﻿using static SnakeGame.Models.LegacyGame.GameInfo.Enums;
 
-namespace SnakeGame.Models.GameInfo
+namespace SnakeGame.Models.LegacyGame.GameInfo
 {
     public class GameState
     {

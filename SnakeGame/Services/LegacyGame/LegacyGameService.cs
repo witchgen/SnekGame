@@ -1,5 +1,5 @@
 ﻿using SnakeGame.Custom;
-using SnakeGame.Models.GameInfo;
+using SnakeGame.Models.LegacyGame.GameInfo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static SnakeGame.Custom.CustomExceptions;
-using static SnakeGame.Models.GameInfo.Enums;
+using static SnakeGame.Models.LegacyGame.GameInfo.Enums;
 
-namespace SnakeGame.Services;
+namespace SnakeGame.Services.LegacyGame;
 
 public interface IGameService
 {

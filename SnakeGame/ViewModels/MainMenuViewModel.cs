@@ -11,7 +11,7 @@ using SnakeGame.Services;
 using SnakeGame.Views;
 using System;
 using System.Threading.Tasks;
-using static SnakeGame.Models.GameInfo.Enums;
+using static SnakeGame.Models.LegacyGame.GameInfo.Enums;
 
 namespace SnakeGame.ViewModels
 {
