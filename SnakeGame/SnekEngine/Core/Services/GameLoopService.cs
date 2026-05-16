@@ -52,25 +52,14 @@ namespace SnakeGame.SnekEngine.Core.Services
             float delta = (now - _lastMs) / 1000f;
             _lastMs = now;
 
-            // Логика — только если игровой процесс запущен
+            // Логику считаем, только если игровой процесс запущен
             if (_dispatcher.PlayStatus == GameStatus.Running)
                 _dispatcher.Update(delta);
 
-            // Рендер - всегда
+            // Рендер идет всегда
             TickCompleted?.Invoke();
         }
 
-        //public void Start()
-        //{
-        //    _sw.Restart();
-        //    _lastMs = _sw.ElapsedMilliseconds;
-        //    _timer.Start();
-        //}
-        //public void Stop()
-        //{
-        //    _timer.Stop();
-        //    _sw.Stop();
-        //}
         public void Start() => _timer.Start();
         public void Stop() => _timer.Stop();
         public void Dispose()

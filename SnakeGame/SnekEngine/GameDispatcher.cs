@@ -24,6 +24,7 @@ namespace SnakeGame.SnekEngine
         private GameSnapshot _prev;
         private GameSnapshot _curr;
         public event Action<GameOverReason>? GameEnded; // Событие завершения раунда, подхватываем в модели представления для корректной регистрации
+        public event Action<int> ScoreChanged; // Событие изменения счетчика очков, отображаем в ViewModel
 
         private float _accumulated;
         private float _baseTickDuration = 0.2f; // базовый тик, 200 мс
@@ -94,8 +95,8 @@ namespace SnakeGame.SnekEngine
                 _playStatus = GameStatus.Running;
             }
 
-            if (_playStatus == GameStatus.Initialized)
-                _playStatus = GameStatus.Running;
+            //if (_playStatus == GameStatus.Initialized)
+            //    _playStatus = GameStatus.Running;
         }
 
         /// <summary>
@@ -127,9 +128,14 @@ namespace SnakeGame.SnekEngine
                 _prev = _curr.Clone();
                 _curr = _game.Tick(_curr, dir);
 
+                // Если заработали очков, уведомляем модель представления, чтобы обновить счетчик
+                if (_curr.Score != _prev.Score) 
+                    ScoreChanged.Invoke(_curr.Score);
+
                 if (_curr.EndReason != null)
                 {
                     Round.CurrentState = _curr;
+                    Round.DeathReason = _curr.EndReason.Value;
                     Round.FinalScore = _curr.Score;
                     Round.DtEnded = DateTime.UtcNow;
                     _playStatus = GameStatus.Ended;

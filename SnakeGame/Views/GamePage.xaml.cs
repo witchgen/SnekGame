@@ -85,7 +85,7 @@ public partial class GamePage : ContentPage
         canvas.Translate(offsetX, offsetY);
 
         _gvm.UpdateCanvasSize(canvasWidth, canvasHeight);
-        _gvm.Render(canvas, canvasWidth, canvasHeight);
+        _gvm.Render(canvas, fieldWidth, fieldHeight);
 
         // Восстанавливаем — теперь матрица "чистая"
         canvas.Restore();

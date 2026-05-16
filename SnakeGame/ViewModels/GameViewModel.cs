@@ -22,6 +22,9 @@ namespace SnakeGame.ViewModels
         [ObservableProperty]
         private GameScreenState _screenState = GameScreenState.Setup;
 
+        [ObservableProperty]
+        private int _gameScore = 0;
+
         //public bool IsSetupVisible => ScreenState is GameScreenState.Setup or GameScreenState.GameOver;
         public bool IsGameFieldVisible => ScreenState is GameScreenState.Ready or GameScreenState.Playing or GameScreenState.GameOver;
         [ObservableProperty]
@@ -38,6 +41,9 @@ namespace SnakeGame.ViewModels
 
         [ObservableProperty]
         private bool _isPlaying = false;
+
+        [ObservableProperty]
+        private bool _showScore = false;
 
         [ObservableProperty]
         private bool _showGameOver = false;
@@ -67,6 +73,7 @@ namespace SnakeGame.ViewModels
             _loop.TickCompleted += () => RequestRedraw?.Invoke();
             // Подписка на завершение игры
             _dispatcher.GameEnded += OnGameEnded;
+            _dispatcher.ScoreChanged += OnScoreChanged;
         }
 
 
@@ -77,7 +84,7 @@ namespace SnakeGame.ViewModels
             IsPlaying = value == GameScreenState.Playing || value == GameScreenState.Paused;
             ShowGameOver = value == GameScreenState.GameOver;
             //IsSetupVisible = value is (GameScreenState.Setup or GameScreenState.GameOver or GameScreenState.Ready);
-
+            ShowScore = value is (GameScreenState.Ready or GameScreenState.Playing or GameScreenState.Paused);
             //IsSetupVisible = value is not (GameScreenState.Playing or GameScreenState.Paused);
             CanReroll = value is (GameScreenState.Ready or GameScreenState.GameOver);
         }
@@ -86,9 +93,15 @@ namespace SnakeGame.ViewModels
         {
             _loop.Stop(); // останавливаем игровой цикл
             ScreenState = GameScreenState.GameOver;
+            GameScore = 0;
             //ShowGameOver = true;
 
             RequestRedraw?.Invoke();
+        }
+
+        private void OnScoreChanged(int newScore)
+        {
+            GameScore = newScore;
         }
 
         // Частичный метод, автоматически вызывается при изменении Settings

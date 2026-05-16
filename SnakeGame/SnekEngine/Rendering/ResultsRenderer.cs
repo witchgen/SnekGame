@@ -1,6 +1,7 @@
 ﻿using SkiaSharp;
 using SnakeGame.SnekEngine.Abstractions.Models;
 using System;
+using System.Collections.Generic;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.Rendering
@@ -22,154 +23,190 @@ namespace SnakeGame.SnekEngine.Rendering
         }
 
         /// <summary>
-        /// ИСПРАВЛЕННЫЙ МЕТОД!
-        /// width/height — размеры игрового поля (не Canvas!)
-        /// cellSize — для масштабирования элементов относительно клеток
+        /// Отрисовка экрана геймовера с результатами раунда
         /// </summary>
         public void RenderEndScreen(SKCanvas canvas, float width, float height)
         {
-            // === ОВЕРЛЕЙ ТОЧНО ПО РАЗМЕРУ ПОЛЯ ===
+            // Оверлей по размеру поля
             using var overlay = new SKPaint
             {
                 Color = new SKColor(0, 0, 0, 110)
             };
             canvas.DrawRect(0, 0, width, height, overlay);
 
-            // === ТЕКСТ ПРОПОРЦИОНАЛЕН РАЗМЕРУ ПОЛЯ ===
+            // Текст нашей безвременной кончины:
             string endText = _endReason switch
             {
-                GameOverReason.BitTail => "WASTED\nУкусил сам себя!",
-                GameOverReason.Wall => "WASTED\nНе справился с управлением!",
+                GameOverReason.BitTail => "Укусил сам себя!",
+                GameOverReason.Wall => "Не справился с управлением!",
                 GameOverReason.Bomb => "BOOM!\nБомба взорвалась!",
-                _ => "WASTED"
+                _ => "ПОТРАЧЕНО"
             };
 
             // Размер шрифта: пропорционален cellSize и размеру поля
-            float baseFontSize = Math.Min(width, height) * 0.08f; // 8% от меньшей стороны
-            float titleFontSize = baseFontSize * 1.0f;
+            float baseFontSize = Math.Min(width, height) * 0.08f;
+            float titleFontSize = baseFontSize * 1.4f;
+            float reasonFontSize = baseFontSize * 0.9f;
             float scoreFontSize = baseFontSize * 0.9f;
-            float nameFontSize = baseFontSize * 1.1f;
+            float nameFontSize = baseFontSize * 0.8f;
 
-            // Центрирование
             float centerX = width / 2f;
             float centerY = height / 2f;
 
-            // Рисуем заголовок "WASTED"
-            using var titleFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), titleFontSize);
-            using var titlePaint = new SKPaint
-            {
-                Color = SKColors.DarkRed,
-                IsAntialias = true,
-                TextAlign = SKTextAlign.Center
-            };
+            // 2) Заголовок "WASTED" с обводкой
+            float titleY = centerY - height * 0.22f;
+            DrawTextWithStroke(canvas, "WASTED!", centerX, titleY, titleFontSize,
+                SKFontStyle.Bold, SKColors.DarkRed, SKColors.White, 5f);
 
-            float titleY = centerY - height * 0.15f;
-            canvas.DrawText("WASTED", centerX, titleY, titleFont, titlePaint);
+            // 3) Причина смерти с переносом строк
+            float reasonY = centerY - height * 0.06f;
+            float maxReasonWidth = width * 0.85f; // 85% ширины экрана
+            DrawWrappedText(canvas, endText, centerX, reasonY, reasonFontSize,
+                SKFontStyle.Bold, SKColors.DarkRed, SKColors.White, 2.5f, maxReasonWidth, lineSpacing: 1.3f);
 
-            // Рисуем причину смерти
-            using var reasonFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), scoreFontSize);
-            using var reasonPaint = new SKPaint
-            {
-                Color = SKColors.DarkRed,
-                IsAntialias = true,
-                TextAlign = SKTextAlign.Center
-            };
-            float reasonY = centerY - height * 0.02f;
-            canvas.DrawText(endText.Replace("WASTED\n", ""), centerX, reasonY, reasonFont, reasonPaint);
-
-            // Рисуем счёт
-            using var scoreFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), scoreFontSize);
-            using var scorePaint = new SKPaint
-            {
-                Color = SKColors.Gold,
-                IsAntialias = true,
-                TextAlign = SKTextAlign.Center
-            };
-
+            // 4) Счёт с обводкой
             float scoreY = centerY + height * 0.12f;
-            canvas.DrawText($"Очки: {_score}", centerX, scoreY, scoreFont, scorePaint);
+            DrawTextWithStroke(canvas, $"Очки: {_score}", centerX, scoreY, scoreFontSize,
+                SKFontStyle.Bold, SKColors.Gold, SKColors.Black, 2.5f);
 
-            // Рисуем имя игрока
-            using var nameFont = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Normal), nameFontSize);
-            using var namePaint = new SKPaint
-            {
-                Color = SKColors.PaleGoldenrod,
-                IsAntialias = true,
-                TextAlign = SKTextAlign.Center
-            };
-
+            // 5) Имя игрока с обводкой и переносом
             float nameY = centerY + height * 0.25f;
-            canvas.DrawText($"Спасибо за игру, {_playerName}", centerX, nameY, nameFont, namePaint);
+            float maxNameWidth = width * 0.9f;
+            string nameText = $"Спасибо за игру, {_playerName}";
+            DrawWrappedText(canvas, nameText, centerX, nameY, nameFontSize,
+                SKFontStyle.Normal, SKColors.PaleGoldenrod, SKColors.Black, 2.5f, maxNameWidth, lineSpacing: 1.2f);
         }
 
-        [Obsolete]
-        public void RenderEndScreen(SKCanvas canvas, float proto_width, float proto_height, bool isObsolete)
+        /// <summary>
+        /// Рисует однострочный текст с обводкой (stroke). 
+        /// Сначала рисуется обводка (толстый чёрный контур), 
+        /// потом поверх — основной текст.
+        /// </summary>
+        private void DrawTextWithStroke(SKCanvas canvas, string text, float x, float y,
+            float fontSize, SKFontStyle fontStyle, SKColor fillColor, SKColor strokeColor, float strokeWidth)
         {
-            var bounds = canvas.DeviceClipBounds;
-            var width = bounds.Width;
-            var height = bounds.Height;
+            using var typeface = SKTypeface.FromFamilyName(null, fontStyle);
+            using var font = new SKFont(typeface, fontSize);
 
-            //var endSnapshot = canvas.Surface.Snapshot();
-            //var grayscale = new SKPaint();
-            //grayscale.ColorFilter = SKColorFilter.CreateColorMatrix(new float[]
-            //{
-            //    0.21f, 0.72f, 0.07f, 0, 0, // Red channel
-            //    0.21f, 0.72f, 0.07f, 0, 0, // Green channel
-            //    0.21f, 0.72f, 0.07f, 0, 0, // Blue channel
-            //    0,     0,     0,     1, 0  // Alpha channel
-            //});
-            //canvas.Clear(SKColors.Gray);
-            //canvas.DrawBitmap(SKBitmap.FromImage(endSnapshot), 0, 0, grayscale);
-
-            // Простой серый оверлей
-            using var overlay = new SKPaint
+            // Обводка (рисуем первой — будет "под" текстом)
+            using var strokePaint = new SKPaint
             {
-                Color = new SKColor(0, 0, 0, 110)
-            };
-            canvas.DrawRect(0, 0, width, height, overlay);
-
-            //var overlay = new SKPaint { Color = new SKColor(0, 0, 0, 180) };
-            //canvas.DrawRect(bounds, overlay);
-            // текст
-            string endText =
-                $"WASTED\n" +
-                $"Ты набрал: {_score} очков\n" +
-                $"Спасибо за игру, {_playerName}";
-
-            // Шрифт и стиль
-            using var font = new SKFont(SKTypeface.FromFamilyName(null, SKFontStyle.Bold), 64);
-            using var textPaint = new SKPaint
-            {
-                Color = SKColors.DarkRed,
-                IsAntialias = true
+                Color = strokeColor,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center,
+                Style = SKPaintStyle.Stroke,      // Режим обводки
+                StrokeWidth = strokeWidth,        // Толщина контура
+                StrokeJoin = SKStrokeJoin.Round,  // Скруглённые углы обводки
+                StrokeCap = SKStrokeCap.Round     // Скруглённые концы линий
             };
 
-            // Разбиваем текст на строки
-            var lines = endText.Split('\n');
-            float lineHeight = font.Size * 1.2f; // Межстрочный интервал
-
-            // Вычисляем общую высоту и максимальную ширину
-            float totalHeight = lines.Length * lineHeight;
-            float maxWidth = 0;
-            foreach (var line in lines)
+            // Заливка (рисуем поверх обводки)
+            using var fillPaint = new SKPaint
             {
-                font.MeasureText(line, out SKRect textBounds);
-                maxWidth = Math.Max(maxWidth, textBounds.Width);
-            }
+                Color = fillColor,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center,
+                Style = SKPaintStyle.Fill         // Обычная заливка
+            };
 
-            // Центрирование
-            float startX = (width - maxWidth) / 2f;
-            float startY = (height - totalHeight) / 2f;
+            // Сначала обводка, потом текст — иначе обводка перекроет края текста
+            canvas.DrawText(text, x, y, font, strokePaint);
+            canvas.DrawText(text, x, y, font, fillPaint);
+        }
+
+        /// <summary>
+        /// Рисует многострочный текст с автоматическим переносом по словам.
+        /// Разбивает текст на строки, если он не влезает в maxWidth.
+        /// Поддерживает обводку и настраиваемый межстрочный интервал.
+        /// </summary>
+        private void DrawWrappedText(SKCanvas canvas, string text, float x, float y,
+            float fontSize, SKFontStyle fontStyle, SKColor fillColor, SKColor strokeColor,
+            float strokeWidth, float maxWidth, float lineSpacing = 1.2f)
+        {
+            using var typeface = SKTypeface.FromFamilyName(null, fontStyle);
+            using var font = new SKFont(typeface, fontSize);
+
+            // Разбиваем текст на строки, которые влезают в maxWidth
+            var lines = WrapTextToLines(text, font, maxWidth);
+
+            // Подготавливаем "кисти"" для обводки и заливки
+            using var strokePaint = new SKPaint
+            {
+                Color = strokeColor,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = strokeWidth,
+                StrokeJoin = SKStrokeJoin.Round,
+                StrokeCap = SKStrokeCap.Round
+            };
+
+            using var fillPaint = new SKPaint
+            {
+                Color = fillColor,
+                IsAntialias = true,
+                TextAlign = SKTextAlign.Center,
+                Style = SKPaintStyle.Fill
+            };
+
+            // Расстояние между базовыми линиями строк
+            float lineHeight = fontSize * lineSpacing;
 
             // Рисуем каждую строку
-            for (int i = 0; i < lines.Length; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
-                float lineY = startY + (i * lineHeight) + font.Size; // +font.Size для базовой линии
-                font.MeasureText(lines[i], out SKRect lineBounds);
-                float lineX = (width - lineBounds.Width) / 2f; // Центрирование каждой строки
+                float lineY = y + (i * lineHeight);
 
-                canvas.DrawText(lines[i], lineX, lineY, SKTextAlign.Left, font, textPaint);
+                // Сначала обводка, потом заливка
+                canvas.DrawText(lines[i], x, lineY, font, strokePaint);
+                canvas.DrawText(lines[i], x, lineY, font, fillPaint);
             }
+        }
+
+        /// <summary>
+        /// Разбивает длинный текст на строки по ширине.
+        /// Учитывает ширину каждого слова т.е. не рвёт их посередине.
+        /// </summary>
+        private List<string> WrapTextToLines(string text, SKFont font, float maxWidth)
+        {
+            var lines = new List<string>();
+            var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            var currentLine = new System.Text.StringBuilder();
+
+            foreach (var word in words)
+            {
+                string testLine = currentLine.Length > 0
+                    ? currentLine + " " + word
+                    : word;
+
+                // Измеряем ширину тестовой строки
+                font.MeasureText(testLine, out SKRect bounds);
+
+                if (bounds.Width > maxWidth && currentLine.Length > 0)
+                {
+                    // Текущее слово не влезает — сохраняем строку и начинаем новую
+                    lines.Add(currentLine.ToString());
+                    currentLine.Clear();
+                    currentLine.Append(word);
+                }
+                else
+                {
+                    // Влезает — добавляем слово к текущей строке
+                    currentLine.Clear();
+                    currentLine.Append(testLine);
+                }
+            }
+
+            // Добавляем остаток
+            if (currentLine.Length > 0)
+                lines.Add(currentLine.ToString());
+
+            // Если текст пустой или одно слово слишком длинное — все равно добавляем
+            if (lines.Count == 0 && words.Length > 0)
+                lines.Add(words[0]);
+
+            return lines;
         }
     }
 }
