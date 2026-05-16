@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 using SkiaSharp.Views.Maui.Controls.Hosting;
+using SnakeGame.Abstractions;
 using SnakeGame.Services;
 using SnakeGame.Services.LegacyGame;
 using SnakeGame.SnekEngine;
@@ -54,12 +55,13 @@ public static class MauiProgram
         builder.Services.AddSingleton<FieldInitializer>();
         builder.Services.AddSingleton<FieldUpdater>();
         builder.Services.AddSingleton<GameLoopService>();
-        //builder.Services.AddSingleton<GameRenderer>();
         builder.Services.AddSingleton<IGameplayService, GameplayService>();
         builder.Services.AddSingleton<IGraphicRenderService, GraphicRenderService>();
         builder.Services.AddSingleton<GameDispatcher>();
         builder.Services.AddTransient<GamePage>();
         builder.Services.AddTransient<GameViewModel>();
+
+        builder.Services.AddSingleton<ISnakeRecordsService, MainGameRecordsService>();
 
         return builder.Build();
     }

@@ -3,9 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
-using SnakeGame.Models.GameInfo;
 using SnakeGame.Models.LegacyGame.GameInfo;
-using SnakeGame.Services;
 using SnakeGame.Services.LegacyGame;
 using System;
 using System.Threading.Tasks;
@@ -118,7 +116,7 @@ public partial class LegacyGameViewModel : ObservableObject
     [RelayCommand]
     private void SelectDifficulty(string lvl)
     {
-        _game.SetDifficulty((Difficulty)Convert.ToInt32(lvl));
+        _game.SetDifficulty((LegacyDifficulty)Convert.ToInt32(lvl));
         DifficultyText = "Сложнасть: " + lvl switch
         {
             "0" => DiffEasyText,
@@ -243,7 +241,7 @@ public partial class LegacyGameViewModel : ObservableObject
         AreControlsVisible = false;
         IsDifficultyVisible = true;
 
-        Score = result.DeathReason == GameOverReason.Victory
+        Score = result.DeathReason == LegacyGameOverReason.Victory
             ? $"Вкусностей не осталось, твой счёт: {result.Score} очков"
             : $"💀 GG WP, у тебя {result.Score} очков 💀";
 

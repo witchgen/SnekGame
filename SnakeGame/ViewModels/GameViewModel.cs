@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using SkiaSharp;
+using SnakeGame.Abstractions;
 using SnakeGame.SnekEngine;
 using SnakeGame.SnekEngine.Abstractions.Models;
 using SnakeGame.SnekEngine.Core.Services;
@@ -16,6 +17,7 @@ namespace SnakeGame.ViewModels
     {
         private readonly GameDispatcher _dispatcher;
         private readonly GameLoopService _loop;
+        private readonly ISnakeRecordsService _records;
 
         public event Action? RequestRedraw; // Запрос перерисовки, вызываем при изменении состояния либо изменении самого холста (поменялось поле)
         private float _canvasWidth;
@@ -27,8 +29,8 @@ namespace SnakeGame.ViewModels
         [ObservableProperty]
         private int _gameScore = 0;
 
-        //public bool IsSetupVisible => ScreenState is GameScreenState.Setup or GameScreenState.GameOver;
-        public bool IsGameFieldVisible => ScreenState is GameScreenState.Ready or GameScreenState.Playing or GameScreenState.GameOver;
+        private bool _gameOverHandled = false; // Для обработки game over
+
         [ObservableProperty]
         private bool _canShowBottomBar = true;
 
@@ -69,10 +71,16 @@ namespace SnakeGame.ViewModels
             SpeedFactor = 1.0f
         };
 
-        public GameViewModel(GameDispatcher dispatcher, GameLoopService loop)
+        public GameViewModel(GameDispatcher dispatcher, 
+            GameLoopService loop,
+            ISnakeRecordsService records)
         {
             _dispatcher = dispatcher;
+            _records = records;
             _loop = loop;
+
+            LoadRecords(); // грузим имеющиеся рекорды
+
             Settings.PropertyChanged += (s, e) => ValidateSettings();
 
             _loop.TickCompleted += () => RequestRedraw?.Invoke();
@@ -81,6 +89,10 @@ namespace SnakeGame.ViewModels
             _dispatcher.ScoreChanged += OnScoreChanged;
         }
 
+        private async void LoadRecords()
+        {
+            await _records.GetRecordsAsync();
+        }
 
         partial void OnScreenStateChanged(GameScreenState value)
         {
@@ -95,11 +107,17 @@ namespace SnakeGame.ViewModels
             CanReroll = value is (GameScreenState.Ready or GameScreenState.GameOver);
         }
 
-        private void OnGameEnded(GameOverReason reason)
+        private async void OnGameEnded(PlayInfo results)
         {
+            if (_gameOverHandled) return;
+            _gameOverHandled = true;
+
             _loop.Stop(); // останавливаем игровой цикл
             ScreenState = GameScreenState.GameOver;
             GameScore = 0;
+
+            if(results.FinalScore != 0) // Сохраняем рекорд, если были набраны очки
+                await _records.AddNewRecordAsync(results);
             //ShowGameOver = true;
 
             RequestRedraw?.Invoke();
@@ -231,11 +249,14 @@ namespace SnakeGame.ViewModels
         [RelayCommand]
         public void GenerateField()
         {
+            _gameOverHandled = false;
+
             // Если игрок не задал зерно — генерируем новое и показываем
             if (Settings.Seed == 0)
             {
                 Settings.Seed = new Random().Next(1, int.MaxValue - 1);
             }
+            CloseSetupCommand.Execute(null);
             _dispatcher.InitializeRound(Settings, _canvasWidth, _canvasHeight);
             ScreenState = GameScreenState.Ready;
             RequestRedraw?.Invoke();

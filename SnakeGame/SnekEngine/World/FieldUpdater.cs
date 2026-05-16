@@ -9,6 +9,7 @@ namespace SnakeGame.SnekEngine.World
 {
     internal class FieldUpdater : IFieldUpdater
     {
+        private bool _canSpawnBombs = true;
         public FieldUpdater() { }
 
         public GameSnapshot UpdateField(GameSnapshot snapshot, Direction direction, Random rnd)
@@ -60,8 +61,8 @@ namespace SnakeGame.SnekEngine.World
             }
 
             // 4. Бомба
-            if (ateApple && snapshot.Bombs != null)
-                snapshot.Bombs = PlaceBomb(field, snapshot.Bombs.Count, rnd);
+            if (ateApple && snapshot.Bombs != null && _canSpawnBombs)
+                snapshot.Bombs = PlaceBomb(field, newHead, snapshot.Bombs.Count, rnd);
 
             // 5. Обновляем поле
             UpdateFieldArray(field, snake, snapshot.Apple, snapshot.Bombs);
@@ -137,29 +138,78 @@ namespace SnakeGame.SnekEngine.World
             throw new CantPlaceItemsException();
         }
 
-        private HashSet<(int i, int j)>? PlaceBomb(int[,] field, int amount, Random rnd)
+        private HashSet<(int i, int j)>? PlaceBomb(int[,] field, (int i, int j) newHead, int amount, Random rnd)
         {
-            if (amount < 0 || amount > 15) return null;
+            if (amount < 0 || amount > 25) return null;
 
             int rows = field.GetLength(0);
             int cols = field.GetLength(1);
-            var bombs = new HashSet<(int i, int j)>();
             var maxAttempts = field.Length * 10;
 
-            for (int attempt = 0; attempt <= maxAttempts; attempt++)
+            // Шаг 1: Находим все клетки, куда можно поставить бомбу (окно - 3, радиус)
+            var candidates = FindValidBombSpots(field, newHead, 3);
+
+            // Если кандидатов меньше, чем нужно бомб — спавн невозможен
+            if (candidates.Count < amount)
             {
-                int i = rnd.Next(1, rows - 1);
-                int j = rnd.Next(1, cols - 1);
+                _canSpawnBombs = false;  // Блокируем повторные попытки в этом цикле
+                return null;
+            }
 
-                if (bombs.Count == amount) return bombs;
+            // Шаг 2: Случайно выбираем нужное количество кандидатов
+            var bombs = new HashSet<(int i, int j)>();
 
-                if (field[i, j] == 0)
+            for (int i = candidates.Count - 1; i > candidates.Count - 1 - amount; i--)
+            {
+                int j = rnd.Next(i + 1);        // Случайный индекс от 0 до i
+                (candidates[i], candidates[j]) = (candidates[j], candidates[i]); // Меняем местами
+
+                var (r, c) = candidates[i];     // Берём вытолкнутый элемент с конца
+                field[r, c] = 4;                // Помечаем на поле
+                bombs.Add((r, c));              // Запоминаем координату
+            }
+
+            return bombs;
+        }
+
+        /// <summary>
+        /// Находит все пустые клетки поля, находящиеся на безопасном расстоянии от головы змеи.
+        /// </summary>
+        /// /// <param name="field">Игровое поле. 0 — пустая клетка.</param>
+        /// <param name="head">Координаты головы змеи.</param>
+        /// <param name="safeRadius">Минимальное расстояние (включительно) от головы по обеим осям.</param>
+        /// <returns>Список подходящих координат. Пустой, если таких нет.</returns>
+        private List<(int i, int j)> FindValidBombSpots(int[,] field,
+                                                        (int i, int j) head,
+                                                        int safeRadius)
+        {
+            int rows = field.GetLength(0);
+            int cols = field.GetLength(1);
+            var spots = new List<(int i, int j)>();
+
+            // Перебираем внутренние клетки поля (исключаем границы, как в оригинале)
+            for (int i = 1; i < rows - 1; i++)
+            {
+                for (int j = 1; j < cols - 1; j++)
                 {
-                    field[i, j] = 4;
-                    bombs.Add((i, j));
+                    // Пропускаем занятые клетки (стены, тело змеи, еда и т.д.)
+                    if (field[i, j] != 0)
+                        continue;
+
+                    // Проверяем безопасное расстояние от головы змеи
+                    // Клетка ВНУТРИ квадрата радиуса safeRadius — запрещена
+                    int rowDist = Math.Abs(i - head.i);
+                    int colDist = Math.Abs(j - head.j);
+
+                    // Если клетка слишком близко по любой оси — пропускаем
+                    if (rowDist <= safeRadius && colDist <= safeRadius)
+                        continue;
+
+                    spots.Add((i, j));
                 }
             }
-            throw new CantPlaceItemsException();
+
+            return spots;
         }
 
         static readonly (int dy, int dx)[] dirs =

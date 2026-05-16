@@ -1,11 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using Microsoft.Extensions.DependencyInjection;
-using CommunityToolkit.Mvvm.Input;
+﻿using Microsoft.Maui.Controls;
+using SnakeGame.ViewModels;
 
 namespace SnakeGame;
 

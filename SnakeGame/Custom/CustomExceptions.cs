@@ -18,10 +18,17 @@ namespace SnakeGame.Custom
 
             public CanNotSetDirectionException(Direction dir) : base($"Could not set desired direction! Received direction: {dir.AsString()}")
             {
-                
+
             }
 
             public CanNotSetDirectionException(string msg) : base(msg) { }
+        }
+
+        public class CouldNotGetRecordsFromFileException : Exception
+        {
+            public CouldNotGetRecordsFromFileException() { }
+
+            public CouldNotGetRecordsFromFileException(string msg) : base(msg) { }
         }
     }
 }

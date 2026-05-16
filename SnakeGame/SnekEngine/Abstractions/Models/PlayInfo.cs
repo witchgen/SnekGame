@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Threading;
 using static SnakeGame.SnekEngine.Abstractions.GameEnums;
 
 namespace SnakeGame.SnekEngine.Abstractions.Models
 {
     public class PlayInfo
     {
+        private static int _nextId = 0;
+
+        public int Id { get; set; } = Interlocked.Increment(ref _nextId);
         /// <summary>
         /// Ранг в таблице рекордов
         /// </summary>

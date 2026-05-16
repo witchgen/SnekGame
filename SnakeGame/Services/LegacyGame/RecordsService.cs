@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using Microsoft.Maui.Storage;
-using static SnakeGame.Models.LegacyGame.GameInfo.GameState;
 using System.Threading;
 using SnakeGame.Models.LegacyGame.GameInfo;
 
-namespace SnakeGame.Services;
+namespace SnakeGame.Services.LegacyGame;
 
 /// <summary>
 /// Сервис обработки игровых рекордов.

@@ -17,7 +17,7 @@ namespace SnakeGame.Models.LegacyGame.GameInfo
         /// <summary>
         /// Уровень сложности ( 0 - 2 )
         /// </summary>
-        public Difficulty DifficultyLevel { get; set; }
+        public LegacyDifficulty DifficultyLevel { get; set; }
         /// <summary>
         /// Временная метка создания записи
         /// </summary>
@@ -33,6 +33,6 @@ namespace SnakeGame.Models.LegacyGame.GameInfo
         /// <summary>
         /// Причина смерти
         /// </summary>
-        public GameOverReason DeathReason { get; set; } 
+        public LegacyGameOverReason DeathReason { get; set; } 
     }
 }

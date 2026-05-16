@@ -23,7 +23,7 @@ namespace SnakeGame.SnekEngine
         public PlayInfo Round { get; private set; }
         private GameSnapshot _prev;
         private GameSnapshot _curr;
-        public event Action<GameOverReason>? GameEnded; // Событие завершения раунда, подхватываем в модели представления для корректной регистрации
+        public event Action<PlayInfo>? GameEnded; // Событие завершения раунда, подхватываем в модели представления для корректной регистрации
         public event Action<int> ScoreChanged; // Событие изменения счетчика очков, отображаем в ViewModel
 
         private float _accumulated;
@@ -138,9 +138,10 @@ namespace SnakeGame.SnekEngine
                     Round.DeathReason = _curr.EndReason.Value;
                     Round.FinalScore = _curr.Score;
                     Round.DtEnded = DateTime.UtcNow;
+                    Round.MaxSnakeLength = _curr.Snake.Body.Count;
                     _playStatus = GameStatus.Ended;
 
-                    GameEnded?.Invoke(_curr.EndReason.Value);
+                    GameEnded?.Invoke(Round);
                     return;
                 }
             }

@@ -27,7 +27,7 @@ public interface IGameService
     /// Выставить сложность
     /// </summary>
     /// <param name="lvl">Желаемая сложность</param>
-    void SetDifficulty(Difficulty lvl);
+    void SetDifficulty(LegacyDifficulty lvl);
     /// <summary>
     /// Начать игру в змейку
     /// </summary>
@@ -176,15 +176,15 @@ public class LegacyGameService : IGameService
         //return sb.ToString();
     }
 
-    public void SetDifficulty(Difficulty lvl)
+    public void SetDifficulty(LegacyDifficulty lvl)
     {
         if(!_customSpeedSet) // При отладочной скорости оставляем ту, что была задана игроком
         {
             switch (lvl)
             {
-                case Difficulty.Easy: _speedMs = 400; break;
-                case Difficulty.Medium: _speedMs = 300; break;
-                case Difficulty.Hard:
+                case LegacyDifficulty.Easy: _speedMs = 400; break;
+                case LegacyDifficulty.Medium: _speedMs = 300; break;
+                case LegacyDifficulty.Hard:
                     _speedMs = 200; break;
                 default: _speedMs = 500; break;
             }
@@ -324,9 +324,9 @@ public class LegacyGameService : IGameService
                 _gameState.CurrentGameData = new PlayData
                 {
                     PlayerName = string.IsNullOrWhiteSpace(_gameState.CurrentGameData.PlayerName) ? "Анонимус" : _gameState.CurrentGameData.PlayerName,
-                    DifficultyLevel = (Difficulty)_diffMultiplier,
+                    DifficultyLevel = (LegacyDifficulty)_diffMultiplier,
                     Score = _score,
-                    DeathReason = _snakeAiControlled ? GameOverReason.AIsucker : _gameState.CurrentGameData.DeathReason,
+                    DeathReason = _snakeAiControlled ? LegacyGameOverReason.AIsucker : _gameState.CurrentGameData.DeathReason,
                     MaxSnakeLength = _gameState.SolidSnake.body.Count
                 };
 
@@ -394,19 +394,19 @@ public class LegacyGameService : IGameService
         if (IsBombAhead(nextHead)) // Напоролись на бомбу
         {
             _boom = true;
-            _gameState.CurrentGameData.DeathReason = GameOverReason.Bomb;
+            _gameState.CurrentGameData.DeathReason = LegacyGameOverReason.Bomb;
             return GameStatus.Ended;
         }
 
         if (IsOutOfBounds(nextHead)) // Вошли в стену
         {
-            _gameState.CurrentGameData.DeathReason = GameOverReason.Wall;
+            _gameState.CurrentGameData.DeathReason = LegacyGameOverReason.Wall;
             return GameStatus.Ended;
         }
 
         if (HasCollidedWithItself(nextHead)) // Съели себя же
         {
-            _gameState.CurrentGameData.DeathReason = GameOverReason.BitTail;
+            _gameState.CurrentGameData.DeathReason = LegacyGameOverReason.BitTail;
             return GameStatus.Ended;
         }
 
@@ -437,7 +437,7 @@ public class LegacyGameService : IGameService
             }
             catch
             {
-                _gameState.CurrentGameData.DeathReason = GameOverReason.Victory;
+                _gameState.CurrentGameData.DeathReason = LegacyGameOverReason.Victory;
                 return GameStatus.Ended;
             }
         }

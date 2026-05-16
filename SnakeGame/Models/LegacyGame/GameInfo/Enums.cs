@@ -20,14 +20,14 @@
             Ended
         }
 
-        public enum Difficulty
+        public enum LegacyDifficulty
         {
             Easy,
             Medium,
             Hard
         }
 
-        public enum GameOverReason
+        public enum LegacyGameOverReason
         {
             Wall,
             BitTail,

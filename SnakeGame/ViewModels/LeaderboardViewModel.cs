@@ -1,45 +1,100 @@
-﻿// ViewModels/LeaderboardViewModel.cs
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using static SnakeGame.Models.LegacyGame.GameInfo.GameState;
-using SnakeGame.Services;
+using SnakeGame.Abstractions;
 using SnakeGame.Models.LegacyGame.GameInfo;
+using SnakeGame.Services.LegacyGame;
+using SnakeGame.SnekEngine.Abstractions.Models;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
-namespace SnakeGame;
+namespace SnakeGame.ViewModels;
 
 public partial class LeaderboardViewModel : ObservableObject
 {
+    private IRecordsService _legacy;
+    private ISnakeRecordsService _records;
+
     [ObservableProperty]
-    private bool _isRefreshing = false; // Флаг для графики крутилки обновления списка
+    private bool _isRefreshingLegacy;   // Флаг крутилки обновления легаси рекордов
 
-    private IRecordsService _recordsService;
+    [ObservableProperty]
+    private bool _isRefreshingNew;      // Флаг крутилки для рекордов основной игры
 
-    public ObservableCollection<PlayData> Records => _recordsService.GetRecords();
+    [ObservableProperty]
+    private bool _hasLegacyRecords;     // Флаг наличия рекордов легаси версии
 
-    public LeaderboardViewModel(IRecordsService recordsService)
+    [ObservableProperty]
+    private ObservableCollection<PlayInfo> _newRecords = new();
+    public ObservableCollection<PlayData> LegacyRecords => _legacy.GetRecords();
+
+    [ObservableProperty] 
+    private bool isNewTabSelected = true;      // Выбран таб рекордов основной игры (по умолчанию)
+
+    [ObservableProperty] 
+    private bool isLegacyTabSelected = false;  // Выбран таб легаси рекордов (если вообще есть)
+
+    public LeaderboardViewModel(IRecordsService legacy, ISnakeRecordsService records)
     {
-        _recordsService = recordsService;
-        _recordsService.LoadFromFile();
+        _legacy = legacy;
+        _records = records;
+        _legacy.LoadFromFile();
+
+        LoadAll();
+    }
+
+    private async void LoadAll()
+    {
+        await LoadLegacyRecords();
+        await LoadNewRecords();
     }
 
     [RelayCommand]
-    public async Task LoadRecords() // Если свайпнули, обновляем список
+    public async Task LoadLegacyRecords() // Если свайпнули, обновляем список
     {
         try
         {
-            IsRefreshing = true;
+            IsRefreshingLegacy = true;
 
-            await _recordsService.LoadFromFile();
+            await _legacy.LoadFromFile();
+            HasLegacyRecords = LegacyRecords.Count > 0;
         }
         finally
         {
-            IsRefreshing = false;
+            IsRefreshingLegacy = false;
         }
+    }
+
+    [RelayCommand]
+    public async Task LoadNewRecords()
+    {
+        try
+        {
+            IsRefreshingNew = true;
+
+            var list = await _records.GetRecordsAsync();
+            NewRecords.Clear();
+            foreach (var item in list)
+                NewRecords.Add(item);
+        }
+        finally
+        {
+            IsRefreshingNew = false;
+        }
+    }
+
+    [RelayCommand]
+    private void SelectNewTab()
+    {
+        IsNewTabSelected = true;
+        IsLegacyTabSelected = false;
+    }
+
+    [RelayCommand]
+    private void SelectLegacyTab()
+    {
+        IsNewTabSelected = false;
+        IsLegacyTabSelected = true;
     }
 
     [RelayCommand]
@@ -51,14 +106,14 @@ public partial class LeaderboardViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveRecords()
     {
-        await _recordsService.SaveToFileAsync();
+        await _legacy.SaveToFileAsync();
+        await _records.SaveRecordsToFileAsync();
     }
 
     [RelayCommand]
-    private void ItemTapped(PlayData record)
+    private void ItemTapped(PlayInfo record) 
     {
         // Обработка нажатия на будущее
         return;
-        //System.Diagnostics.Debug.WriteLine($"Tapped: {record.PlayerName}");
     }
 }
