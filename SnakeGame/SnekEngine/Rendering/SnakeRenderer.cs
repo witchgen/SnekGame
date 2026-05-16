@@ -1,10 +1,6 @@
-﻿using ExCSS;
-using SkiaSharp;
+﻿using SkiaSharp;
 using SnakeGame.SnekEngine.Abstractions.Models;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace SnakeGame.SnekEngine.Rendering
 {
@@ -175,44 +171,6 @@ namespace SnakeGame.SnekEngine.Rendering
             return result;
         }
 
-
-        //public void DrawSnake(SKCanvas canvas, Snake prev, Snake curr,
-        //              Snake.SnakeSegment prevHead,
-        //              Snake.SnakeSegment nextHead,
-        //              float t)
-        //{
-        //    // 1. Мировые точки тела
-        //    var pts = new List<SKPoint>();
-
-        //    // голова — интерполированная
-        //    var headPrev = CellCenter(prevHead.i, prevHead.j);
-        //    var headNext = CellCenter(nextHead.i, nextHead.j);
-        //    pts.Add(Lerp(headPrev, headNext, t));
-
-        //    // остальные сегменты — центры клеток
-        //    bool skipHead = true;
-        //    foreach (var seg in curr.Body)
-        //    {
-        //        if (skipHead) { skipHead = false; continue; }
-        //        pts.Add(CellCenter(seg.i, seg.j));
-        //    }
-
-        //    // 2. Обрезаем хвост
-        //    //float targetLength = (curr.Body.Count - 1) * _cellSize;
-        //    //pts = TrimTail(pts, targetLength);
-
-        //    float prevLen = (prev.Body.Count - 1) * _cellSize;
-        //    float currLen = (curr.Body.Count - 1) * _cellSize;
-        //    float targetLength = prevLen + (currLen - prevLen) * t;
-
-        //    // хвост — по пути
-        //    pts = TrimTail(pts, prevLen);
-
-        //    // 3. Рисуем трубку
-        //    DrawTube(canvas, pts);
-
-        //}
-
         private void DrawTube(SKCanvas canvas, List<SKPoint> pts)
         {
             if (pts.Count < 2) return;
@@ -235,57 +193,6 @@ namespace SnakeGame.SnekEngine.Rendering
 
             canvas.DrawPath(path, paint);
         }
-
-        //private List<SKPoint> TrimTail(List<SKPoint> pts, float targetLength)
-        //{
-        //    //float length = 0f;
-        //    //var result = new List<SKPoint>();
-        //    //result.Add(pts[0]);
-
-        //    //for (int k = 1; k < pts.Count; k++)
-        //    //{
-        //    //    var a = pts[k - 1];
-        //    //    var b = pts[k];
-        //    //    float seg = SKPoint.Distance(a, b);
-
-        //    //    if (length + seg >= targetLength)
-        //    //    {
-        //    //        float remain = targetLength - length;
-        //    //        float t = remain / seg;
-        //    //        result.Add(Lerp(a, b, t));
-        //    //        return result;
-        //    //    }
-
-        //    //    result.Add(b);
-        //    //    length += seg;
-        //    //}
-
-        //    //return result;
-
-        //    float length = 0f;
-        //    var result = new List<SKPoint>();
-        //    result.Add(pts[0]);
-
-        //    for (int k = 1; k < pts.Count; k++)
-        //    {
-        //        var a = pts[k - 1];
-        //        var b = pts[k];
-        //        float seg = SKPoint.Distance(a, b);
-
-        //        if (length + seg >= targetLength)
-        //        {
-        //            float remain = targetLength - length;
-        //            float t = remain / seg;
-        //            result.Add(Lerp(a, b, t));
-        //            return result;
-        //        }
-
-        //        result.Add(b);
-        //        length += seg;
-        //    }
-
-        //    return result;
-        //}
 
         private static SKPoint Lerp(SKPoint a, SKPoint b, float t)
             => new SKPoint(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t);

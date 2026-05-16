@@ -303,28 +303,6 @@ namespace SnakeGame.ViewModels
             RequestRedraw?.Invoke();
         }
 
-        //[RelayCommand]
-        //public void ShowSetup()
-        //{
-        //    _loop.Stop();
-        //    Settings.Seed = 0; // Сбрасываем зерно при возврате в настройки
-        //    ScreenState = GameScreenState.Setup;
-        //    RequestRedraw?.Invoke();
-        //}
-
-        //public void Update(float deltaTime)
-        //{
-        //    var endReason = _dispatcher.Round?.CurrentState?.EndReason;
-        //    if(endReason != null && ScreenState == GameScreenState.Playing)
-        //    {
-        //        ScreenState = GameScreenState.GameOver;
-        //        return;
-        //    }
-
-        //    _dispatcher.Update(deltaTime);
-        //    RequestRedraw?.Invoke();
-        //}
-
         public void UpdateCanvasSize(float w, float h)
         {
             _canvasWidth = w;
