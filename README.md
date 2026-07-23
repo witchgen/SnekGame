@@ -1,8 +1,8 @@
 ## SNEK
 
-<img width="300" height="650" alt="1000036331" src="https://github.com/user-attachments/assets/20f4fe29-02fe-41d0-bc87-868cdf747451" />
-<img width="300" height="650" alt="1000036330" src="https://github.com/user-attachments/assets/98a7d03d-844b-44b0-82ee-b5627da869ff" />
-<img width="300" height="650" alt="1000037189" src="https://github.com/user-attachments/assets/7709dffa-e922-4aee-90a0-d6cf32275c2a" />
+<img width="250" height="550" alt="1000036331" src="https://github.com/user-attachments/assets/20f4fe29-02fe-41d0-bc87-868cdf747451" />
+<img width="250" height="550" alt="1000036330" src="https://github.com/user-attachments/assets/98a7d03d-844b-44b0-82ee-b5627da869ff" />
+<img width="250" height="550" alt="1000037189" src="https://github.com/user-attachments/assets/7709dffa-e922-4aee-90a0-d6cf32275c2a" />
 
 
 Android-приложение, разработанное в рамках изучения возможностей фреймфорка **MAUI**.
